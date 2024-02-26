@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.merqury.aspu.ui.navfragments.NewsScreen
+import com.merqury.aspu.ui.navfragments.news.NewsScreen
 import com.merqury.aspu.ui.navfragments.OtherScreen
 import com.merqury.aspu.ui.navfragments.SettingsScreen
 import com.merqury.aspu.ui.navfragments.TimetableScreen
