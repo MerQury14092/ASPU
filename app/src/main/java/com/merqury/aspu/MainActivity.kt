@@ -1,19 +1,18 @@
 package com.merqury.aspu
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.android.volley.RequestQueue
+import com.android.volley.toolbox.Volley
 import com.merqury.aspu.ui.MainScreen
 
-@SuppressLint("StaticFieldLeak")
-var mainContext: Context? = null
+var requestQueue: RequestQueue? = null
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mainContext = this
+        requestQueue = Volley.newRequestQueue(this)
         setContent {
             MainScreen()
         }

@@ -4,9 +4,8 @@ import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
 import com.merqury.aspu.enums.NewsCategoryEnum
-import com.merqury.aspu.mainContext
+import com.merqury.aspu.requestQueue
 import org.json.JSONObject
 
 fun getNews(
@@ -18,10 +17,9 @@ fun getNews(
 ) {
     newsLoaded.value = false
     var url = "https://agpu.merqury.fun/api/news"
-    if (faculty.name.lowercase() != "general")
-        url = "$url/${faculty.name.lowercase()}"
+    if (faculty != NewsCategoryEnum.agpu)
+        url = "$url/${faculty.name}"
     url = "$url?page=$pageNumber"
-    val queue = Volley.newRequestQueue(mainContext)
     val request = StringRequest(
         Request.Method.GET,
         url,
@@ -33,13 +31,26 @@ fun getNews(
         },
         {}
     )
-    queue.add(request)
+    requestQueue!!.add(request)
 }
 
 fun getNewsArticle(
     faculty: NewsCategoryEnum,
     id: Int,
-    articleResponse: MutableState<JSONObject>
+    articleResponse: MutableState<JSONObject>,
+    articleLoaded: MutableState<Boolean>
 ) {
-
+    articleLoaded.value = false
+    val url = "https://agpu.merqury.fun/api/news/${faculty.name.lowercase()}/$id"
+    val request = StringRequest(
+        Request.Method.GET,
+        url,
+        { response ->
+            val convertedResponse = EncodingConverter.translateISO8859_1toUTF_8(response)
+            articleResponse.value = JSONObject(convertedResponse)
+            articleLoaded.value = true
+        },
+        {}
+    )
+    requestQueue!!.add(request)
 }

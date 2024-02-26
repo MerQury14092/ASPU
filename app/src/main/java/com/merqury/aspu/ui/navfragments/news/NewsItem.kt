@@ -1,5 +1,6 @@
 package com.merqury.aspu.ui.navfragments.news
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,23 +15,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.merqury.aspu.R
 
-@Preview(showBackground = true)
 @Composable
-fun NewsItemPreview() {
-    NewsItem(
-        title = "НОВОСТЬ 1",
-        date = "19.02.6666",
-        imageUrl = ""
-    )
-}
-@Composable
-fun NewsItem(title: String, date: String, imageUrl: String) {
+fun NewsItem(title: String, date: String, imageUrl: String, id: Int) {
     Card(
         shape = RoundedCornerShape(15.dp),
         modifier = Modifier
@@ -40,6 +31,10 @@ fun NewsItem(title: String, date: String, imageUrl: String) {
                 spotColor = Color.Black,
                 shape = RoundedCornerShape(15.dp)
             )
+            .clickable {
+                clickedArticleId.intValue = id
+                showArticleView.value = true
+            }
     ) {
         Column(Modifier.fillMaxWidth()) {
             AsyncImage(
@@ -56,7 +51,7 @@ fun NewsItem(title: String, date: String, imageUrl: String) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        top = 25.dp
+                        bottom = 25.dp
                     ),
                 textAlign = TextAlign.Center,
                 fontSize = 20.sp,

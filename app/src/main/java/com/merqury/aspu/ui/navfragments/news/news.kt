@@ -4,14 +4,17 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.merqury.aspu.R
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.services.getNews
@@ -21,24 +24,18 @@ import org.json.JSONObject
 var newsLoaded = mutableStateOf(false)
 val currentPage = mutableIntStateOf(1)
 val countPages = mutableIntStateOf(1)
+val showArticleView = mutableStateOf(false)
+val clickedArticleId = mutableIntStateOf(0)
+val selectedFaculty = mutableStateOf(NewsCategoryEnum.agpu)
+val newsResponseState = mutableStateOf(JSONObject())
 
-@SuppressLint("UnrememberedMutableState")
-@Preview(showBackground = true)
-@Composable
-fun HeaderPreview() {
-    Box(Modifier.fillMaxSize()) {
-        Header(mutableIntStateOf(1), 103, mutableStateOf(NewsCategoryEnum.IPIMiF))
-    }
-}
+
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun NewsScreen() {
-    val newsResponseState = mutableStateOf(JSONObject())
-    val selectedFaculty = remember {
-        mutableStateOf(NewsCategoryEnum.IRiIF)
-    }
-    getNews(selectedFaculty.value, currentPage.intValue, newsResponseState, countPages, newsLoaded)
+    if (showArticleView.value)
+        ArticleView()
     NewsContent(newsResponseState, selectedFaculty)
 }
 
@@ -48,9 +45,22 @@ fun NewsContent(
     selectedFaculty: MutableState<NewsCategoryEnum>
 ) {
     if (!newsLoaded.value) {
+        getNews(
+            selectedFaculty.value,
+            currentPage.intValue,
+            newsResponseState,
+            countPages,
+            newsLoaded
+        )
         Column(modifier = Modifier.fillMaxSize()) {
             Header(currentPage, countPages.intValue, selectedFaculty)
-            GifImage(modifier = Modifier.fillMaxSize(), R.drawable.loading)
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                GifImage(
+                    modifier = Modifier.size(50.dp),
+                    gifResourceId = R.drawable.loading,
+                    contentScale = ContentScale.Fit
+                )
+            }
         }
     } else {
         Column {
@@ -61,7 +71,8 @@ fun NewsContent(
                     NewsItem(
                         title = article.getString("title"),
                         date = article.getString("date"),
-                        imageUrl = article.getString("previewImage")
+                        imageUrl = article.getString("previewImage"),
+                        id = article.getInt("id")
                     )
                 }
             }
@@ -69,3 +80,6 @@ fun NewsContent(
     }
 }
 
+fun reloadNews() {
+    newsLoaded.value = false
+}
