@@ -1,6 +1,7 @@
 package com.merqury.aspu.ui
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -16,10 +17,12 @@ import com.merqury.aspu.ui.bottom_navigation.NavGraph
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview(){
-    MainScreen()
+    Box(modifier = Modifier.fillMaxSize()){
+        MainScreen()
+    }
 }
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "RememberReturnType")
 @Composable
 fun MainScreen(){
     val navController = rememberNavController()
