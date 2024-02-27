@@ -9,7 +9,9 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,19 +23,31 @@ val selectedOwner = mutableStateOf("GROUP")
 val selectedDate = mutableStateOf("27.02.2024")
 val timetableLoaded = mutableStateOf(false)
 val timetableDay = mutableStateOf(JSONObject())
-val refreshing = mutableStateOf(false)
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TimetableScreen() {
+    val selectIdModalWindowVisibility = remember {
+        mutableStateOf(false)
+    }
+    if(selectIdModalWindowVisibility.value)
+        SelectIdModalWindow(selectIdModalWindowVisibility = selectIdModalWindowVisibility)
+    TimetableScreenContent(selectIdModalWindowVisibility)
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun TimetableScreenContent(selectIdModalWindowVisibility: MutableState<Boolean>){
     Column {
-        TimetableHeader()
+        TimetableHeader(selectIdModalWindowVisibility)
         val pullRefreshState = rememberPullRefreshState(
             refreshing = !timetableLoaded.value,
             onRefresh = {
                 timetableLoaded.value = false
             })
-        Box (modifier = Modifier.pullRefresh(pullRefreshState).fillMaxWidth()) {
+        Box (modifier = Modifier
+            .pullRefresh(pullRefreshState)
+            .fillMaxWidth()) {
             if (!timetableLoaded.value) {
                 getTimetableByDate(
                     selectedId.value,
