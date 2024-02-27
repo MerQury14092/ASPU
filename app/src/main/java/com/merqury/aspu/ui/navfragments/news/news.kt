@@ -13,7 +13,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.R
 import com.merqury.aspu.enums.NewsCategoryEnum
@@ -53,7 +52,7 @@ fun NewsContent(
             newsLoaded
         )
         Column(modifier = Modifier.fillMaxSize()) {
-            Header(currentPage, countPages.intValue, selectedFaculty)
+            NewsHeader(currentPage, countPages.intValue, selectedFaculty)
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 GifImage(
                     modifier = Modifier.size(50.dp),
@@ -64,7 +63,7 @@ fun NewsContent(
         }
     } else {
         Column {
-            Header(currentPage, data.value.getInt("countPages"), selectedFaculty)
+            NewsHeader(currentPage, data.value.getInt("countPages"), selectedFaculty)
             LazyColumn {
                 items(count = data.value.getJSONArray("articles").length()) {
                     val article = data.value.getJSONArray("articles").getJSONObject(it)

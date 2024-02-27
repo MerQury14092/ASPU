@@ -34,14 +34,14 @@ import com.merqury.aspu.enums.NewsCategoryEnum
 @SuppressLint("UnrememberedMutableState")
 @Preview(showBackground = true)
 @Composable
-fun HeaderPreview() {
+fun NewsHeaderPreview() {
     Box(Modifier.fillMaxSize()) {
-        Header(mutableIntStateOf(1), 103, mutableStateOf(NewsCategoryEnum.ipimif))
+        NewsHeader(mutableIntStateOf(1), 103, mutableStateOf(NewsCategoryEnum.ipimif))
     }
 }
 
 @Composable
-fun Header(
+fun NewsHeader(
     currentPage: MutableIntState,
     countPages: Int,
     selectedFaculty: MutableState<NewsCategoryEnum>
