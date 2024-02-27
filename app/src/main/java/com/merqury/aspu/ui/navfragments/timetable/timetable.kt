@@ -16,11 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.merqury.aspu.services.getTimetableByDate
+import com.merqury.aspu.services.getTodayDate
 import org.json.JSONObject
 
 val selectedId = mutableStateOf("ВМ-ИВТ-2-1")
 val selectedOwner = mutableStateOf("GROUP")
-val selectedDate = mutableStateOf("27.02.2024")
+val selectedDate = mutableStateOf(getTodayDate())
 val timetableLoaded = mutableStateOf(false)
 val timetableDay = mutableStateOf(JSONObject())
 
