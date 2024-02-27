@@ -101,11 +101,12 @@ fun NewsHeader(
                                 pageSelectDialogVisible.value = true
                         }
                 ) {
-                    Column {
-                        Box(modifier = Modifier.fillMaxHeight(.35f))
+                    Column (
+                        modifier = Modifier.fillMaxHeight(),
+                        verticalArrangement = Arrangement.SpaceAround
+                    ) {
                         Text(
                             text = "${currentPage.intValue} из $countPages",
-                            modifier = Modifier.fillMaxSize(),
                             textAlign = TextAlign.Center
                         )
                     }
