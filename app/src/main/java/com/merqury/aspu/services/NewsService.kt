@@ -41,7 +41,7 @@ fun getNewsArticle(
     articleLoaded: MutableState<Boolean>
 ) {
     articleLoaded.value = false
-    val url = "https://agpu.merqury.fun/api/news/${faculty.name.lowercase()}/$id"
+    val url = "https://agpu.merqury.fun/api/news/${faculty.name}/$id"
     val request = StringRequest(
         Request.Method.GET,
         url,
