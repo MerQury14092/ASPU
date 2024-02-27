@@ -4,20 +4,20 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.dp
-import com.merqury.aspu.R
+import androidx.compose.ui.graphics.Color
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.services.getNews
-import com.merqury.aspu.ui.GifImage
 import org.json.JSONObject
 
 var newsLoaded = mutableStateOf(false)
@@ -29,7 +29,6 @@ val selectedFaculty = mutableStateOf(NewsCategoryEnum.agpu)
 val newsResponseState = mutableStateOf(JSONObject())
 
 
-
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun NewsScreen() {
@@ -38,43 +37,53 @@ fun NewsScreen() {
     NewsContent(newsResponseState, selectedFaculty)
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun NewsContent(
     data: MutableState<JSONObject>,
     selectedFaculty: MutableState<NewsCategoryEnum>
 ) {
-    if (!newsLoaded.value) {
-        getNews(
-            selectedFaculty.value,
-            currentPage.intValue,
-            newsResponseState,
-            countPages,
-            newsLoaded
-        )
-        Column(modifier = Modifier.fillMaxSize()) {
-            NewsHeader(currentPage, countPages.intValue, selectedFaculty)
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                GifImage(
-                    modifier = Modifier.size(50.dp),
-                    gifResourceId = R.drawable.loading,
-                    contentScale = ContentScale.Fit
-                )
-            }
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = !newsLoaded.value,
+        onRefresh = {
+            newsLoaded.value=false
         }
-    } else {
-        Column {
-            NewsHeader(currentPage, data.value.getInt("countPages"), selectedFaculty)
-            LazyColumn {
-                items(count = data.value.getJSONArray("articles").length()) {
-                    val article = data.value.getJSONArray("articles").getJSONObject(it)
-                    NewsItem(
-                        title = article.getString("title"),
-                        date = article.getString("date"),
-                        imageUrl = article.getString("previewImage"),
-                        id = article.getInt("id")
-                    )
+    )
+    Column(modifier = Modifier.fillMaxSize()) {
+        NewsHeader(currentPage, countPages.intValue, selectedFaculty)
+        if (!newsLoaded.value) {
+            getNews(
+                selectedFaculty.value,
+                currentPage.intValue,
+                newsResponseState,
+                countPages,
+                newsLoaded
+            )
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .pullRefresh(pullRefreshState)
+        ){
+            if(newsLoaded.value){
+                LazyColumn {
+                    items(count = data.value.getJSONArray("articles").length()) {
+                        val article = data.value.getJSONArray("articles").getJSONObject(it)
+                        NewsItem(
+                            title = article.getString("title"),
+                            date = article.getString("date"),
+                            imageUrl = article.getString("previewImage"),
+                            id = article.getInt("id")
+                        )
+                    }
                 }
             }
+            PullRefreshIndicator(
+                refreshing = !newsLoaded.value,
+                state = pullRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter),
+                backgroundColor = Color.White
+            )
         }
     }
 }
