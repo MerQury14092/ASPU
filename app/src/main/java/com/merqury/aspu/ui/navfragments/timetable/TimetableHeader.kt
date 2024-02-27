@@ -1,6 +1,7 @@
 package com.merqury.aspu.ui.navfragments.timetable
 
 import android.annotation.SuppressLint
+import android.app.DatePickerDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,6 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import com.merqury.aspu.context
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @SuppressLint("UnrememberedMutableState")
 @Preview(showBackground = true)
@@ -24,7 +28,6 @@ fun TimetableHeaderPreview() {
         TimetableHeader()
     }
 }
-
 @Composable
 fun TimetableHeader() {
     Box(
@@ -39,10 +42,39 @@ fun TimetableHeader() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Button(onClick = {
-                timetableLoaded.value = false
+                val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+                val date = LocalDate.parse(selectedDate.value, formatter)
+                DatePickerDialog(
+                    context!!,
+                    { _, year, month, day ->
+                        changeDate(day, month, year)
+                        timetableLoaded.value = false
+                    },
+                    date.year,
+                    date.monthValue-1,
+                    date.dayOfMonth
+                ).show()
             }) {
-                Text(text = "Обновить")
+                Text(selectedDate.value)
             }
         }
     }
+}
+
+fun changeDate(
+    day: Int,
+    month: Int,
+    year: Int
+){
+    var newDate = ""
+    newDate += if(day < 10)
+        "0$day."
+    else
+        "$day."
+    newDate += if(month+1 < 10)
+        "0${month+1}."
+    else
+        "${month+1}."
+    newDate += year.toString()
+    selectedDate.value = newDate
 }
