@@ -44,6 +44,7 @@ fun FacultySelectModalWindow(
                         selectedFaculty.value = entry
                         currentPage.intValue = 1
                         reloadNews()
+                        facultySelectDialogVisible.value = false
                     }
             ) {
                 Row (
@@ -98,6 +99,7 @@ fun PageSelectModalWindow(
                             currentPage.intValue = it + 1
                             pageSelectDialogVisible.value = false
                             reloadNews()
+                            pageSelectDialogVisible.value = false
                         }
                 ) {
                     Text(
