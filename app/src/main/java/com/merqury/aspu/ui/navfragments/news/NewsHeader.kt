@@ -19,7 +19,6 @@ import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,24 +45,6 @@ fun NewsHeader(
     countPages: Int,
     selectedFaculty: MutableState<NewsCategoryEnum>
 ) {
-    val facultySelectDialogVisible = remember {
-        mutableStateOf(false)
-    }
-    val pageSelectDialogVisible = remember {
-        mutableStateOf(false)
-    }
-    if (facultySelectDialogVisible.value) {
-        FacultySelectModalWindow(
-            facultySelectDialogVisible = facultySelectDialogVisible,
-        ){
-            selectedFaculty.value = it
-        }
-    }
-    if (pageSelectDialogVisible.value) {
-        PageSelectModalWindow(
-            pageSelectDialogVisible = pageSelectDialogVisible
-        )
-    }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -87,7 +68,9 @@ fun NewsHeader(
                         .size(60.dp)
                         .clickable {
                             if (newsLoaded.value)
-                                facultySelectDialogVisible.value = true
+                                showFacultySelectModalWindow{
+                                    selectedFaculty.value = it
+                                }
                         },
                     contentScale = ContentScale.Fit,
                 )
@@ -99,7 +82,7 @@ fun NewsHeader(
                         .fillMaxWidth(0.3f)
                         .clickable {
                             if (newsLoaded.value)
-                                pageSelectDialogVisible.value = true
+                                showPageSelectModalWindow()
                         }
                 ) {
                     Column (

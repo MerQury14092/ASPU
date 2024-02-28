@@ -11,9 +11,7 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,19 +32,14 @@ val timetableDay = mutableStateOf(JSONObject())
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TimetableScreen() {
-    val selectIdModalWindowVisibility = remember {
-        mutableStateOf(false)
-    }
-    if (selectIdModalWindowVisibility.value)
-        SelectIdModalWindow(selectIdModalWindowVisibility = selectIdModalWindowVisibility)
-    TimetableScreenContent(selectIdModalWindowVisibility)
+    TimetableScreenContent()
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun TimetableScreenContent(selectIdModalWindowVisibility: MutableState<Boolean>) {
+fun TimetableScreenContent() {
     Column {
-        TimetableHeader(selectIdModalWindowVisibility)
+        TimetableHeader()
         val pullRefreshState = rememberPullRefreshState(
             refreshing = !timetableLoaded.value,
             onRefresh = {

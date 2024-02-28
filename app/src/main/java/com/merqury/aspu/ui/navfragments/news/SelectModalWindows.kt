@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -21,19 +19,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.merqury.aspu.enums.NewsCategoryEnum
-import com.merqury.aspu.ui.ModalWindow
+import com.merqury.aspu.ui.showSimpleModalWindow
 
 
-@Composable
-fun FacultySelectModalWindow(
-    facultySelectDialogVisible: MutableState<Boolean>,
+fun showFacultySelectModalWindow(
     onSelectFaculty: (selectedFaculty: NewsCategoryEnum) -> Unit
 ) {
-    ModalWindow(
+    showSimpleModalWindow (
         Modifier.fillMaxWidth(.8f),
-        onDismiss = {
-            facultySelectDialogVisible.value = false
-        }
     ) {
         NewsCategoryEnum.entries.forEach { entry ->
             Box(
@@ -44,7 +37,7 @@ fun FacultySelectModalWindow(
                         onSelectFaculty(entry)
                         currentPage.intValue = 1
                         reloadNews()
-                        facultySelectDialogVisible.value = false
+                        it.value = false
                     }
             ) {
                 Row (
@@ -79,16 +72,11 @@ fun FacultySelectModalWindow(
     }
 }
 
-@Composable
-fun PageSelectModalWindow(
-    pageSelectDialogVisible: MutableState<Boolean>
-) {
-    ModalWindow(
+fun showPageSelectModalWindow() {
+    showSimpleModalWindow(
         Modifier.fillMaxWidth(.8f),
-        onDismiss = {
-            pageSelectDialogVisible.value = false
-        }
     ) {
+        val pageSelectDialogVisible = it
         LazyColumn() {
             items(count = countPages.intValue) {
                 Box(
@@ -99,7 +87,6 @@ fun PageSelectModalWindow(
                             currentPage.intValue = it + 1
                             pageSelectDialogVisible.value = false
                             reloadNews()
-                            pageSelectDialogVisible.value = false
                         }
                 ) {
                     Text(

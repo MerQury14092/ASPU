@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,11 +25,11 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun TimetableHeaderPreview() {
     Box(Modifier.fillMaxSize()) {
-        TimetableHeader(mutableStateOf(false))
+        TimetableHeader()
     }
 }
 @Composable
-fun TimetableHeader(selectIdModalWindowVisibility: MutableState<Boolean>) {
+fun TimetableHeader() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -60,7 +58,11 @@ fun TimetableHeader(selectIdModalWindowVisibility: MutableState<Boolean>) {
                 Text(selectedDate.value)
             }
             Button(onClick = {
-                selectIdModalWindowVisibility.value = true
+                showSelectIdModalWindow {
+                    selectedId.value = it.name
+                    selectedOwner.value = it.owner.uppercase()
+                    timetableLoaded.value = false
+                }
             }) {
                 Text(text = selectedId.value)
             }

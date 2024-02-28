@@ -18,9 +18,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.context
 import com.merqury.aspu.enums.NewsCategoryEnum
-import com.merqury.aspu.ui.ModalWindow
-import com.merqury.aspu.ui.navfragments.news.FacultySelectModalWindow
-import com.merqury.aspu.ui.navfragments.timetable.SelectIdModalWindowContent
+import com.merqury.aspu.ui.navfragments.news.showFacultySelectModalWindow
+import com.merqury.aspu.ui.navfragments.timetable.showSelectIdModalWindow
 import com.merqury.aspu.ui.showSimpleModalWindow
 
 val settingsPreferences = context?.getSharedPreferences("settings", Context.MODE_PRIVATE)!!
@@ -39,7 +38,6 @@ fun reloadSettingsScreen() {
 
 @Composable
 fun SettingsScreen() {
-    ModalWindows()
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -124,7 +122,10 @@ fun SettingsScreen() {
         Text("Новости и расписание")
         SettingsButton(
             onClick = {
-                selectNewsCategory.value = true
+                showFacultySelectModalWindow {
+                    settingsPreferences.edit().putString("news_category", it.name).apply()
+                    reloadSettingsScreen()
+                }
             }
         ) {
             settingsUpdate.value
@@ -138,7 +139,18 @@ fun SettingsScreen() {
         }
         SettingsButton(
             onClick = {
-
+                showSelectIdModalWindow(
+                    filteredBy = when (settingsPreferences.getString("user", "student")) {
+                        "student" -> "group"
+                        "teacher" -> "teacher"
+                        else -> "group"
+                    }
+                ) {
+                    settingsPreferences.edit().putString("timetable_id", it.name).apply()
+                    settingsPreferences.edit().putString("timetable_id_owner", it.owner.uppercase())
+                        .apply()
+                    reloadSettingsScreen()
+                }
             }
         ) {
             settingsUpdate.value
@@ -168,35 +180,4 @@ fun SettingsButton(onClick: () -> Unit, content: @Composable () -> Unit) {
             content()
         }
     }
-}
-
-private val selectIdModalWindowVisibility_settings = mutableStateOf(false)
-private val selectNewsCategory = mutableStateOf(false)
-
-@Composable
-fun ModalWindows() {
-    if (selectIdModalWindowVisibility_settings.value)
-        ModalWindow {
-            SelectIdModalWindowContent(
-                selectIdModalWindowVisibility = selectIdModalWindowVisibility_settings,
-                filteredBy = when (settingsPreferences.getString("user", "student")) {
-                    "student" -> "group"
-                    "teacher" -> "teacher"
-                    else -> "group"
-                }
-            ) {
-                settingsPreferences.edit().putString("timetable_id", it.name).apply()
-                settingsPreferences.edit().putString("timetable_id_owner", it.owner.uppercase())
-                    .apply()
-                reloadSettingsScreen()
-            }
-        }
-    if (selectNewsCategory.value)
-        FacultySelectModalWindow(
-            facultySelectDialogVisible = selectNewsCategory,
-            onSelectFaculty = {
-                settingsPreferences.edit().putString("news_category", it.name).apply()
-                reloadSettingsScreen()
-            }
-        )
 }
