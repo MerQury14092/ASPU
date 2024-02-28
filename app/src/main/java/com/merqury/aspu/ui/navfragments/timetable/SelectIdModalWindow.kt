@@ -80,7 +80,15 @@ private fun SelectIdModalWindowContent(
                 queryString.value = queryChange
                 getSearchResults(queryString.value, searchResults)
             },
-            onSearch = {},
+            onSearch = {
+                       if(searchResults.value.size > 0) {
+                           selectedId.value = searchResults.value[0].name
+                           selectedOwner.value = searchResults.value[0].owner
+                           timetableLoaded.value = false
+                           timetableLoaded.value = false
+                       }
+                selectIdModalWindowVisibility.value = false
+            },
             active = true,
             onActiveChange = {
                              if(!it)
@@ -114,7 +122,9 @@ private fun SelectIdModalWindowContent(
                         Column {
                             Text(
                                 text = searchResults.value[it].name,
-                                modifier = Modifier.fillMaxWidth().height(50.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(50.dp),
                                 textAlign = TextAlign.Center
                             )
                             Divider()

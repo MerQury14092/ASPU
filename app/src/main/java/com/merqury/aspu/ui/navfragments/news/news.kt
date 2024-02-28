@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.services.getNews
+import com.merqury.aspu.ui.SwipeableBox
 import org.json.JSONObject
 
 var newsLoaded = mutableStateOf(false)
@@ -66,15 +67,28 @@ fun NewsContent(
                 .pullRefresh(pullRefreshState)
         ){
             if(newsLoaded.value){
-                LazyColumn {
-                    items(count = data.value.getJSONArray("articles").length()) {
-                        val article = data.value.getJSONArray("articles").getJSONObject(it)
-                        NewsItem(
-                            title = article.getString("title"),
-                            date = article.getString("date"),
-                            imageUrl = article.getString("previewImage"),
-                            id = article.getInt("id")
-                        )
+                SwipeableBox(
+                    onSwipeRight = {
+                        currentPage.intValue++
+                        reloadNews()
+                    },
+                    onSwipeLeft = {
+                        currentPage.intValue--
+                        reloadNews()
+                    },
+                    swipeableRight = currentPage.intValue < countPages.intValue,
+                    swipeableLeft = currentPage.intValue > 1
+                ) {
+                    LazyColumn {
+                        items(count = data.value.getJSONArray("articles").length()) {
+                            val article = data.value.getJSONArray("articles").getJSONObject(it)
+                            NewsItem(
+                                title = article.getString("title"),
+                                date = article.getString("date"),
+                                imageUrl = article.getString("previewImage"),
+                                id = article.getInt("id")
+                            )
+                        }
                     }
                 }
             }
