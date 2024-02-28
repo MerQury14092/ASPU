@@ -1,20 +1,29 @@
 package com.merqury.aspu.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.ImageLoader
@@ -23,6 +32,7 @@ import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import coil.size.Size
 import com.merqury.aspu.show
+import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 
 @Composable
 fun GifImage(
@@ -65,23 +75,37 @@ fun ModalWindow(
     }
 }
 
-
 fun showSimpleModalWindow(
     modifier: Modifier = Modifier,
     content: @Composable (showed: MutableState<Boolean>) -> Unit
+){
+    showSimpleUpdatableModalWindow { showed, update, forUpdate ->
+        content(showed)
+    }
+}
+fun showSimpleUpdatableModalWindow(
+    modifier: Modifier = Modifier,
+    content: @Composable (showed: MutableState<Boolean>, update: () -> Unit, forUpdate: MutableState<Boolean>) -> Unit
 ) {
     show {
+        val forUpdate = remember {
+            mutableStateOf(false)
+        }
+        val update = {
+            forUpdate.value = !forUpdate.value
+        }
         val showed = remember {
             mutableStateOf(true)
         }
-        if(showed.value)
+        if (showed.value)
             Dialog(
                 properties = DialogProperties(usePlatformDefaultWidth = false),
                 onDismissRequest = {
                     showed.value = false
                 }) {
                 Card(modifier = modifier) {
-                    content(showed)
+                    forUpdate.value
+                    content(showed, update, forUpdate)
                 }
             }
     }
@@ -128,7 +152,7 @@ fun SwipeableBox(
 
         }
     ) {
-        Box(modifier = modifier){
+        Box(modifier = modifier) {
             Box(
                 modifier = Modifier.offset(x = (summaryOffset.floatValue / 4).dp)
             ) {
@@ -137,4 +161,35 @@ fun SwipeableBox(
         }
     }
 
+}
+
+fun showSelectListDialog(
+    buttons: Map<String, () -> Unit>
+) {
+    showSimpleModalWindow {
+        Box(
+            modifier = Modifier
+                .padding(10.dp)
+                .fillMaxWidth(.5f)
+        ) {
+            val modalWindowVisibility = it
+            Column {
+                buttons.entries.forEach {
+                    Divider()
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(30.dp)
+                            .clickable {
+                                it.value()
+                                modalWindowVisibility.value = false
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = it.key, fontSize = 20.sp)
+                    }
+                }
+            }
+        }
+    }
 }

@@ -7,23 +7,27 @@ import androidx.navigation.compose.composable
 import com.merqury.aspu.ui.navfragments.OtherScreen
 import com.merqury.aspu.ui.navfragments.settings.SettingsScreen
 import com.merqury.aspu.ui.navfragments.news.NewsScreen
+import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.navfragments.timetable.TimetableScreen
 
 @Composable
 fun NavGraph(
     navHostController: NavHostController
 ) {
-    NavHost(navController = navHostController, startDestination = "news"){
-        composable("news"){
+    NavHost(
+        navController = navHostController,
+        startDestination = settingsPreferences.getString("initial_route", "news")!!
+    ) {
+        composable("news") {
             NewsScreen()
         }
-        composable("timetable"){
+        composable("timetable") {
             TimetableScreen()
         }
-        composable("other"){
+        composable("other") {
             OtherScreen()
         }
-        composable("settings"){
+        composable("settings") {
             SettingsScreen()
         }
     }

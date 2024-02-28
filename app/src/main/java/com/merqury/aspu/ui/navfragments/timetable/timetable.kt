@@ -19,6 +19,7 @@ import com.merqury.aspu.services.getTimetableByDate
 import com.merqury.aspu.services.getTodayDate
 import com.merqury.aspu.ui.SwipeableBox
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
+import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -84,16 +85,18 @@ fun TimetableScreenContent() {
                         ) {
                             Text(text = "Пусто")
                         }
-                    else
+                    else {
+                        val disciplines = filter(timetableDay.value)
+
                         LazyColumn {
-                            items(count = timetableDay.value.getJSONArray("disciplines").length()) {
+                            items(count = disciplines.length()) {
                                 TimetableItem(
-                                    discipline = timetableDay.value.getJSONArray("disciplines")
-                                        .get(it) as JSONObject
+                                    discipline = disciplines.get(it) as JSONObject
                                 )
                             }
 
                         }
+                    }
                 }
             }
             PullRefreshIndicator(
@@ -104,4 +107,19 @@ fun TimetableScreenContent() {
             )
         }
     }
+}
+
+fun filter(
+    timetableDay: JSONObject
+): JSONArray {
+    val disciplines = JSONArray()
+    val filterSubgroup = settingsPreferences.getInt("selected_subgroup", 0)
+    (0..<timetableDay.getJSONArray("disciplines").length()).forEach {
+        val currentDiscipline = timetableDay.getJSONArray("disciplines").get(it) as JSONObject
+        if(filterSubgroup != 0 && currentDiscipline.getInt("subgroup") == filterSubgroup)
+            disciplines.put(currentDiscipline)
+        else
+            disciplines.put(currentDiscipline)
+    }
+    return disciplines
 }

@@ -1,6 +1,7 @@
 package com.merqury.aspu.ui.navfragments.settings
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,11 +17,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.merqury.aspu.context
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.ui.navfragments.news.showFacultySelectModalWindow
 import com.merqury.aspu.ui.navfragments.timetable.showSelectIdModalWindow
+import com.merqury.aspu.ui.showSelectListDialog
 import com.merqury.aspu.ui.showSimpleModalWindow
+import com.merqury.aspu.ui.showSimpleUpdatableModalWindow
 
 val settingsPreferences = context?.getSharedPreferences("settings", Context.MODE_PRIVATE)!!
 
@@ -38,6 +42,7 @@ fun reloadSettingsScreen() {
 
 @Composable
 fun SettingsScreen() {
+    val textSize = 16.sp
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -46,65 +51,40 @@ fun SettingsScreen() {
         Text("Общие настройки")
         SettingsButton(
             onClick = {
-                showSimpleModalWindow {
-                    Box(
-                        modifier = Modifier
-                            .padding(10.dp)
-                            .fillMaxWidth(.5f)
-                    ) {
-                        Column {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(30.dp)
-                                    .clickable {
-                                        settingsPreferences
-                                            .edit()
-                                            .putString("user", "student")
-                                            .apply()
-                                        settingsPreferences
-                                            .edit()
-                                            .putString("timetable_id", "ВМ-ИВТ-2-1")
-                                            .apply()
-                                        settingsPreferences
-                                            .edit()
-                                            .putString("timetable_id_owner", "GROUP")
-                                            .apply()
-                                        reloadSettingsScreen()
-                                        it.value = false
-                                    },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(text = "Студент")
-                            }
-                            Divider()
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(30.dp)
-                                    .clickable {
-                                        settingsPreferences
-                                            .edit()
-                                            .putString("user", "teacher")
-                                            .apply()
-                                        settingsPreferences
-                                            .edit()
-                                            .putString("timetable_id", "Лапшин Н.А.,ст.пр. ")
-                                            .apply()
-                                        settingsPreferences
-                                            .edit()
-                                            .putString("timetable_id_owner", "TEACHER")
-                                            .apply()
-                                        reloadSettingsScreen()
-                                        it.value = false
-                                    },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(text = "Преподаватель")
-                            }
+                showSelectListDialog(
+                    mapOf(
+                        "Студент" to {
+                            settingsPreferences
+                                .edit()
+                                .putString("user", "student")
+                                .apply()
+                            settingsPreferences
+                                .edit()
+                                .putString("timetable_id", "ВМ-ИВТ-2-1")
+                                .apply()
+                            settingsPreferences
+                                .edit()
+                                .putString("timetable_id_owner", "GROUP")
+                                .apply()
+                            reloadSettingsScreen()
+                        },
+                        "Преподаватель" to {
+                            settingsPreferences
+                                .edit()
+                                .putString("user", "teacher")
+                                .apply()
+                            settingsPreferences
+                                .edit()
+                                .putString("timetable_id", "Лапшин Н.А.,ст.пр. ")
+                                .apply()
+                            settingsPreferences
+                                .edit()
+                                .putString("timetable_id_owner", "TEACHER")
+                                .apply()
+                            reloadSettingsScreen()
                         }
-                    }
-                }
+                    )
+                )
             }
         ) {
             settingsUpdate.value
@@ -115,7 +95,41 @@ fun SettingsScreen() {
                         "teacher" -> "преподаватель"
                         else -> "group"
                     }
-                }"
+                }", fontSize = textSize
+            )
+        }
+        SettingsButton(onClick = {
+            showSelectListDialog(
+                mapOf(
+                    "Новости" to {
+                        settingsPreferences.edit().putString("initial_route", "news").apply()
+                        reloadSettingsScreen()
+                    },
+                    "Расписание" to {
+                        settingsPreferences.edit().putString("initial_route", "timetable").apply()
+                        reloadSettingsScreen()
+                    },
+                    "Студенту" to {
+                        settingsPreferences.edit().putString("initial_route", "other").apply()
+                        reloadSettingsScreen()
+                    },
+                    "Настройки" to {
+                        settingsPreferences.edit().putString("initial_route", "settings").apply()
+                        reloadSettingsScreen()
+                    }
+                )
+            )
+        }) {
+            settingsUpdate.value
+            Text(
+                text = "Начальная вкладка при входе: ${
+                    when (settingsPreferences.getString("initial_route", "news")) {
+                        "news" -> "новости"
+                        "timetable" -> "расписание"
+                        "other" -> "студенту"
+                        else -> "настройки"
+                    }
+                }", fontSize = textSize
             )
         }
         Divider()
@@ -134,7 +148,7 @@ fun SettingsScreen() {
                     NewsCategoryEnum.valueOf(
                         settingsPreferences.getString("news_category", "agpu")!!
                     ).localizedName
-                }"
+                }", fontSize = textSize
             )
         }
         SettingsButton(
@@ -160,8 +174,47 @@ fun SettingsScreen() {
                         "teacher" -> "Вы"
                         else -> "Выбранная группа"
                     }
-                }: ${settingsPreferences.getString("timetable_id", "ВМ-ИВТ-2-1")}"
+                }: ${settingsPreferences.getString("timetable_id", "ВМ-ИВТ-2-1")}",
+                fontSize = textSize
             )
+        }
+        SettingsButton(onClick = {
+            showSimpleUpdatableModalWindow { _, update, forUpdate ->
+                SettingsButton(onClick = {
+                    showSelectListDialog(
+                        mapOf(
+                            "Нет" to {
+                                settingsPreferences.edit().putInt("selected_subgroup", 0).apply()
+                                update()
+                            },
+                            "1" to {
+                                settingsPreferences.edit().putInt("selected_subgroup", 1).apply()
+                                update()
+                            },
+                            "2" to {
+                                settingsPreferences.edit().putInt("selected_subgroup", 2).apply()
+                                update()
+                            }
+                        )
+                    )
+                }) {
+                    forUpdate.value
+                    val selectedSubgroup = settingsPreferences.getInt(
+                        "selected_subgroup",
+                        0
+                    )
+                    Text(
+                        text = "Выбранная подгруппа: ${
+                            if (selectedSubgroup == 0) 
+                                "нет" 
+                            else 
+                                selectedSubgroup.toString()
+                        }"
+                    )
+                }
+            }
+        }) {
+            Text(text = "Настройки фильтрации расписания", fontSize = textSize)
         }
     }
 }
@@ -176,7 +229,7 @@ fun SettingsButton(onClick: () -> Unit, content: @Composable () -> Unit) {
                 onClick()
             }
     ) {
-        Box(modifier = Modifier.padding(5.dp)) {
+        Box(modifier = Modifier.padding(10.dp)) {
             content()
         }
     }
