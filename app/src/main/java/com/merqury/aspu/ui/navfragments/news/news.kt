@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.services.getNews
 import com.merqury.aspu.ui.SwipeableBox
+import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import org.json.JSONObject
 
 var newsLoaded = mutableStateOf(false)
@@ -26,7 +27,14 @@ val currentPage = mutableIntStateOf(1)
 val countPages = mutableIntStateOf(1)
 val showArticleView = mutableStateOf(false)
 val clickedArticleId = mutableIntStateOf(0)
-val selectedFaculty = mutableStateOf(NewsCategoryEnum.agpu)
+val selectedFaculty = mutableStateOf(
+    NewsCategoryEnum.valueOf(
+        settingsPreferences.getString(
+            "news_category",
+            "agpu"
+        )!!
+    )
+)
 val newsResponseState = mutableStateOf(JSONObject())
 
 
@@ -47,7 +55,7 @@ fun NewsContent(
     val pullRefreshState = rememberPullRefreshState(
         refreshing = !newsLoaded.value,
         onRefresh = {
-            newsLoaded.value=false
+            newsLoaded.value = false
         }
     )
     Column(modifier = Modifier.fillMaxSize()) {
@@ -65,8 +73,8 @@ fun NewsContent(
             modifier = Modifier
                 .fillMaxSize()
                 .pullRefresh(pullRefreshState)
-        ){
-            if(newsLoaded.value){
+        ) {
+            if (newsLoaded.value) {
                 SwipeableBox(
                     onSwipeRight = {
                         currentPage.intValue++

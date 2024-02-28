@@ -44,7 +44,7 @@ fun SelectIdModalWindowPreview() {
         contentAlignment = Alignment.Center
     ) {
         Card {
-            SelectIdModalWindowContent(selectIdModalWindowVisibility = mutableStateOf(false))
+            SelectIdModalWindowContent(selectIdModalWindowVisibility = mutableStateOf(false)){}
         }
     }
 }
@@ -58,14 +58,20 @@ fun SelectIdModalWindow(
             selectIdModalWindowVisibility.value = false
         }
     ) {
-        SelectIdModalWindowContent(selectIdModalWindowVisibility = selectIdModalWindowVisibility)
+        SelectIdModalWindowContent(selectIdModalWindowVisibility = selectIdModalWindowVisibility) {
+            selectedId.value = it.name
+            selectedOwner.value = it.owner
+            timetableLoaded.value = false
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SelectIdModalWindowContent(
-    selectIdModalWindowVisibility: MutableState<Boolean>
+fun SelectIdModalWindowContent(
+    selectIdModalWindowVisibility: MutableState<Boolean>,
+    filteredBy: String = "any",
+    onResultClick: (searchResult: SearchResult) -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize(.9f)) {
         val searchResults = remember {
@@ -81,18 +87,21 @@ private fun SelectIdModalWindowContent(
                 getSearchResults(queryString.value, searchResults)
             },
             onSearch = {
-                       if(searchResults.value.size > 0) {
-                           selectedId.value = searchResults.value[0].name
-                           selectedOwner.value = searchResults.value[0].owner
-                           timetableLoaded.value = false
-                           timetableLoaded.value = false
-                       }
+                var filteredList: List<SearchResult> = searchResults.value
+                if(filteredBy != "any"){
+                    filteredList = searchResults.value.filter {
+                        it.owner.lowercase() == filteredBy
+                    }.toList()
+                }
+                if(searchResults.value.size > 0) {
+                    onResultClick(filteredList[0])
+                }
                 selectIdModalWindowVisibility.value = false
             },
             active = true,
             onActiveChange = {
-                             if(!it)
-                                 selectIdModalWindowVisibility.value = false
+                if(!it)
+                    selectIdModalWindowVisibility.value = false
             },
             placeholder = {
                 Text("Введите название группы, имя преподавателя или аудиторию")
@@ -107,21 +116,25 @@ private fun SelectIdModalWindowContent(
             },
         )
         {
+            var filteredList: List<SearchResult> = searchResults.value
+            if(filteredBy != "any"){
+                filteredList = searchResults.value.filter {
+                    it.owner.lowercase() == filteredBy
+                }.toList()
+            }
             LazyColumn {
-                items(count = searchResults.value.size) {
+                items(count = filteredList.size) {
                     Box(modifier = Modifier
                         .fillMaxSize()
                         .clickable {
 
-                            selectedId.value = searchResults.value[it].name
-                            selectedOwner.value = searchResults.value[it].owner
-                            timetableLoaded.value = false
+                            onResultClick(filteredList[it])
                             selectIdModalWindowVisibility.value = false
 
                         }) {
                         Column {
                             Text(
-                                text = searchResults.value[it].name,
+                                text = filteredList[it].name,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(50.dp),

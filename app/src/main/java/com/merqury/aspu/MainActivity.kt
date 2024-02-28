@@ -5,6 +5,8 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.Volley
 import com.merqury.aspu.ui.MainScreen
@@ -18,7 +20,16 @@ class MainActivity : ComponentActivity() {
         context = this
         requestQueue = Volley.newRequestQueue(context)
         setContent {
+            contentList.forEach {
+                it()
+            }
             MainScreen()
         }
     }
+}
+private val contentList = mutableStateListOf<@Composable () -> Unit>()
+fun show(
+    content: @Composable () -> Unit
+){
+    contentList.add(content)
 }

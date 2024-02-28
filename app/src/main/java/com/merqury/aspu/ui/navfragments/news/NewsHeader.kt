@@ -55,8 +55,9 @@ fun NewsHeader(
     if (facultySelectDialogVisible.value) {
         FacultySelectModalWindow(
             facultySelectDialogVisible = facultySelectDialogVisible,
-            selectedFaculty = selectedFaculty
-        )
+        ){
+            selectedFaculty.value = it
+        }
     }
     if (pageSelectDialogVisible.value) {
         PageSelectModalWindow(

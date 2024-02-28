@@ -27,7 +27,7 @@ import com.merqury.aspu.ui.ModalWindow
 @Composable
 fun FacultySelectModalWindow(
     facultySelectDialogVisible: MutableState<Boolean>,
-    selectedFaculty: MutableState<NewsCategoryEnum>
+    onSelectFaculty: (selectedFaculty: NewsCategoryEnum) -> Unit
 ) {
     ModalWindow(
         Modifier.fillMaxWidth(.8f),
@@ -41,7 +41,7 @@ fun FacultySelectModalWindow(
                     .fillMaxWidth()
                     .height(50.dp)
                     .clickable {
-                        selectedFaculty.value = entry
+                        onSelectFaculty(entry)
                         currentPage.intValue = 1
                         reloadNews()
                         facultySelectDialogVisible.value = false

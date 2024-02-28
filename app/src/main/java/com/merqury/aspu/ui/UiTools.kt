@@ -1,13 +1,14 @@
 package com.merqury.aspu.ui
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -21,6 +22,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import coil.size.Size
+import com.merqury.aspu.show
 
 @Composable
 fun GifImage(
@@ -46,7 +48,6 @@ fun GifImage(
     )
 }
 
-@SuppressLint("UnrememberedMutableState")
 @Composable
 fun ModalWindow(
     modifier: Modifier = Modifier,
@@ -64,6 +65,27 @@ fun ModalWindow(
     }
 }
 
+
+fun showSimpleModalWindow(
+    modifier: Modifier = Modifier,
+    content: @Composable (showed: MutableState<Boolean>) -> Unit
+) {
+    show {
+        val showed = remember {
+            mutableStateOf(true)
+        }
+        if(showed.value)
+            Dialog(
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+                onDismissRequest = {
+                    showed.value = false
+                }) {
+                Card(modifier = modifier) {
+                    content(showed)
+                }
+            }
+    }
+}
 
 @Composable
 fun SwipeableBox(

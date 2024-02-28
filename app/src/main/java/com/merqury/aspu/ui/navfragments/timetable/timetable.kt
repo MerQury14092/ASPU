@@ -20,12 +20,13 @@ import androidx.compose.ui.graphics.Color
 import com.merqury.aspu.services.getTimetableByDate
 import com.merqury.aspu.services.getTodayDate
 import com.merqury.aspu.ui.SwipeableBox
+import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import org.json.JSONObject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-val selectedId = mutableStateOf("ВМ-ИВТ-2-1")
-val selectedOwner = mutableStateOf("GROUP")
+val selectedId = mutableStateOf(settingsPreferences.getString("timetable_id", "ВМ-ИВТ-2-1")!!)
+val selectedOwner = mutableStateOf(settingsPreferences.getString("timetable_id_owner", "GROUP")!!)
 val selectedDate = mutableStateOf(getTodayDate())
 val timetableLoaded = mutableStateOf(false)
 val timetableDay = mutableStateOf(JSONObject())
