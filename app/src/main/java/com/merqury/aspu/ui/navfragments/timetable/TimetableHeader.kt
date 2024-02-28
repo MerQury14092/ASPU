@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.merqury.aspu.context
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 
 @SuppressLint("UnrememberedMutableState")
 @Preview(showBackground = true)
@@ -55,7 +56,7 @@ fun TimetableHeader() {
                     date.dayOfMonth
                 ).show()
             }) {
-                Text(selectedDate.value)
+                Text("${prettyDate(selectedDate.value)}, ${dayOfWeek(selectedDate.value)}")
             }
             Button(onClick = {
                 showSelectIdModalWindow {
@@ -68,6 +69,27 @@ fun TimetableHeader() {
             }
         }
     }
+}
+
+fun prettyDate(
+    rawDate: String
+): String {
+    val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+    val date = LocalDate.parse(rawDate, formatter)
+    val today = LocalDate.now()
+    if(date == today)
+        return "Сегодня"
+    else if(date == today.plusDays(1))
+        return "Завтра"
+    else if(date == today.minusDays(1))
+        return "Вчера"
+    return rawDate
+}
+
+fun dayOfWeek(rawDate: String): String{
+    val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+    val date = LocalDate.parse(rawDate, formatter)
+    return date.dayOfWeek.getDisplayName(TextStyle.SHORT, context!!.resources.configuration.locale)
 }
 
 fun changeDate(
