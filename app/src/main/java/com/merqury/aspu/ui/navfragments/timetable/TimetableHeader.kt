@@ -77,13 +77,12 @@ fun prettyDate(
     val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
     val date = LocalDate.parse(rawDate, formatter)
     val today = LocalDate.now()
-    if(date == today)
-        return "Сегодня"
-    else if(date == today.plusDays(1))
-        return "Завтра"
-    else if(date == today.minusDays(1))
-        return "Вчера"
-    return rawDate
+    return when (date) {
+        today -> "Сегодня"
+        today.plusDays(1) -> "Завтра"
+        today.minusDays(1) -> "Вчера"
+        else -> rawDate
+    }
 }
 
 fun dayOfWeek(rawDate: String): String{
