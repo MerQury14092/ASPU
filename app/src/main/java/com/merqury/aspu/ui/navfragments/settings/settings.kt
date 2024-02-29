@@ -171,7 +171,7 @@ fun ShowSelectableDisciplinesPreferencesButton() {
     SettingsButton(onClick = {
         showSelectableDisciplinesPreferences()
     }) {
-        Text(text = "Показать политику показа дисциплин по выбору")
+        Text(text = "Настроить политику показа дисциплин по выбору")
     }
 }
 

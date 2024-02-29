@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -31,8 +33,9 @@ import coil.compose.rememberAsyncImagePainter
 import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import coil.size.Size
+import com.google.accompanist.web.WebView
+import com.google.accompanist.web.rememberWebViewState
 import com.merqury.aspu.show
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 
 @Composable
 fun GifImage(
@@ -77,14 +80,25 @@ fun ModalWindow(
 
 fun showSimpleModalWindow(
     modifier: Modifier = Modifier,
+    onClosed: () -> Unit = {},
+    closeable: Boolean = true,
+    containerColor: Color = Color.White,
     content: @Composable (showed: MutableState<Boolean>) -> Unit
 ){
-    showSimpleUpdatableModalWindow { showed, update, forUpdate ->
+    showSimpleUpdatableModalWindow (
+        modifier = modifier,
+        onClosed = onClosed,
+        closeable = closeable,
+        containerColor = containerColor
+    ){ showed, _, _ ->
         content(showed)
     }
 }
 fun showSimpleUpdatableModalWindow(
     modifier: Modifier = Modifier,
+    onClosed: () -> Unit = {},
+    closeable: Boolean = true,
+    containerColor: Color = Color.White,
     content: @Composable (showed: MutableState<Boolean>, update: () -> Unit, forUpdate: MutableState<Boolean>) -> Unit
 ) {
     show {
@@ -101,9 +115,13 @@ fun showSimpleUpdatableModalWindow(
             Dialog(
                 properties = DialogProperties(usePlatformDefaultWidth = false),
                 onDismissRequest = {
-                    showed.value = false
+                    if(closeable)
+                        showed.value = false
+                    onClosed()
                 }) {
-                Card(modifier = modifier) {
+                Card(modifier = modifier, colors = CardDefaults.cardColors(
+                    containerColor = containerColor
+                )) {
                     forUpdate.value
                     content(showed, update, forUpdate)
                 }
@@ -191,5 +209,11 @@ fun showSelectListDialog(
                 }
             }
         }
+    }
+}
+
+fun showWebPage(url: String){
+    showSimpleModalWindow {
+        WebView(rememberWebViewState(url))
     }
 }

@@ -51,6 +51,8 @@ dependencies {
     implementation("com.android.volley:volley:1.2.1")
     implementation("androidx.compose.material:material")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose")
+    implementation("net.engawapg.lib:zoomable:1.6.0")
+    implementation("com.google.accompanist:accompanist-webview:0.35.0-alpha")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.3")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.16.1")
     implementation("androidx.navigation:navigation-compose:2.6.0-alpha04")

@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
@@ -54,7 +53,6 @@ fun TimetableScreenContent() {
             })
         Box(
             modifier = Modifier
-                .pullRefresh(pullRefreshState)
                 .fillMaxWidth()
         ) {
             if (!timetableLoaded.value) {
@@ -162,7 +160,9 @@ fun filterSelectableDiscipline(res: JSONArray, discipline: JSONObject){
 }
 
 fun answerShowingSelectableDiscipline(name: String) {
-    showSimpleModalWindow {
+    showSimpleModalWindow (
+        closeable = false
+    ){
         Column {
             Row {
                 Box(modifier = Modifier
