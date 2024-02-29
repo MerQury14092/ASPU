@@ -8,12 +8,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,22 +39,25 @@ val selectedOwner = mutableStateOf(settingsPreferences.getString("timetable_id_o
 val selectedDate = mutableStateOf(getTodayDate())
 val timetableLoaded = mutableStateOf(false)
 val timetableDay = mutableStateOf(JSONObject())
+val timetableLoadSuccess = mutableStateOf(true)
 
 @Composable
-fun TimetableScreen() {
-    TimetableScreenContent()
+fun TimetableScreen(header: MutableState<@Composable () -> Unit>) {
+    TimetableScreenContent(header)
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun TimetableScreenContent() {
+fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
     Column {
-        TimetableHeader()
+        header.value = { TimetableHeader() }
         val pullRefreshState = rememberPullRefreshState(
             refreshing = !timetableLoaded.value,
             onRefresh = {
                 timetableLoaded.value = false
-            })
+            }
+        )
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -61,54 +68,69 @@ fun TimetableScreenContent() {
                     selectedOwner.value,
                     selectedDate.value,
                     timetableDay,
-                    timetableLoaded
+                    timetableLoaded,
+                    timetableLoadSuccess
                 )
             } else {
-                SwipeableBox(
-                    onSwipeLeft = {
-                        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-                        var currentDate = LocalDate.parse(selectedDate.value, formatter)
-                        currentDate = currentDate.plusDays(-1)
-                        selectedDate.value = currentDate.format(formatter)
-                        timetableLoaded.value = false
-                    },
-                    onSwipeRight = {
-                        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-                        var currentDate = LocalDate.parse(selectedDate.value, formatter)
-                        currentDate = currentDate.plusDays(1)
-                        selectedDate.value = currentDate.format(formatter)
-                        timetableLoaded.value = false
-                    },
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    if (timetableDay.value.getJSONArray("disciplines").length() == 0)
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(text = "Пусто")
-                        }
-                    else {
-                        val disciplines = if(
-                            settingsPreferences.getBoolean("filtration_on", false)
-                            && settingsPreferences.getString("user", "student") == "student"
-                            && selectedId.value == settingsPreferences.getString("timetable_id", "ВМ-ИВТ-2-1")
-                        )
-                            filter(timetableDay.value)
-                        else
-                            timetableDay.value.getJSONArray("disciplines")
-
-                        LazyColumn {
-                            items(count = disciplines.length()) {
-                                TimetableItem(
-                                    discipline = disciplines.get(it) as JSONObject
-                                )
+                if (timetableLoadSuccess.value)
+                    SwipeableBox(
+                        onSwipeLeft = {
+                            val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+                            var currentDate = LocalDate.parse(selectedDate.value, formatter)
+                            currentDate = currentDate.plusDays(-1)
+                            selectedDate.value = currentDate.format(formatter)
+                            timetableLoaded.value = false
+                        },
+                        onSwipeRight = {
+                            val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+                            var currentDate = LocalDate.parse(selectedDate.value, formatter)
+                            currentDate = currentDate.plusDays(1)
+                            selectedDate.value = currentDate.format(formatter)
+                            timetableLoaded.value = false
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        if (timetableDay.value.getJSONArray("disciplines").length() == 0)
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(text = "Пусто")
                             }
+                        else {
+                            val disciplines = if (
+                                settingsPreferences.getBoolean("filtration_on", false)
+                                && settingsPreferences.getString("user", "student") == "student"
+                                && selectedId.value == settingsPreferences.getString(
+                                    "timetable_id",
+                                    "ВМ-ИВТ-2-1"
+                                )
+                            )
+                                filter(timetableDay.value)
+                            else
+                                timetableDay.value.getJSONArray("disciplines")
 
+                            LazyColumn {
+                                items(count = disciplines.length()) {
+                                    TimetableItem(
+                                        discipline = disciplines.get(it) as JSONObject
+                                    )
+                                }
+
+                            }
                         }
                     }
-                }
+                else
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .pullRefresh(pullRefreshState)
+                            .verticalScroll(rememberScrollState()),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "Ошибка загрузки расписания!")
+                    }
             }
             PullRefreshIndicator(
                 refreshing = !timetableLoaded.value,
@@ -126,7 +148,7 @@ fun filter(
     val disciplines = JSONArray()
     (0..<timetableDay.getJSONArray("disciplines").length()).forEach {
         val currentDiscipline = timetableDay.getJSONArray("disciplines").get(it) as JSONObject
-        if(isSelectableDiscipline(currentDiscipline.getString("name")))
+        if (isSelectableDiscipline(currentDiscipline.getString("name")))
             filterSelectableDiscipline(disciplines, currentDiscipline)
         else
             filterBySubgroup(disciplines, currentDiscipline)
@@ -134,8 +156,8 @@ fun filter(
     return disciplines
 }
 
-fun filterBySubgroup(res: JSONArray, discipline: JSONObject){
-    if(
+fun filterBySubgroup(res: JSONArray, discipline: JSONObject) {
+    if (
         discipline.getInt("subgroup") == 0
         ||
         discipline.getInt("subgroup") == settingsPreferences.getInt("selected_subgroup", 0)
@@ -145,14 +167,13 @@ fun filterBySubgroup(res: JSONArray, discipline: JSONObject){
         res.put(discipline)
 }
 
-fun filterSelectableDiscipline(res: JSONArray, discipline: JSONObject){
+fun filterSelectableDiscipline(res: JSONArray, discipline: JSONObject) {
     val factName = getNameOfSelectableDiscipline(discipline.getString("name"))
-    if(!selectableDisciplines.contains(factName)){
+    if (!selectableDisciplines.contains(factName)) {
         answerShowingSelectableDiscipline(factName)
         selectableDisciplines.edit().putBoolean(factName, false).apply()
-    }
-    else {
-        if(selectableDisciplines.getBoolean(factName, false)) {
+    } else {
+        if (selectableDisciplines.getBoolean(factName, false)) {
             discipline.put("name", factName)
             res.put(discipline)
         }
@@ -160,15 +181,17 @@ fun filterSelectableDiscipline(res: JSONArray, discipline: JSONObject){
 }
 
 fun answerShowingSelectableDiscipline(name: String) {
-    showSimpleModalWindow (
+    showSimpleModalWindow(
         closeable = false
-    ){
+    ) {
         Column {
             Row {
-                Box(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                    contentAlignment = Alignment.Center){
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    contentAlignment = Alignment.Center
+                ) {
                     Text("Показывать дисциплину по выбору: $name?")
                 }
             }
@@ -187,10 +210,12 @@ fun answerShowingSelectableDiscipline(name: String) {
                         }
                         .padding(5.dp)
                 ) {
-                    Box(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp),
-                        contentAlignment = Alignment.Center){
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Text(text = "Да")
                     }
                 }
@@ -207,10 +232,12 @@ fun answerShowingSelectableDiscipline(name: String) {
                         }
                         .padding(5.dp)
                 ) {
-                    Box(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp),
-                        contentAlignment = Alignment.Center){
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Text(text = "Нет")
                     }
                 }
@@ -220,10 +247,10 @@ fun answerShowingSelectableDiscipline(name: String) {
 }
 
 
-
 fun isSelectableDiscipline(name: String): Boolean {
     return name.contains("Дисциплина по выбору \"")
 }
+
 fun getNameOfSelectableDiscipline(name: String): String {
-    return name.substring(22..<name.length-1)
+    return name.substring(22..<name.length - 1)
 }

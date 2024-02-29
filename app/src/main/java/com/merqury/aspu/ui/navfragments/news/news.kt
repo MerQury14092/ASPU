@@ -5,8 +5,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Text
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -26,6 +30,7 @@ val currentPage = mutableIntStateOf(1)
 val countPages = mutableIntStateOf(1)
 val showArticleView = mutableStateOf(false)
 val clickedArticleId = mutableIntStateOf(0)
+val newsLoadSuccess = mutableStateOf(true)
 val selectedFaculty = mutableStateOf(
     NewsCategoryEnum.valueOf(
         settingsPreferences.getString(
@@ -39,18 +44,22 @@ val newsResponseState = mutableStateOf(JSONObject())
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun NewsScreen() {
+fun NewsScreen(header: MutableState<@Composable () -> Unit>) {
     if (showArticleView.value)
         ArticleView()
-    NewsContent(newsResponseState, selectedFaculty)
+    NewsContent(newsResponseState, selectedFaculty, header)
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun NewsContent(
     data: MutableState<JSONObject>,
-    selectedFaculty: MutableState<NewsCategoryEnum>
+    selectedFaculty: MutableState<NewsCategoryEnum>,
+    header: MutableState<@Composable () -> Unit>
 ) {
+    header.value = {
+        NewsHeader(currentPage, countPages.intValue, selectedFaculty)
+    }
     val pullRefreshState = rememberPullRefreshState(
         refreshing = !newsLoaded.value,
         onRefresh = {
@@ -58,14 +67,15 @@ fun NewsContent(
         }
     )
     Column(modifier = Modifier.fillMaxSize()) {
-        NewsHeader(currentPage, countPages.intValue, selectedFaculty)
+
         if (!newsLoaded.value) {
             getNews(
                 selectedFaculty.value,
                 currentPage.intValue,
                 newsResponseState,
                 countPages,
-                newsLoaded
+                newsLoaded,
+                newsLoadSuccess
             )
         }
         Box(
@@ -73,30 +83,41 @@ fun NewsContent(
                 .fillMaxSize()
         ) {
             if (newsLoaded.value) {
-                SwipeableBox(
-                    onSwipeRight = {
-                        currentPage.intValue++
-                        reloadNews()
-                    },
-                    onSwipeLeft = {
-                        currentPage.intValue--
-                        reloadNews()
-                    },
-                    swipeableRight = currentPage.intValue < countPages.intValue,
-                    swipeableLeft = currentPage.intValue > 1
-                ) {
-                    LazyColumn {
-                        items(count = data.value.getJSONArray("articles").length()) {
-                            val article = data.value.getJSONArray("articles").getJSONObject(it)
-                            NewsItem(
-                                title = article.getString("title"),
-                                date = article.getString("date"),
-                                imageUrl = article.getString("previewImage"),
-                                id = article.getInt("id")
-                            )
+                if (!newsLoadSuccess.value)
+                    Box(
+                        modifier = Modifier
+                            .pullRefresh(pullRefreshState)
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState()),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "Ошибка загрузки новостей!")
+                    }
+                else
+                    SwipeableBox(
+                        onSwipeRight = {
+                            currentPage.intValue++
+                            reloadNews()
+                        },
+                        onSwipeLeft = {
+                            currentPage.intValue--
+                            reloadNews()
+                        },
+                        swipeableRight = currentPage.intValue < countPages.intValue,
+                        swipeableLeft = currentPage.intValue > 1
+                    ) {
+                        LazyColumn {
+                            items(count = data.value.getJSONArray("articles").length()) {
+                                val article = data.value.getJSONArray("articles").getJSONObject(it)
+                                NewsItem(
+                                    title = article.getString("title"),
+                                    date = article.getString("date"),
+                                    imageUrl = article.getString("previewImage"),
+                                    id = article.getInt("id")
+                                )
+                            }
                         }
                     }
-                }
             }
             PullRefreshIndicator(
                 refreshing = !newsLoaded.value,

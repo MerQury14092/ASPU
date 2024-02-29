@@ -1,8 +1,10 @@
 package com.merqury.aspu.ui.navfragments.settings
 
+import android.widget.Toast
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import com.merqury.aspu.context
 import com.merqury.aspu.ui.navfragments.timetable.timetableLoaded
 import com.merqury.aspu.ui.showSimpleUpdatableModalWindow
 
@@ -78,6 +80,7 @@ fun ClearSelectableDisciplinesPolicy(){
     SettingsButton(onClick = {
         selectableDisciplines.edit().clear().apply()
         timetableLoaded.value = false
+        Toast.makeText(context, "Очищено", Toast.LENGTH_LONG).show()
     }) {
         Text(text = "Очистить политику показа дисциплин по выбору")
     }

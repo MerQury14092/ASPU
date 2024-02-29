@@ -53,22 +53,31 @@ fun ArticleView() {
         val articleJson = remember {
             mutableStateOf(JSONObject())
         }
+        val newsArticleLoadSuccess = remember {
+            mutableStateOf(true)
+        }
         if (!articleLoaded.value) {
             getNewsArticle(
                 selectedFaculty.value,
                 clickedArticleId.intValue,
                 articleJson,
-                articleLoaded
+                articleLoaded,
+                newsArticleLoadSuccess
             )
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 GifImage(
                     modifier = Modifier.size(50.dp),
                     contentScale = ContentScale.Fit,
-                    gifResourceId =  R.drawable.loading,
+                    gifResourceId = R.drawable.loading,
                 )
             }
         } else {
-            ArticleViewContent(articleJson.value)
+            if (newsArticleLoadSuccess.value)
+                ArticleViewContent(articleJson.value)
+            else
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    androidx.compose.material.Text(text = "Ошибка загрузки статьи!")
+                }
         }
     }
 }
@@ -103,19 +112,19 @@ private fun ArticleViewContent(articleJson: JSONObject) {
             Divider()
             val images = articleJson.getJSONArray("images")
 
-            Column (
+            Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.SpaceAround
-            ){
+            ) {
                 for (i in 0..<images.length()) {
                     SubcomposeAsyncImage(
                         model = images.get(i).toString().replace("test", "www"),
                         contentDescription = "url",
                         loading = {
-                            Box (
+                            Box(
                                 modifier = Modifier.fillMaxWidth(),
                                 contentAlignment = Alignment.Center
-                            ){
+                            ) {
                                 LinearProgressIndicator()
                             }
                         },

@@ -30,15 +30,6 @@ import androidx.compose.ui.unit.dp
 import com.merqury.aspu.R
 import com.merqury.aspu.enums.NewsCategoryEnum
 
-@SuppressLint("UnrememberedMutableState")
-@Preview(showBackground = true)
-@Composable
-fun NewsHeaderPreview() {
-    Box(Modifier.fillMaxSize()) {
-        NewsHeader(mutableIntStateOf(1), 103, mutableStateOf(NewsCategoryEnum.ipimif))
-    }
-}
-
 @Composable
 fun NewsHeader(
     currentPage: MutableIntState,
@@ -47,8 +38,7 @@ fun NewsHeader(
 ) {
     Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(0.1f)
+            .fillMaxSize()
             .background(Color.Gray)
     ) {
         Row(

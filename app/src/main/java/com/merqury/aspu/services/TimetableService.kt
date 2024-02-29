@@ -16,7 +16,8 @@ fun getTimetableByDate(
     owner: String,
     date: String,
     result: MutableState<JSONObject>,
-    isLoaded: MutableState<Boolean>
+    isLoaded: MutableState<Boolean>,
+    success: MutableState<Boolean>
 ) {
     isLoaded.value = false
     val url = "https://agpu.merqury.fun/api/timetable/day?id=$id&owner=$owner&date=$date"
@@ -27,9 +28,12 @@ fun getTimetableByDate(
             val convertedResponse = EncodingConverter.translateISO8859_1toUTF_8(response)
             result.value = JSONObject(convertedResponse)
             isLoaded.value = true
+            success.value = true
         },
         {
-            Log.d("MyLog", "ERROR!\nURL: $url")
+            success.value = false
+            isLoaded.value = true
+            Log.d("network-error", "ERROR")
         }
     )
     requestQueue!!.add(request)
@@ -42,7 +46,8 @@ fun getTodayDate(): String {
 
 fun getSearchResults(
     query: String,
-    searchResults: MutableState<ArrayList<SearchResult>>
+    searchResults: MutableState<ArrayList<SearchResult>>,
+    success: MutableState<Boolean>
 ) {
     val url = "https://www.it-institut.ru/SearchString/KeySearch?Id=118&SearchProductName=$query"
     val request = StringRequest(
@@ -50,8 +55,12 @@ fun getSearchResults(
         url,
         {
             searchResults.value = parseSearchResults(JSONArray(it))
+            success.value = true
         },
-        {}
+        {
+            success.value = false
+            Log.d("network-error", "ERROR")
+        }
     )
     requestQueue!!.add(request)
 }

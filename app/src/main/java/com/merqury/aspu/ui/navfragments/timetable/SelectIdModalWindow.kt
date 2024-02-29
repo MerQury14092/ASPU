@@ -39,11 +39,14 @@ fun showSelectIdModalWindow(
             val queryString = remember {
                 mutableStateOf("")
             }
+            val resultsLoadSuccess = remember {
+                mutableStateOf(true)
+            }
             SearchBar(
                 query = queryString.value,
                 onQueryChange = { queryChange ->
                     queryString.value = queryChange
-                    getSearchResults(queryString.value, searchResults)
+                    getSearchResults(queryString.value, searchResults, resultsLoadSuccess)
                 },
                 onSearch = {
                     var filteredList: List<SearchResult> = searchResults.value
