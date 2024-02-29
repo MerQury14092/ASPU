@@ -14,7 +14,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -116,7 +116,7 @@ private fun ArticleViewContent(articleJson: JSONObject) {
                                 modifier = Modifier.fillMaxWidth(),
                                 contentAlignment = Alignment.Center
                             ){
-                                CircularProgressIndicator()
+                                LinearProgressIndicator()
                             }
                         },
                         modifier = Modifier
@@ -124,7 +124,7 @@ private fun ArticleViewContent(articleJson: JSONObject) {
                             .clickable {
                                 showSimpleModalWindow(
                                     containerColor = Color.Transparent
-                                ){
+                                ) {
                                     val pagerState = rememberPagerState(
                                         initialPage = i,
                                         pageCount = { images.length() })
@@ -132,17 +132,20 @@ private fun ArticleViewContent(articleJson: JSONObject) {
                                         state = pagerState
                                     ) {
                                         Box(
-                                            modifier = Modifier.fillMaxHeight(.5f).fillMaxWidth(),
+                                            modifier = Modifier
+                                                .fillMaxHeight(.5f)
+                                                .fillMaxWidth(),
                                             contentAlignment = Alignment.Center
-                                        ){
+                                        ) {
                                             SubcomposeAsyncImage(
                                                 model = images
                                                     .get(pagerState.currentPage)
                                                     .toString()
                                                     .replace("test", "www"),
                                                 contentDescription = null,
-                                                loading = { CircularProgressIndicator() },
-                                                modifier = Modifier.zoomable(rememberZoomState()).fillMaxSize(),
+                                                modifier = Modifier
+                                                    .zoomable(rememberZoomState())
+                                                    .fillMaxSize(),
                                                 contentScale = ContentScale.Fit
                                             )
                                         }
