@@ -1,6 +1,7 @@
 package com.merqury.aspu.ui.navfragments.news
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,11 +19,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.services.getNews
 import com.merqury.aspu.ui.SwipeableBox
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
+import com.merqury.aspu.ui.theme.SurfaceTheme
+import com.merqury.aspu.ui.theme.theme
 import org.json.JSONObject
 
 var newsLoaded = mutableStateOf(false)
@@ -81,6 +83,7 @@ fun NewsContent(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(color = theme.value[SurfaceTheme.background]!!)
         ) {
             if (newsLoaded.value) {
                 if (!newsLoadSuccess.value)
@@ -88,10 +91,11 @@ fun NewsContent(
                         modifier = Modifier
                             .pullRefresh(pullRefreshState)
                             .fillMaxSize()
+                            .background(theme.value[SurfaceTheme.background]!!)
                             .verticalScroll(rememberScrollState()),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "Ошибка загрузки новостей!")
+                        Text(text = "Ошибка загрузки новостей!",color = theme.value[SurfaceTheme.text]!!)
                     }
                 else
                     SwipeableBox(
@@ -106,7 +110,9 @@ fun NewsContent(
                         swipeableRight = currentPage.intValue < countPages.intValue,
                         swipeableLeft = currentPage.intValue > 1
                     ) {
-                        LazyColumn {
+                        LazyColumn (
+                            modifier = Modifier.background(theme.value[SurfaceTheme.background]!!)
+                        ){
                             items(count = data.value.getJSONArray("articles").length()) {
                                 val article = data.value.getJSONArray("articles").getJSONObject(it)
                                 NewsItem(
@@ -123,7 +129,8 @@ fun NewsContent(
                 refreshing = !newsLoaded.value,
                 state = pullRefreshState,
                 modifier = Modifier.align(Alignment.TopCenter),
-                backgroundColor = Color.White
+                backgroundColor = theme.value[SurfaceTheme.foreground]!!,
+                contentColor = theme.value[SurfaceTheme.text]!!
             )
         }
     }

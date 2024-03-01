@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.ui.showSimpleModalWindow
+import com.merqury.aspu.ui.theme.SurfaceTheme
+import com.merqury.aspu.ui.theme.theme
 
 
 fun showFacultySelectModalWindow(
@@ -27,6 +29,7 @@ fun showFacultySelectModalWindow(
 ) {
     showSimpleModalWindow (
         Modifier.fillMaxWidth(.8f),
+        containerColor = theme.value[SurfaceTheme.background]!!
     ) {
         NewsCategoryEnum.entries.forEach { entry ->
             Box(
@@ -56,7 +59,8 @@ fun showFacultySelectModalWindow(
                             textAlign = TextAlign.Center,
                             fontSize = 25.sp,
                             modifier = Modifier
-                                .padding(start = 5.dp, end = 5.dp)
+                                .padding(start = 5.dp, end = 5.dp),
+                            color = theme.value[SurfaceTheme.text]!!
                         )
                         Image(
                             painter = painterResource(id = entry.logo),
@@ -67,7 +71,7 @@ fun showFacultySelectModalWindow(
                     }
                 }
             }
-            Divider(modifier = Modifier.fillMaxWidth())
+            Divider(modifier = Modifier.fillMaxWidth(), color = theme.value[SurfaceTheme.divider]!!)
         }
     }
 }
@@ -75,6 +79,7 @@ fun showFacultySelectModalWindow(
 fun showPageSelectModalWindow() {
     showSimpleModalWindow(
         Modifier.fillMaxWidth(.8f),
+        containerColor = theme.value[SurfaceTheme.background]!!
     ) {
         val pageSelectDialogVisible = it
         LazyColumn() {
@@ -93,10 +98,11 @@ fun showPageSelectModalWindow() {
                         text = (it + 1).toString(),
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
-                        fontSize = 25.sp
+                        fontSize = 25.sp,
+                        color = theme.value[SurfaceTheme.text]!!
                     )
                 }
-                Divider(modifier = Modifier.fillMaxWidth())
+                Divider(modifier = Modifier.fillMaxWidth(), color = theme.value[SurfaceTheme.divider]!!)
             }
         }
     }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,6 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.merqury.aspu.ui.theme.SurfaceTheme
+import com.merqury.aspu.ui.theme.theme
 
 @Composable
 fun SettingsChapter(title: String, buttons: Map<String, () -> Unit>) {
@@ -20,14 +23,14 @@ fun SettingsChapter(title: String, buttons: Map<String, () -> Unit>) {
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(title)
+        Text(title, color = theme.value[SurfaceTheme.text]!!)
         buttons.entries.forEach {
             if (it.key.isNotEmpty())
                 SettingsButton(onClick = it.value) {
-                    Text(text = it.key, fontSize = 16.sp)
+                    Text(text = it.key, fontSize = 16.sp, color = theme.value[SurfaceTheme.text]!!)
                 }
         }
-        Divider()
+        Divider(color = theme.value[SurfaceTheme.divider]!!)
     }
 }
 
@@ -40,7 +43,10 @@ fun SettingsButton(onClick: () -> Unit, content: @Composable () -> Unit) {
             .padding(3.dp)
             .clickable {
                 onClick()
-            }
+            },
+        colors = CardDefaults.cardColors(
+            containerColor = theme.value[SurfaceTheme.foreground]!!
+        )
     ) {
         Box(modifier = Modifier.padding(10.dp)) {
             content()

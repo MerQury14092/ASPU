@@ -6,34 +6,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.merqury.aspu.ui.navBarUpdate
 import com.merqury.aspu.ui.navfragments.timetable.timetableLoaded
 import com.merqury.aspu.ui.showSelectListDialog
 import com.merqury.aspu.ui.showSimpleUpdatableModalWindow
-
-fun showSelectableDisciplinesPreferences() {
-    showSimpleUpdatableModalWindow { _, update, forUpdate ->
-        Box(modifier = Modifier.padding(10.dp)){
-            Column {
-                if (selectableDisciplines.all.isEmpty())
-                    Text(text = "Пусто")
-                else
-                    selectableDisciplines.all.forEach {
-                        SettingsButton(onClick = {
-                            selectableDisciplines
-                                .edit()
-                                .putBoolean(it.key, !selectableDisciplines.getBoolean(it.key, true))
-                                .apply()
-                            update()
-                            timetableLoaded.value = false
-                        }) {
-                            forUpdate.value
-                            Text(text = "${it.key}: ${if(selectableDisciplines.getBoolean(it.key, true)) "Показывать" else "Не показывать"}")
-                        }
-                    }
-            }
-        }
-    }
-}
+import com.merqury.aspu.ui.theme.SurfaceTheme
+import com.merqury.aspu.ui.theme.theme
 
 fun selectInitialSubgroup(update: () -> Unit) {
     showSelectListDialog(
@@ -98,6 +76,7 @@ fun selectUser() {
                     .apply()
                 reloadSettingsScreen()
                 selectableDisciplines.edit().clear().apply()
+                navBarUpdate()
             },
             "Преподаватель" to {
                 settingsPreferences
@@ -114,6 +93,7 @@ fun selectUser() {
                     .apply()
                 reloadSettingsScreen()
                 selectableDisciplines.edit().clear().apply()
+                navBarUpdate()
             }
         )
     )

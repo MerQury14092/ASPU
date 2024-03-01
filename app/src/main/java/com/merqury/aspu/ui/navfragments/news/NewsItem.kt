@@ -6,11 +6,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
@@ -19,22 +18,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.merqury.aspu.R
+import com.merqury.aspu.ui.theme.SurfaceTheme
+import com.merqury.aspu.ui.theme.theme
 
 @Composable
 fun NewsItem(title: String, date: String, imageUrl: String, id: Int) {
     Card(
         shape = RoundedCornerShape(15.dp),
         modifier = Modifier
-            .padding(8.dp)
-            .shadow(
-                elevation = 10.dp,
-                spotColor = Color.Black,
-                shape = RoundedCornerShape(15.dp)
-            )
+            .padding(vertical = 5.dp)
+//            .shadow(
+//                elevation = 10.dp,
+//                spotColor = Color.Black,
+//                shape = RoundedCornerShape(15.dp)
+//            )
             .clickable {
                 clickedArticleId.intValue = id
                 showArticleView.value = true
-            }
+            },
+        colors = CardDefaults.cardColors(
+            containerColor = theme.value[SurfaceTheme.foreground]!!
+        )
     ) {
         Column(Modifier.fillMaxWidth()) {
             AsyncImage(
@@ -55,13 +59,15 @@ fun NewsItem(title: String, date: String, imageUrl: String, id: Int) {
                     ),
                 textAlign = TextAlign.Center,
                 fontSize = 20.sp,
-                fontStyle = FontStyle.Italic
+                fontStyle = FontStyle.Italic,
+                color = theme.value[SurfaceTheme.text]!!
             )
             Text(
                 date,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = 10.dp), textAlign = TextAlign.End
+                    .padding(end = 10.dp), textAlign = TextAlign.End,
+                color = theme.value[SurfaceTheme.text]!!
             )
         }
     }

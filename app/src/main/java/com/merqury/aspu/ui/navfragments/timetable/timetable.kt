@@ -1,5 +1,6 @@
 package com.merqury.aspu.ui.navfragments.timetable
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,12 +17,12 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.services.getTimetableByDate
 import com.merqury.aspu.services.getTodayDate
@@ -29,6 +30,8 @@ import com.merqury.aspu.ui.SwipeableBox
 import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.showSimpleModalWindow
+import com.merqury.aspu.ui.theme.SurfaceTheme
+import com.merqury.aspu.ui.theme.theme
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
@@ -60,7 +63,8 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
 
         Box(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
+                .background(theme.value[SurfaceTheme.background]!!)
         ) {
             if (!timetableLoaded.value) {
                 getTimetableByDate(
@@ -88,7 +92,9 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
                             selectedDate.value = currentDate.format(formatter)
                             timetableLoaded.value = false
                         },
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(color = theme.value[SurfaceTheme.background]!!)
                     ) {
                         if (timetableDay.value.getJSONArray("disciplines").length() == 0)
                             Box(
@@ -126,17 +132,19 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
                         modifier = Modifier
                             .fillMaxSize()
                             .pullRefresh(pullRefreshState)
-                            .verticalScroll(rememberScrollState()),
+                            .verticalScroll(rememberScrollState())
+                            .background(color = theme.value[SurfaceTheme.background]!!),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "Ошибка загрузки расписания!")
+                        Text(text = "Ошибка загрузки расписания!",color = theme.value[SurfaceTheme.text]!!)
                     }
             }
             PullRefreshIndicator(
                 refreshing = !timetableLoaded.value,
                 state = pullRefreshState,
                 modifier = Modifier.align(Alignment.TopCenter),
-                backgroundColor = Color.White
+                backgroundColor = theme.value[SurfaceTheme.foreground]!!,
+                contentColor = theme.value[SurfaceTheme.text]!!
             )
         }
     }
@@ -182,7 +190,8 @@ fun filterSelectableDiscipline(res: JSONArray, discipline: JSONObject) {
 
 fun answerShowingSelectableDiscipline(name: String) {
     showSimpleModalWindow(
-        closeable = false
+        closeable = false,
+        containerColor = theme.value[SurfaceTheme.background]!!
     ) {
         Column {
             Row {
@@ -192,7 +201,7 @@ fun answerShowingSelectableDiscipline(name: String) {
                         .padding(10.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Показывать дисциплину по выбору: $name?")
+                    Text("Показывать дисциплину по выбору: $name?", color = theme.value[SurfaceTheme.text]!!)
                 }
             }
             Row {
@@ -208,7 +217,10 @@ fun answerShowingSelectableDiscipline(name: String) {
                             it.value = false
                             timetableLoaded.value = false
                         }
-                        .padding(5.dp)
+                        .padding(5.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = theme.value[SurfaceTheme.foreground]!!
+                    )
                 ) {
                     Box(
                         modifier = Modifier
@@ -216,7 +228,7 @@ fun answerShowingSelectableDiscipline(name: String) {
                             .padding(10.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "Да")
+                        Text(text = "Да", color = theme.value[SurfaceTheme.text]!!)
                     }
                 }
                 Card(
@@ -230,7 +242,10 @@ fun answerShowingSelectableDiscipline(name: String) {
                             it.value = false
                             timetableLoaded.value = false
                         }
-                        .padding(5.dp)
+                        .padding(5.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = theme.value[SurfaceTheme.foreground]!!
+                    )
                 ) {
                     Box(
                         modifier = Modifier
@@ -238,7 +253,7 @@ fun answerShowingSelectableDiscipline(name: String) {
                             .padding(10.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "Нет")
+                        Text(text = "Нет", color = theme.value[SurfaceTheme.text]!!)
                     }
                 }
             }

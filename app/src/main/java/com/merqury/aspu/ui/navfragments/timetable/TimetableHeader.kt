@@ -1,7 +1,6 @@
 package com.merqury.aspu.ui.navfragments.timetable
 
 import android.app.DatePickerDialog
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -11,7 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import com.merqury.aspu.context
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -22,7 +20,6 @@ fun TimetableHeader() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Gray)
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),

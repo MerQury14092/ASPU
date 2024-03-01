@@ -36,6 +36,8 @@ import coil.size.Size
 import com.google.accompanist.web.WebView
 import com.google.accompanist.web.rememberWebViewState
 import com.merqury.aspu.show
+import com.merqury.aspu.ui.theme.SurfaceTheme
+import com.merqury.aspu.ui.theme.theme
 
 @Composable
 fun GifImage(
@@ -65,6 +67,7 @@ fun GifImage(
 fun ModalWindow(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit = {},
+    background: Color = Color.White,
     content: @Composable () -> Unit
 ) {
     Dialog(
@@ -72,7 +75,8 @@ fun ModalWindow(
         onDismissRequest = {
             onDismiss()
         }) {
-        Card(modifier = modifier) {
+        Card(modifier = modifier,
+            colors = CardDefaults.cardColors(containerColor = background)) {
             content()
         }
     }
@@ -184,7 +188,9 @@ fun SwipeableBox(
 fun showSelectListDialog(
     buttons: Map<String, () -> Unit>
 ) {
-    showSimpleModalWindow {
+    showSimpleModalWindow(
+        containerColor = theme.value[SurfaceTheme.background]!!
+    ) {
         Box(
             modifier = Modifier
                 .padding(10.dp)
@@ -193,7 +199,7 @@ fun showSelectListDialog(
             val modalWindowVisibility = it
             Column {
                 buttons.entries.forEach {
-                    Divider()
+                    Divider(color = theme.value[SurfaceTheme.divider]!!)
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -204,7 +210,7 @@ fun showSelectListDialog(
                             },
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = it.key, fontSize = 20.sp)
+                        Text(text = it.key, fontSize = 20.sp, color = theme.value[SurfaceTheme.text]!!)
                     }
                 }
             }

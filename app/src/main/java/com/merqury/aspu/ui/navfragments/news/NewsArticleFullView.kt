@@ -1,6 +1,7 @@
 package com.merqury.aspu.ui.navfragments.news
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,6 +35,8 @@ import com.merqury.aspu.services.getNewsArticle
 import com.merqury.aspu.ui.GifImage
 import com.merqury.aspu.ui.ModalWindow
 import com.merqury.aspu.ui.showSimpleModalWindow
+import com.merqury.aspu.ui.theme.SurfaceTheme
+import com.merqury.aspu.ui.theme.theme
 import net.engawapg.lib.zoomable.rememberZoomState
 import net.engawapg.lib.zoomable.zoomable
 import org.json.JSONObject
@@ -45,7 +48,8 @@ fun ArticleView() {
             .fillMaxSize(.95f),
         onDismiss = {
             showArticleView.value = false
-        }
+        },
+        background = theme.value[SurfaceTheme.background]!!
     ) {
         val articleLoaded = remember {
             mutableStateOf(false)
@@ -64,7 +68,7 @@ fun ArticleView() {
                 articleLoaded,
                 newsArticleLoadSuccess
             )
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(Modifier.fillMaxSize().background(color = theme.value[SurfaceTheme.background]!!), contentAlignment = Alignment.Center) {
                 GifImage(
                     modifier = Modifier.size(50.dp),
                     contentScale = ContentScale.Fit,
@@ -75,7 +79,7 @@ fun ArticleView() {
             if (newsArticleLoadSuccess.value)
                 ArticleViewContent(articleJson.value)
             else
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(modifier = Modifier.fillMaxSize().background(color = theme.value[SurfaceTheme.background]!!), contentAlignment = Alignment.Center) {
                     androidx.compose.material.Text(text = "Ошибка загрузки статьи!")
                 }
         }
@@ -85,8 +89,8 @@ fun ArticleView() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ArticleViewContent(articleJson: JSONObject) {
-    Box(modifier = Modifier.padding(15.dp)) {
-        Divider()
+    Box(modifier = Modifier.padding(15.dp).background(color = theme.value[SurfaceTheme.background]!!)) {
+        Divider(color = theme.value[SurfaceTheme.divider]!!)
         Column(
             Modifier.verticalScroll(rememberScrollState())
         ) {
@@ -95,21 +99,24 @@ private fun ArticleViewContent(articleJson: JSONObject) {
                 textAlign = TextAlign.Center,
                 text = articleJson.getString("title"),
                 fontSize = 25.sp,
-                fontStyle = FontStyle.Italic
+                fontStyle = FontStyle.Italic,
+                color = theme.value[SurfaceTheme.text]!!
             )
             Text(
                 text = articleJson.getString("date"),
                 modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.End
+                textAlign = TextAlign.End,
+                color = theme.value[SurfaceTheme.text]!!
             )
-            Divider()
+            Divider(color = theme.value[SurfaceTheme.divider]!!)
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Left,
                 fontSize = 15.sp,
-                text = articleJson.getString("description")
+                text = articleJson.getString("description"),
+                color = theme.value[SurfaceTheme.text]!!
             )
-            Divider()
+            Divider(color = theme.value[SurfaceTheme.divider]!!)
             val images = articleJson.getJSONArray("images")
 
             Column(

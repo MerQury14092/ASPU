@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -14,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -23,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.merqury.aspu.enums.TimetableDisciplineType
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
+import com.merqury.aspu.ui.theme.SurfaceTheme
+import com.merqury.aspu.ui.theme.theme
 import org.json.JSONObject
 
 @Composable
@@ -52,14 +52,20 @@ fun TimetableItem(discipline: JSONObject) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(5.dp)
-            .shadow(
-                elevation = 5.dp,
-                shape = RoundedCornerShape(15.dp),
-                spotColor = Color.Black
-            ),
+            .padding(horizontal = 4.dp, vertical = 2.dp)
+//            .shadow(
+//                elevation = 5.dp,
+//                shape = RoundedCornerShape(15.dp),
+//                spotColor = Color.Black
+//            )
+        ,
         colors = CardDefaults.cardColors(
-            containerColor = Color(type.colorInt)
+            containerColor =
+            if (settingsPreferences.getBoolean("color_timetable", true))
+                Color(type.colorInt)
+            else
+                theme.value[SurfaceTheme.foreground]!!
+
         )
     ) {
         Box(modifier = Modifier.padding(5.dp)) {
@@ -67,27 +73,67 @@ fun TimetableItem(discipline: JSONObject) {
                 Text(
                     discipline.getString("time"),
                     modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    color = if (settingsPreferences.getBoolean(
+                            "color_timetable",
+                            true
+                        )
+                    ) Color.Black else theme.value[SurfaceTheme.text]!!
                 )
                 Text(
                     discipline.getString("name"),
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
-                    fontSize = 20.sp
+                    fontSize = 20.sp,
+                    color = if (settingsPreferences.getBoolean(
+                            "color_timetable",
+                            true
+                        )
+                    ) Color.Black else theme.value[SurfaceTheme.text]!!
                 )
-                Text(discipline.getString("teacherName"))
+                Text(
+                    discipline.getString("teacherName"),
+                    color = if (settingsPreferences.getBoolean(
+                            "color_timetable",
+                            true
+                        )
+                    ) Color.Black else theme.value[SurfaceTheme.text]!!
+                )
                 Row {
-                    Text("Аудитория: ")
+                    Text(
+                        "Аудитория: ",
+                        color = if (settingsPreferences.getBoolean(
+                                "color_timetable",
+                                true
+                            )
+                        ) Color.Black else theme.value[SurfaceTheme.text]!!
+                    )
                     Text(
                         text = discipline.getString("audienceId"),
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = if (settingsPreferences.getBoolean(
+                                "color_timetable",
+                                true
+                            )
+                        ) Color.Black else theme.value[SurfaceTheme.text]!!
                     )
                 }
-                if( !settingsPreferences.getBoolean("filtration_on", true) ||
-                        (settingsPreferences.getInt("selected_subgroup", 0) == 0
-                    || settingsPreferences.getString("timetable_id", "ВМ-ИВТ-2-1") != selectedId.value)) {
-                    if(discipline.getInt("subgroup") != 0)
-                        Text("Подгруппа: ${discipline.getString("subgroup")}")
+                if (!settingsPreferences.getBoolean("filtration_on", true) ||
+                    (settingsPreferences.getInt("selected_subgroup", 0) == 0
+                            || settingsPreferences.getString(
+                        "timetable_id",
+                        "ВМ-ИВТ-2-1"
+                    ) != selectedId.value)
+                ) {
+                    if (discipline.getInt("subgroup") != 0)
+                        Text(
+                            "Подгруппа: ${discipline.getString("subgroup")}",
+                            color = if (settingsPreferences.getBoolean(
+                                    "color_timetable",
+                                    true
+                                )
+                            ) Color.Black else theme.value[SurfaceTheme.text]!!
+                        )
                 }
                 Box {
                     Box(
@@ -97,21 +143,46 @@ fun TimetableItem(discipline: JSONObject) {
                         Text(
                             getDisciplineNumberByTime(discipline.getString("time")).toString(),
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = if (settingsPreferences.getBoolean(
+                                    "color_timetable",
+                                    true
+                                )
+                            ) Color.Black else theme.value[SurfaceTheme.text]!!
+
                         )
                     }
                     Column {
-                        Text(discipline.getString("groupName"))
+                        Text(
+                            discipline.getString("groupName"),
+                            color = if (settingsPreferences.getBoolean(
+                                    "color_timetable",
+                                    true
+                                )
+                            ) Color.Black else theme.value[SurfaceTheme.text]!!
+                        )
                         if (type != TimetableDisciplineType.none)
-                            Text(type.localizedName)
+                            Text(
+                                type.localizedName,
+                                color = if (settingsPreferences.getBoolean(
+                                        "color_timetable",
+                                        true
+                                    )
+                                ) Color.Black else theme.value[SurfaceTheme.text]!!
+                            )
                     }
                 }
                 if (discipline.getBoolean("distant")) {
-                    Divider()
+                    Divider(color = theme.value[SurfaceTheme.divider]!!)
                     Text(
                         text = "ДИСТАНЦИОННО",
                         modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        color = if (settingsPreferences.getBoolean(
+                                "color_timetable",
+                                true
+                            )
+                        ) Color.Black else theme.value[SurfaceTheme.text]!!
                     )
                 }
             }
