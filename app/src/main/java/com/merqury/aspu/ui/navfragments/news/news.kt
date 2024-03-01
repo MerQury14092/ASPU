@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.services.getNews
 import com.merqury.aspu.ui.SwipeableBox
+import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
@@ -60,6 +61,7 @@ fun NewsContent(
     header: MutableState<@Composable () -> Unit>
 ) {
     header.value = {
+        TitleHeader(title = "Новости")
         NewsHeader(currentPage, countPages.intValue, selectedFaculty)
     }
     val pullRefreshState = rememberPullRefreshState(

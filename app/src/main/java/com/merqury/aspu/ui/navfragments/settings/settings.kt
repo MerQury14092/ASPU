@@ -7,12 +7,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.merqury.aspu.context
 import com.merqury.aspu.enums.NewsCategoryEnum
+import com.merqury.aspu.ui.TitleHeader
+import com.merqury.aspu.ui.navBarUpdate
 import com.merqury.aspu.ui.navfragments.news.showFacultySelectModalWindow
 import com.merqury.aspu.ui.navfragments.timetable.showSelectIdModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
@@ -25,11 +29,6 @@ val settingsPreferences = context?.getSharedPreferences("settings", Context.MODE
 val selectableDisciplines =
     context?.getSharedPreferences("selectable_disciplines", Context.MODE_PRIVATE)!!
 
-@Preview(showBackground = true)
-@Composable
-fun SettingsScreenPreview() {
-    SettingsScreen()
-}
 
 private val settingsUpdate = mutableStateOf(false)
 
@@ -38,14 +37,21 @@ fun reloadSettingsScreen() {
 }
 
 @Composable
-fun SettingsScreen() {
-    Box(modifier = Modifier.fillMaxSize().background(
-        animateColorAsState(
-        targetValue = theme.value[SurfaceTheme.background]!!,
-        animationSpec = tween(durationMillis = themeChangeDuration),
-        label = ""
-    ).value)){
-        Column {
+fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
+    header.value = { TitleHeader(title = "Настройки") }
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(
+            animateColorAsState(
+                targetValue = theme.value[SurfaceTheme.background]!!,
+                animationSpec = tween(durationMillis = themeChangeDuration),
+                label = ""
+            ).value
+        )){
+        Column (
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+        ){
             settingsUpdate.value
             SettingsChapter(
                 title = "Общие настройки",
@@ -106,21 +112,7 @@ fun SettingsScreen() {
                             "student"
                         ) == "student"
                     ) "Настройки фильтрации расписания" to { filterSettings() } else "" to {},
-                    "${
-                        if (settingsPreferences.getBoolean("color_timetable", true))
-                            "Выключить"
-                        else
-                            "Включить"
-                    } цветной фон ячеек в расписании" to {
-                        settingsPreferences
-                            .edit()
-                            .putBoolean(
-                                "color_timetable",
-                                !settingsPreferences.getBoolean("color_timetable", true)
-                            )
-                            .apply()
-                        reloadSettingsScreen()
-                    }
+
                 )
             )
             SettingsChapter(title = "Настройки внешнего вида", buttons = mapOf(
@@ -146,6 +138,37 @@ fun SettingsScreen() {
                         settingsPreferences.edit().putString("theme", "dark").apply()
                     updateTheme()
                     reloadSettingsScreen()
+                },
+                "${
+                    if (settingsPreferences.getBoolean("color_timetable", true))
+                        "Выключить"
+                    else
+                        "Включить"
+                } цветной фон ячеек в расписании" to {
+                    settingsPreferences
+                        .edit()
+                        .putBoolean(
+                            "color_timetable",
+                            !settingsPreferences.getBoolean("color_timetable", true)
+                        )
+                        .apply()
+                    reloadSettingsScreen()
+                },
+                "${
+                    if (settingsPreferences.getBoolean("text_in_navbar", true))
+                        "Не показывать"
+                    else
+                        "Показывать"
+                } текст под иконками вкладок" to {
+                    settingsPreferences
+                        .edit()
+                        .putBoolean(
+                            "text_in_navbar",
+                            !settingsPreferences.getBoolean("text_in_navbar", true)
+                        )
+                        .apply()
+                    reloadSettingsScreen()
+                    navBarUpdate()
                 }
             ))
         }

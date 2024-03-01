@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
@@ -35,7 +37,7 @@ fun showFacultySelectModalWindow(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
+                    .padding(5.dp)
                     .clickable {
                         onSelectFaculty(entry)
                         currentPage.intValue = 1
@@ -43,35 +45,42 @@ fun showFacultySelectModalWindow(
                         it.value = false
                     }
             ) {
-                Row (
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
+                Card (
+                    colors = CardDefaults.cardColors(
+                        containerColor = theme.value[SurfaceTheme.foreground]!!
+                    )
                 ){
-                    Row{
-                        Image(
-                            painter = painterResource(id = entry.logo),
-                            contentDescription = "",
-                            modifier = Modifier.size(35.dp),
-                            contentScale = ContentScale.Fit
-                        )
-                        Text(
-                            text = entry.localizedName,
-                            textAlign = TextAlign.Center,
-                            fontSize = 25.sp,
-                            modifier = Modifier
-                                .padding(start = 5.dp, end = 5.dp),
-                            color = theme.value[SurfaceTheme.text]!!
-                        )
-                        Image(
-                            painter = painterResource(id = entry.logo),
-                            contentDescription = "",
-                            modifier = Modifier.size(35.dp),
-                            contentScale = ContentScale.Fit
-                        )
+                    Row (
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ){
+                        Row(
+                            modifier = Modifier.padding(5.dp)
+                        ){
+                            Image(
+                                painter = painterResource(id = entry.logo),
+                                contentDescription = "",
+                                modifier = Modifier.size(35.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                            Text(
+                                text = entry.localizedName,
+                                textAlign = TextAlign.Center,
+                                fontSize = 25.sp,
+                                modifier = Modifier
+                                    .padding(horizontal = 5.dp),
+                                color = theme.value[SurfaceTheme.text]!!
+                            )
+                            Image(
+                                painter = painterResource(id = entry.logo),
+                                contentDescription = "",
+                                modifier = Modifier.size(35.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
                     }
                 }
             }
-            Divider(modifier = Modifier.fillMaxWidth(), color = theme.value[SurfaceTheme.divider]!!)
         }
     }
 }

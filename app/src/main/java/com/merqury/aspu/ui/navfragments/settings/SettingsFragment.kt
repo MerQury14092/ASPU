@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
@@ -23,7 +24,9 @@ import com.merqury.aspu.ui.theme.themeChangeDuration
 @Composable
 fun SettingsChapter(title: String, buttons: Map<String, () -> Unit>) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 5.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -47,6 +50,7 @@ fun SettingsChapter(title: String, buttons: Map<String, () -> Unit>) {
                     )
                 }
         }
+        Spacer(modifier = Modifier.padding(top = 10.dp))
         Divider(color = animateColorAsState(
             targetValue = theme.value[SurfaceTheme.divider]!!,
             animationSpec = tween(durationMillis = themeChangeDuration),

@@ -50,8 +50,8 @@ val content: MutableState<@Composable () -> Unit> = mutableStateOf({
     when (settingsPreferences.getString("initial_route", "news")) {
         "news" -> NewsScreen(topBarContent)
         "timetable" -> TimetableScreen(topBarContent)
-        "other" -> OtherScreen()
-        "settings" -> SettingsScreen()
+        "other" -> OtherScreen(topBarContent)
+        "settings" -> SettingsScreen(topBarContent)
     }
 })
 
@@ -66,11 +66,13 @@ fun MainScreen() {
                     modifier = Modifier
                         .fillMaxHeight(.06f)
                         .fillMaxWidth()
-                        .background(animateColorAsState(
-                            targetValue = theme.value[SurfaceTheme.foreground]!!,
-                            animationSpec = tween(durationMillis = themeChangeDuration),
-                            label = ""
-                        ).value)
+                        .background(
+                            animateColorAsState(
+                                targetValue = theme.value[SurfaceTheme.foreground]!!,
+                                animationSpec = tween(durationMillis = themeChangeDuration),
+                                label = ""
+                            ).value
+                        )
                 ) { topBarContent.value() }
                 Divider(
                     color = animateColorAsState(
@@ -87,11 +89,13 @@ fun MainScreen() {
                 modifier = Modifier
                     .fillMaxHeight(.075f)
                     .fillMaxWidth()
-                    .background(animateColorAsState(
-                        targetValue = theme.value[SurfaceTheme.foreground]!!,
-                        animationSpec = tween(durationMillis = themeChangeDuration),
-                        label = ""
-                    ).value)
+                    .background(
+                        animateColorAsState(
+                            targetValue = theme.value[SurfaceTheme.foreground]!!,
+                            animationSpec = tween(durationMillis = themeChangeDuration),
+                            label = ""
+                        ).value
+                    )
             ) {
                 Column {
                     Divider(
@@ -133,7 +137,11 @@ fun NavigationBar() {
             NewsScreen(topBarContent)
             selected_page.value = "news"
         }
-        NavBarItem(title = "Расписание", icon = R.drawable.timetable_icon, selected_page.value == "timetable") {
+        NavBarItem(
+            title = "Расписание",
+            icon = R.drawable.timetable_icon,
+            selected_page.value == "timetable"
+        ) {
             TimetableScreen(topBarContent)
             selected_page.value = "timetable"
         }
@@ -150,14 +158,16 @@ fun NavigationBar() {
             }, icon = R.drawable.other_icon,
             selected_page.value == "other"
         ) {
-            OtherScreen(/*topBarContent*/)
+            OtherScreen(topBarContent)
             selected_page.value = "other"
-            topBarContent.value = {}
         }
-        NavBarItem(title = "Настройки", icon = R.drawable.settings_icon, selected_page.value == "settings") {
-            SettingsScreen(/*topBarContent*/)
+        NavBarItem(
+            title = "Настройки",
+            icon = R.drawable.settings_icon,
+            selected_page.value == "settings"
+        ) {
+            SettingsScreen(topBarContent)
             selected_page.value = "settings"
-            topBarContent.value = {}
         }
     }
 }
@@ -198,28 +208,34 @@ fun NavBarItem(
                     ),
                 colorFilter = ColorFilter.tint(
                     animateColorAsState(
-                        targetValue = if(selected)
-                        theme.value[SurfaceTheme.enable]!!
-                    else
-                        theme.value[SurfaceTheme.disable]!!,
+                        targetValue = if (selected)
+                            theme.value[SurfaceTheme.enable]!!
+                        else
+                            theme.value[SurfaceTheme.disable]!!,
                         animationSpec = tween(durationMillis = 100, easing = FastOutSlowInEasing),
                         label = ""
                     ).value
                 )
             )
+            forNavBarUpdate.value
             Text(
                 text = title,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
                 color =
                 animateColorAsState(
-                    targetValue = if(selected)
-                        theme.value[SurfaceTheme.enable]!!
+                    targetValue = if (selected)
+                        theme.value[SurfaceTheme.enable]!!.copy(1f)
                     else
-                        theme.value[SurfaceTheme.disable]!!,
+                        theme.value[SurfaceTheme.disable]!!.copy(
+                            if (settingsPreferences.getBoolean("text_in_navbar", true))
+                                1f
+                            else
+                                0f
+                        ),
                     animationSpec = tween(durationMillis = 100, easing = FastOutSlowInEasing),
                     label = ""
-                ).value
+                ).value,
             )
         }
     }

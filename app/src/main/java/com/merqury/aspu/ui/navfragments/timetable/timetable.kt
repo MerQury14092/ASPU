@@ -53,7 +53,9 @@ fun TimetableScreen(header: MutableState<@Composable () -> Unit>) {
 @Composable
 fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
     Column {
-        header.value = { TimetableHeader() }
+        header.value = {
+            TimetableHeader()
+        }
         val pullRefreshState = rememberPullRefreshState(
             refreshing = !timetableLoaded.value,
             onRefresh = {

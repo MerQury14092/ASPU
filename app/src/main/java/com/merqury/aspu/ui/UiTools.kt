@@ -1,17 +1,18 @@
 package com.merqury.aspu.ui
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -24,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -38,6 +40,7 @@ import com.google.accompanist.web.rememberWebViewState
 import com.merqury.aspu.show
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
+import com.merqury.aspu.ui.theme.themeChangeDuration
 
 @Composable
 fun GifImage(
@@ -75,8 +78,10 @@ fun ModalWindow(
         onDismissRequest = {
             onDismiss()
         }) {
-        Card(modifier = modifier,
-            colors = CardDefaults.cardColors(containerColor = background)) {
+        Card(
+            modifier = modifier,
+            colors = CardDefaults.cardColors(containerColor = background)
+        ) {
             content()
         }
     }
@@ -88,16 +93,17 @@ fun showSimpleModalWindow(
     closeable: Boolean = true,
     containerColor: Color = Color.White,
     content: @Composable (showed: MutableState<Boolean>) -> Unit
-){
-    showSimpleUpdatableModalWindow (
+) {
+    showSimpleUpdatableModalWindow(
         modifier = modifier,
         onClosed = onClosed,
         closeable = closeable,
         containerColor = containerColor
-    ){ showed, _, _ ->
+    ) { showed, _, _ ->
         content(showed)
     }
 }
+
 fun showSimpleUpdatableModalWindow(
     modifier: Modifier = Modifier,
     onClosed: () -> Unit = {},
@@ -119,13 +125,15 @@ fun showSimpleUpdatableModalWindow(
             Dialog(
                 properties = DialogProperties(usePlatformDefaultWidth = false),
                 onDismissRequest = {
-                    if(closeable)
+                    if (closeable)
                         showed.value = false
                     onClosed()
                 }) {
-                Card(modifier = modifier, colors = CardDefaults.cardColors(
-                    containerColor = containerColor
-                )) {
+                Card(
+                    modifier = modifier, colors = CardDefaults.cardColors(
+                        containerColor = containerColor
+                    )
+                ) {
                     forUpdate.value
                     content(showed, update, forUpdate)
                 }
@@ -193,24 +201,33 @@ fun showSelectListDialog(
     ) {
         Box(
             modifier = Modifier
-                .padding(10.dp)
-                .fillMaxWidth(.5f)
+                .fillMaxWidth(.75f)
         ) {
             val modalWindowVisibility = it
             Column {
                 buttons.entries.forEach {
-                    Divider(color = theme.value[SurfaceTheme.divider]!!)
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(30.dp)
-                            .clickable {
-                                it.value()
-                                modalWindowVisibility.value = false
-                            },
-                        contentAlignment = Alignment.Center
+                    Card (
+                        colors = CardDefaults.cardColors(
+                            containerColor = theme.value[SurfaceTheme.foreground]!!
+                        ),
+                        modifier = Modifier.padding(10.dp)
                     ) {
-                        Text(text = it.key, fontSize = 20.sp, color = theme.value[SurfaceTheme.text]!!)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp)
+                                .clickable {
+                                    it.value()
+                                    modalWindowVisibility.value = false
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = it.key,
+                                fontSize = 20.sp,
+                                color = theme.value[SurfaceTheme.text]!!
+                            )
+                        }
                     }
                 }
             }
@@ -218,8 +235,24 @@ fun showSelectListDialog(
     }
 }
 
-fun showWebPage(url: String){
+fun showWebPage(url: String) {
     showSimpleModalWindow {
         WebView(rememberWebViewState(url))
+    }
+}
+
+@Composable
+fun TitleHeader(title: String) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(
+            text = title,
+            color = animateColorAsState(
+                targetValue = theme.value[SurfaceTheme.text]!!,
+                animationSpec = tween(durationMillis = themeChangeDuration),
+                label = ""
+            ).value,
+            fontSize = 24.sp,
+            fontStyle = FontStyle.Italic
+        )
     }
 }

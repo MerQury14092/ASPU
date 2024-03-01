@@ -11,15 +11,23 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.merqury.aspu.ui.TitleHeader
+import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.showWebPage
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
 
 @Composable
-fun OtherScreen() {
+fun OtherScreen(header: MutableState<@Composable () -> Unit>) {
+    header.value = { TitleHeader(title = when (settingsPreferences.getString("user", "student")) {
+        "student" -> "Студенту"
+        "teacher" -> "Педагогу"
+        else -> "Кому?"
+    }) }
     Box(modifier = Modifier
         .fillMaxSize()
         .background(theme.value[SurfaceTheme.background]!!)){

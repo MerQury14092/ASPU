@@ -14,10 +14,11 @@ enum class SurfaceTheme {
     divider,
     disable,
     enable,
-    text
+    text,
+    button
 }
 
-const val themeChangeDuration = 500
+const val themeChangeDuration = 300
 
 private val lightTheme = mapOf(
     SurfaceTheme.background to Color.White,
@@ -25,7 +26,8 @@ private val lightTheme = mapOf(
     SurfaceTheme.divider to Color(0xffdee1e6),
     SurfaceTheme.disable to Color(0xff656F7E),
     SurfaceTheme.enable to Color.Black,
-    SurfaceTheme.text to Color.Black
+    SurfaceTheme.text to Color.Black,
+    SurfaceTheme.button to Color(0xffd4d4d4)
 )
 
 private val darkTheme = mapOf(
@@ -34,7 +36,8 @@ private val darkTheme = mapOf(
     SurfaceTheme.divider to Color(0xff1f1f1f),
     SurfaceTheme.disable to Color(0xff939393),
     SurfaceTheme.enable to Color.White,
-    SurfaceTheme.text to Color(0xffE2E3E6)
+    SurfaceTheme.text to Color(0xffE2E3E6),
+    SurfaceTheme.button to Color(0xff2b2b2b)
 )
 
 var theme = mutableStateOf(
