@@ -1,6 +1,8 @@
 package com.merqury.aspu.ui.navfragments.settings
 
 import android.content.Context
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +18,7 @@ import com.merqury.aspu.ui.navfragments.timetable.showSelectIdModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.isDarkThemeOn
 import com.merqury.aspu.ui.theme.theme
+import com.merqury.aspu.ui.theme.themeChangeDuration
 import com.merqury.aspu.ui.theme.updateTheme
 
 val settingsPreferences = context?.getSharedPreferences("settings", Context.MODE_PRIVATE)!!
@@ -36,7 +39,12 @@ fun reloadSettingsScreen() {
 
 @Composable
 fun SettingsScreen() {
-    Box(modifier = Modifier.fillMaxSize().background(theme.value[SurfaceTheme.background]!!)){
+    Box(modifier = Modifier.fillMaxSize().background(
+        animateColorAsState(
+        targetValue = theme.value[SurfaceTheme.background]!!,
+        animationSpec = tween(durationMillis = themeChangeDuration),
+        label = ""
+    ).value)){
         Column {
             settingsUpdate.value
             SettingsChapter(

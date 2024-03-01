@@ -1,5 +1,7 @@
 package com.merqury.aspu.ui.navfragments.settings
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
+import com.merqury.aspu.ui.theme.themeChangeDuration
 
 @Composable
 fun SettingsChapter(title: String, buttons: Map<String, () -> Unit>) {
@@ -23,14 +26,32 @@ fun SettingsChapter(title: String, buttons: Map<String, () -> Unit>) {
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(title, color = theme.value[SurfaceTheme.text]!!)
+        Text(
+            title, color = animateColorAsState(
+                targetValue = theme.value[SurfaceTheme.text]!!,
+                animationSpec = tween(durationMillis = themeChangeDuration),
+                label = ""
+            ).value
+        )
         buttons.entries.forEach {
             if (it.key.isNotEmpty())
                 SettingsButton(onClick = it.value) {
-                    Text(text = it.key, fontSize = 16.sp, color = theme.value[SurfaceTheme.text]!!)
+                    Text(
+                        text = it.key,
+                        fontSize = 16.sp,
+                        color = animateColorAsState(
+                            targetValue = theme.value[SurfaceTheme.text]!!,
+                            animationSpec = tween(durationMillis = themeChangeDuration),
+                            label = ""
+                        ).value
+                    )
                 }
         }
-        Divider(color = theme.value[SurfaceTheme.divider]!!)
+        Divider(color = animateColorAsState(
+            targetValue = theme.value[SurfaceTheme.divider]!!,
+            animationSpec = tween(durationMillis = themeChangeDuration),
+            label = ""
+        ).value)
     }
 }
 
@@ -45,7 +66,11 @@ fun SettingsButton(onClick: () -> Unit, content: @Composable () -> Unit) {
                 onClick()
             },
         colors = CardDefaults.cardColors(
-            containerColor = theme.value[SurfaceTheme.foreground]!!
+            containerColor = animateColorAsState(
+                targetValue = theme.value[SurfaceTheme.foreground]!!,
+                animationSpec = tween(durationMillis = themeChangeDuration),
+                label = ""
+            ).value
         )
     ) {
         Box(modifier = Modifier.padding(10.dp)) {

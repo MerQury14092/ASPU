@@ -43,6 +43,7 @@ import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.navfragments.timetable.TimetableScreen
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
+import com.merqury.aspu.ui.theme.themeChangeDuration
 
 val topBarContent: MutableState<@Composable () -> Unit> = mutableStateOf({})
 val content: MutableState<@Composable () -> Unit> = mutableStateOf({
@@ -65,10 +66,18 @@ fun MainScreen() {
                     modifier = Modifier
                         .fillMaxHeight(.06f)
                         .fillMaxWidth()
-                        .background(theme.value[SurfaceTheme.foreground]!!)
+                        .background(animateColorAsState(
+                            targetValue = theme.value[SurfaceTheme.foreground]!!,
+                            animationSpec = tween(durationMillis = themeChangeDuration),
+                            label = ""
+                        ).value)
                 ) { topBarContent.value() }
                 Divider(
-                    color = theme.value[SurfaceTheme.divider]!!,
+                    color = animateColorAsState(
+                        targetValue = theme.value[SurfaceTheme.divider]!!,
+                        animationSpec = tween(durationMillis = themeChangeDuration),
+                        label = ""
+                    ).value,
                     modifier = Modifier.height(2.dp)
                 )
             }
@@ -78,11 +87,19 @@ fun MainScreen() {
                 modifier = Modifier
                     .fillMaxHeight(.075f)
                     .fillMaxWidth()
-                    .background(theme.value[SurfaceTheme.foreground]!!)
+                    .background(animateColorAsState(
+                        targetValue = theme.value[SurfaceTheme.foreground]!!,
+                        animationSpec = tween(durationMillis = themeChangeDuration),
+                        label = ""
+                    ).value)
             ) {
                 Column {
                     Divider(
-                        color = theme.value[SurfaceTheme.divider]!!,
+                        color = animateColorAsState(
+                            targetValue = theme.value[SurfaceTheme.divider]!!,
+                            animationSpec = tween(durationMillis = themeChangeDuration),
+                            label = ""
+                        ).value,
                         modifier = Modifier.height(2.dp)
                     )
                     NavigationBar()
@@ -190,19 +207,19 @@ fun NavBarItem(
                     ).value
                 )
             )
-//            if(selected)
-//                        theme.value[SurfaceTheme.enable]!!
-//                    else
-//                        theme.value[SurfaceTheme.disable]!!
             Text(
                 text = title,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
                 color =
-                if(selected)
-                    theme.value[SurfaceTheme.enable]!!
-                else
-                    theme.value[SurfaceTheme.disable]!!
+                animateColorAsState(
+                    targetValue = if(selected)
+                        theme.value[SurfaceTheme.enable]!!
+                    else
+                        theme.value[SurfaceTheme.disable]!!,
+                    animationSpec = tween(durationMillis = 100, easing = FastOutSlowInEasing),
+                    label = ""
+                ).value
             )
         }
     }

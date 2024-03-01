@@ -17,6 +17,8 @@ enum class SurfaceTheme {
     text
 }
 
+const val themeChangeDuration = 500
+
 private val lightTheme = mapOf(
     SurfaceTheme.background to Color.White,
     SurfaceTheme.foreground to Color(0xffedeef0),
