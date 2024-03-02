@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.ripple
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -138,7 +139,9 @@ fun NavigationBar() {
         Image(painter = painterResource(id = R.drawable.agpu_logo), contentDescription = null,
             modifier = Modifier.clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = null
+                indication = ripple(
+                    bounded = true
+                )
             )
             {
                 onASPUButtonClick.value()

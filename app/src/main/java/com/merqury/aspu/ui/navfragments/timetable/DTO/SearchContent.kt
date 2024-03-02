@@ -6,14 +6,14 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 
-val mapper = jacksonObjectMapper().apply {
-    propertyNamingStrategy = PropertyNamingStrategy.LOWER_CAMEL_CASE
-    setSerializationInclusion(JsonInclude.Include.NON_NULL)
-}
+
 
 class SearchContent(elements: Collection<SearchContentElement>) : ArrayList<SearchContentElement>(elements) {
-
     companion object {
+        private val mapper = jacksonObjectMapper().apply {
+            propertyNamingStrategy = PropertyNamingStrategy.LOWER_CAMEL_CASE
+            setSerializationInclusion(JsonInclude.Include.NON_NULL)
+        }
         fun fromJson(json: String) = mapper.readValue<SearchContent>(json)
     }
 }

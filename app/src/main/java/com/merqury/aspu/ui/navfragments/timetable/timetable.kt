@@ -44,6 +44,8 @@ val timetableLoaded = mutableStateOf(false)
 val timetableDay = mutableStateOf(JSONObject())
 val timetableLoadSuccess = mutableStateOf(true)
 
+
+
 @Composable
 fun TimetableScreen(header: MutableState<@Composable () -> Unit>) {
     TimetableScreenContent(header)

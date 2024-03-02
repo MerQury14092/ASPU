@@ -5,7 +5,6 @@ import androidx.compose.runtime.MutableState
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.requestQueue
-import com.merqury.aspu.ui.navfragments.timetable.DTO.SearchContent
 import org.json.JSONObject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -43,23 +42,3 @@ fun getTodayDate(): String {
     return LocalDate.now().format(formatter)
 }
 
-fun getSearchResults(
-    query: String,
-    searchResults: MutableState<SearchContent>,
-    success: MutableState<Boolean>
-) {
-    val url = "https://www.it-institut.ru/SearchString/KeySearch?Id=118&SearchProductName=$query"
-    val request = StringRequest(
-        Request.Method.GET,
-        url,
-        {
-            searchResults.value = SearchContent.fromJson(it)
-            success.value = true
-        },
-        {
-            success.value = false
-            Log.d("network-error", "ERROR")
-        }
-    )
-    requestQueue!!.add(request)
-}
