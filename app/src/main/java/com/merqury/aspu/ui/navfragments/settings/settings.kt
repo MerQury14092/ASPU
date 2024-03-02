@@ -99,9 +99,9 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                                 else -> "group"
                             }
                         ) {
-                            settingsPreferences.edit().putString("timetable_id", it.name).apply()
+                            settingsPreferences.edit().putString("timetable_id", it.searchContent).apply()
                             settingsPreferences.edit()
-                                .putString("timetable_id_owner", it.owner.uppercase())
+                                .putString("timetable_id_owner", it.type.uppercase())
                                 .apply()
                             selectableDisciplines.edit().clear().apply()
                             reloadSettingsScreen()

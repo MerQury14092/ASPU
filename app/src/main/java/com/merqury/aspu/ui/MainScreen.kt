@@ -1,6 +1,5 @@
 package com.merqury.aspu.ui
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
@@ -46,16 +45,13 @@ import com.merqury.aspu.ui.theme.theme
 import com.merqury.aspu.ui.theme.themeChangeDuration
 
 val topBarContent: MutableState<@Composable () -> Unit> = mutableStateOf({})
-val content: MutableState<@Composable () -> Unit> = mutableStateOf({
-    when (settingsPreferences.getString("initial_route", "news")) {
-        "news" -> NewsScreen(topBarContent)
-        "timetable" -> TimetableScreen(topBarContent)
-        "other" -> OtherScreen(topBarContent)
-        "settings" -> SettingsScreen(topBarContent)
-    }
+val content: MutableState<@Composable () -> Unit> =
+    mutableStateOf(getContentByRoute(settingsPreferences.getString("initial_route", "news")!!))
+val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
+    content.value = getContentByRoute(settingsPreferences.getString("initial_route", "news")!!)
+    selected_page.value = settingsPreferences.getString("initial_route", "news")!!
 })
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen() {
 
@@ -133,22 +129,21 @@ fun NavigationBar() {
         verticalAlignment = Alignment.Bottom
     ) {
         forNavBarUpdate.value
-        NavBarItem(title = "Новости", icon = R.drawable.news_icon, selected_page.value == "news") {
-            NewsScreen(topBarContent)
-            selected_page.value = "news"
-        }
+        NavBarItem(title = "Новости", icon = R.drawable.news_icon, "news")
         NavBarItem(
             title = "Расписание",
             icon = R.drawable.timetable_icon,
-            selected_page.value == "timetable"
-        ) {
-            TimetableScreen(topBarContent)
-            selected_page.value = "timetable"
-        }
+            "timetable"
+        )
         Image(painter = painterResource(id = R.drawable.agpu_logo), contentDescription = null,
-            modifier = Modifier.clickable {
-                printlog("BUTTON CLICKED")
-            })
+            modifier = Modifier.clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            )
+            {
+                onASPUButtonClick.value()
+            }
+        )
         NavBarItem(
             title =
             when (settingsPreferences.getString("user", "student")) {
@@ -156,19 +151,13 @@ fun NavigationBar() {
                 "teacher" -> "Педагогу"
                 else -> "Кому?"
             }, icon = R.drawable.other_icon,
-            selected_page.value == "other"
-        ) {
-            OtherScreen(topBarContent)
-            selected_page.value = "other"
-        }
+            "other"
+        )
         NavBarItem(
             title = "Настройки",
             icon = R.drawable.settings_icon,
-            selected_page.value == "settings"
-        ) {
-            SettingsScreen(topBarContent)
-            selected_page.value = "settings"
-        }
+            "settings"
+        )
     }
 }
 
@@ -176,15 +165,16 @@ fun NavigationBar() {
 fun NavBarItem(
     title: String,
     icon: Int,
-    selected: Boolean,
-    screen: @Composable () -> Unit
+    route: String
 ) {
+    val selected = selected_page.value == route
     Box(
         modifier = Modifier.clickable(
             interactionSource = remember { MutableInteractionSource() },
             indication = null
         ) {
-            content.value = screen
+            content.value = getContentByRoute(route)
+            selected_page.value = route
 
         }) {
         Column(
@@ -238,5 +228,18 @@ fun NavBarItem(
                 ).value,
             )
         }
+    }
+}
+
+fun getContentByRoute(route: String): @Composable () -> Unit {
+    val news: @Composable () -> Unit = { NewsScreen(topBarContent) }
+    val timetable: @Composable () -> Unit = { TimetableScreen(topBarContent) }
+    val settings: @Composable () -> Unit = { SettingsScreen(topBarContent) }
+    val other: @Composable () -> Unit = { OtherScreen(topBarContent) }
+    return when (route) {
+        "news" -> news
+        "timetable" -> timetable
+        "other" -> other
+        else -> settings
     }
 }

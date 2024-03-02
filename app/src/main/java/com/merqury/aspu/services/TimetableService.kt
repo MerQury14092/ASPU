@@ -5,8 +5,7 @@ import androidx.compose.runtime.MutableState
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.requestQueue
-import com.merqury.aspu.ui.navfragments.timetable.DTO.SearchResult
-import org.json.JSONArray
+import com.merqury.aspu.ui.navfragments.timetable.DTO.SearchContent
 import org.json.JSONObject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -46,7 +45,7 @@ fun getTodayDate(): String {
 
 fun getSearchResults(
     query: String,
-    searchResults: MutableState<ArrayList<SearchResult>>,
+    searchResults: MutableState<SearchContent>,
     success: MutableState<Boolean>
 ) {
     val url = "https://www.it-institut.ru/SearchString/KeySearch?Id=118&SearchProductName=$query"
@@ -54,7 +53,7 @@ fun getSearchResults(
         Request.Method.GET,
         url,
         {
-            searchResults.value = parseSearchResults(JSONArray(it))
+            searchResults.value = SearchContent.fromJson(it)
             success.value = true
         },
         {
@@ -63,20 +62,4 @@ fun getSearchResults(
         }
     )
     requestQueue!!.add(request)
-}
-
-fun parseSearchResults(
-    json: JSONArray
-): ArrayList<SearchResult>{
-    val result = arrayListOf<SearchResult>()
-    for (i in 0..<json.length()){
-        val element = json.get(i) as JSONObject
-        result.add(
-            SearchResult(
-                element.getString("SearchContent"),
-                element.getString("Type").uppercase()
-            )
-        )
-    }
-    return result
 }

@@ -57,8 +57,8 @@ fun TimetableHeader() {
             Button(
                 onClick = {
                     showSelectIdModalWindow {
-                        selectedId.value = it.name
-                        selectedOwner.value = it.owner.uppercase()
+                        selectedId.value = it.searchContent
+                        selectedOwner.value = it.type.uppercase()
                         timetableLoaded.value = false
                     }
                 }, colors = ButtonDefaults.buttonColors(
