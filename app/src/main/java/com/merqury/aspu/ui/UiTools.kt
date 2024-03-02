@@ -1,6 +1,7 @@
 package com.merqury.aspu.ui
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -186,7 +187,12 @@ fun SwipeableBox(
     ) {
         Box(modifier = modifier) {
             Box(
-                modifier = Modifier.offset(x = (summaryOffset.floatValue / 4).dp)
+                modifier = Modifier.offset(
+                    x =  animateDpAsState(
+                        targetValue = (summaryOffset.floatValue / 2).dp,
+                        animationSpec = tween(durationMillis = 50), label = ""
+                    ).value
+                )
             ) {
                 content()
             }
@@ -199,6 +205,16 @@ fun showSelectListDialog(
     buttons: Map<String, () -> Unit>,
     sortedByAlphabet: Boolean = false
 ) {
+    showSelectListDialog(
+        mutableStateOf(buttons),
+        sortedByAlphabet
+    )
+}
+
+fun showSelectListDialog(
+    buttons:MutableState<Map<String, () -> Unit>>,
+    sortedByAlphabet: Boolean = false
+) {
     showSimpleModalWindow(
         containerColor = theme.value[SurfaceTheme.background]!!
     ) {
@@ -209,12 +225,12 @@ fun showSelectListDialog(
         ) {
             val modalWindowVisibility = it
             Column {
-                val entries = if(sortedByAlphabet)
-                    buttons.entries.sortedBy { it.key }
+                val entries = if (sortedByAlphabet)
+                    buttons.value.entries.sortedBy { it.key }
                 else
-                    buttons.entries
+                    buttons.value.entries
                 entries.forEach {
-                    Card (
+                    Card(
                         colors = CardDefaults.cardColors(
                             containerColor = theme.value[SurfaceTheme.foreground]!!
                         ),

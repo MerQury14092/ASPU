@@ -31,6 +31,7 @@ fun getSearchResults(
 
 fun getFacultiesAndThemGroups(
     result: MutableState<FacultiesList>,
+    loaded: MutableState<Boolean>,
     success: MutableState<Boolean>
 ){
     val url = "https://agpu.merqury.fun/api/timetable/groups"
@@ -40,9 +41,11 @@ fun getFacultiesAndThemGroups(
         {
             result.value = FacultiesList.fromJson(EncodingConverter.translateISO8859_1toUTF_8(it))
             success.value = true
+            loaded.value = true
         },
         {
             success.value = false
+            loaded.value = true
             Log.d("network-error", "ERROR")
         }
     )

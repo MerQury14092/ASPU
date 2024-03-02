@@ -38,6 +38,8 @@ import com.merqury.aspu.ui.showSelectListDialog
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
+
+@SuppressLint("MutableCollectionMutableState")
 val facultiesList = mutableStateOf(FacultiesList(listOf()))
 fun getButtonsFacultyAndGroups(
     it: MutableState<Boolean>
@@ -83,12 +85,9 @@ fun showSelectIdModalWindow(
                     searchResults,
                     successSearchResults
                 )
-                getFacultiesAndThemGroups(
-                    facultiesList,
-                    remember {
-                        mutableStateOf(true)
-                    }
-                )
+                val facultiesLoaded = remember {
+                    mutableStateOf(false)
+                }
                 Card(
                     modifier = Modifier.padding(10.dp),
                     shape = RoundedCornerShape(50.dp),
@@ -126,6 +125,11 @@ fun showSelectIdModalWindow(
                     )
                 }
                 Divider(color = theme.value[SurfaceTheme.divider]!!)
+                val buttonsMapState = remember {
+                    mutableStateOf(mapOf("Загружается..." to {}))
+                }
+                if(facultiesLoaded.value)
+                    buttonsMapState.value = getButtonsFacultyAndGroups(it)
                 if (
                     textFieldValue.value.isEmpty()
                     && (filteredBy.lowercase() == "any" || filteredBy.lowercase() == "group")
@@ -134,9 +138,14 @@ fun showSelectIdModalWindow(
                         modifier = Modifier
                             .padding(10.dp)
                             .clickable {
+                                getFacultiesAndThemGroups(
+                                    facultiesList,
+                                    facultiesLoaded,
+                                    mutableStateOf(true)
+                                )
                                 showSelectListDialog(
                                     sortedByAlphabet = true,
-                                    buttons = getButtonsFacultyAndGroups(it)
+                                    buttons = buttonsMapState
                                 )
                             },
                         colors = CardDefaults.cardColors(
