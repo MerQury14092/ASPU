@@ -91,33 +91,36 @@ fun TimetableItem(discipline: JSONObject) {
                         )
                     ) Color.Black else theme.value[SurfaceTheme.text]!!
                 )
-                Text(
-                    discipline.getString("teacherName"),
-                    color = if (settingsPreferences.getBoolean(
-                            "color_timetable",
-                            true
+                if (selectedOwner.value.lowercase() != "teacher")
+                    Text(
+                        discipline.getString("teacherName"),
+                        color = if (settingsPreferences.getBoolean(
+                                "color_timetable",
+                                true
+                            )
+                        ) Color.Black else theme.value[SurfaceTheme.text]!!
+                    )
+                if (selectedOwner.value.lowercase() != "classroom")
+                    Row {
+                        Text(
+                            "Аудитория: ",
+                            color = if (settingsPreferences.getBoolean(
+                                    "color_timetable",
+                                    true
+                                )
+                            ) Color.Black else theme.value[SurfaceTheme.text]!!
                         )
-                    ) Color.Black else theme.value[SurfaceTheme.text]!!
-                )
-                Row {
-                    Text(
-                        "Аудитория: ",
-                        color = if (settingsPreferences.getBoolean(
-                                "color_timetable",
-                                true
-                            )
-                        ) Color.Black else theme.value[SurfaceTheme.text]!!
-                    )
-                    Text(
-                        text = discipline.getString("audienceId"),
-                        fontWeight = FontWeight.Bold,
-                        color = if (settingsPreferences.getBoolean(
-                                "color_timetable",
-                                true
-                            )
-                        ) Color.Black else theme.value[SurfaceTheme.text]!!
-                    )
-                }
+
+                        Text(
+                            text = discipline.getString("audienceId"),
+                            fontWeight = FontWeight.Bold,
+                            color = if (settingsPreferences.getBoolean(
+                                    "color_timetable",
+                                    true
+                                )
+                            ) Color.Black else theme.value[SurfaceTheme.text]!!
+                        )
+                    }
                 if (!settingsPreferences.getBoolean("filtration_on", true) ||
                     (settingsPreferences.getInt("selected_subgroup", 0) == 0
                             || settingsPreferences.getString(
@@ -153,14 +156,15 @@ fun TimetableItem(discipline: JSONObject) {
                         )
                     }
                     Column {
-                        Text(
-                            discipline.getString("groupName"),
-                            color = if (settingsPreferences.getBoolean(
-                                    "color_timetable",
-                                    true
-                                )
-                            ) Color.Black else theme.value[SurfaceTheme.text]!!
-                        )
+                        if (selectedOwner.value.lowercase() != "group")
+                            Text(
+                                discipline.getString("groupName"),
+                                color = if (settingsPreferences.getBoolean(
+                                        "color_timetable",
+                                        true
+                                    )
+                                ) Color.Black else theme.value[SurfaceTheme.text]!!
+                            )
                         if (type != TimetableDisciplineType.none)
                             Text(
                                 type.localizedName,

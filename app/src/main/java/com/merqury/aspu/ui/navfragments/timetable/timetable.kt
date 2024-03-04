@@ -106,7 +106,7 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
                                     .fillMaxSize(),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(text = "Пусто", color = theme.value[SurfaceTheme.text]!!)
+                                Text(text = "Нет пар", color = theme.value[SurfaceTheme.text]!!)
                             }
                         else {
                             val disciplines = if (

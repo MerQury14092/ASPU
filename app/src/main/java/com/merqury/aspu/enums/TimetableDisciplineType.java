@@ -23,7 +23,7 @@ public enum TimetableDisciplineType {
     }
     TimetableDisciplineType(String localizedName) {
         this.localizedName = localizedName;
-        this.colorHash = "#ffffff";
+        this.colorHash = "#edeef0";
     }
     public int getColorInt(){
         return Color.parseColor(colorHash);

@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.merqury.aspu.R
+import com.merqury.aspu.ui.navfragments.timetable.prettyDate
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
 
@@ -63,10 +64,10 @@ fun NewsItem(title: String, date: String, imageUrl: String, id: Int) {
                 color = theme.value[SurfaceTheme.text]!!
             )
             Text(
-                date,
+                prettyDate(date),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = 10.dp), textAlign = TextAlign.End,
+                    .padding(end = 10.dp, bottom = 5.dp), textAlign = TextAlign.End,
                 color = theme.value[SurfaceTheme.text]!!
             )
         }
