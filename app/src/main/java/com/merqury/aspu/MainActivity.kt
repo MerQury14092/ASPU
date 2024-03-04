@@ -1,43 +1,85 @@
 package com.merqury.aspu
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.merqury.aspu.ui.theme.ASPUTheme
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import com.android.volley.RequestQueue
+import com.android.volley.toolbox.Volley
+import com.merqury.aspu.ui.MainScreen
+import com.merqury.aspu.ui.navfragments.settings.reloadSettingsScreen
+import com.merqury.aspu.ui.navfragments.settings.selectUser
+import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
+import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
+import com.merqury.aspu.ui.navfragments.timetable.showSelectIdModalWindow
+
+@SuppressLint("StaticFieldLeak")
+var context: Context? = null
+var requestQueue: RequestQueue? = null
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+
+
         super.onCreate(savedInstanceState)
+        context = this
+        requestQueue = Volley.newRequestQueue(context)
         setContent {
-            ASPUTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    Greeting("Android")
-                }
+            contentList.forEach {
+                it()
             }
+            if (settingsPreferences.getBoolean("first_launch", true))
+                FirstStart()
+            MainScreen()
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-            text = "Hello $name!",
-            modifier = modifier
-    )
+private val contentList = mutableStateListOf<@Composable () -> Unit>()
+fun show(
+    content: @Composable () -> Unit
+) {
+    contentList.add(content)
 }
 
-@Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    ASPUTheme {
-        Greeting("MerQury")
+fun FirstStart() {
+    val userSelected = remember {
+        mutableStateOf(false)
+    }
+    val userSelectShow = remember {
+        mutableStateOf(false)
+    }
+    val idSelectShow = remember {
+        mutableStateOf(false)
+    }
+    if (!userSelected.value && !userSelectShow.value) {
+        userSelectShow.value = true
+        selectUser(userSelected)
+    }
+    if (userSelected.value && !idSelectShow.value) {
+        idSelectShow.value = true
+        showSelectIdModalWindow(
+            filteredBy = when (settingsPreferences.getString("user", "student")) {
+                "student" -> "group"
+                "teacher" -> "teacher"
+                else -> "group"
+            }
+        ) {
+            settingsPreferences.edit().putString("timetable_id", it.searchContent)
+                .apply()
+            settingsPreferences.edit()
+                .putString("timetable_id_owner", it.type.uppercase())
+                .apply()
+            selectableDisciplines.edit().clear().apply()
+            reloadSettingsScreen()
+        }
+        settingsPreferences.edit().putBoolean("first_launch", false).apply()
     }
 }
