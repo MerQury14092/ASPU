@@ -20,13 +20,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.merqury.aspu.enums.TimetableDisciplineType
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
+import com.merqury.aspu.ui.navfragments.timetable.DTO.Discipline
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
-import org.json.JSONObject
 
 @Composable
-fun TimetableItem(discipline: JSONObject) {
-    val type = TimetableDisciplineType.valueOf(discipline.getString("type"))
+fun TimetableItem(discipline: Discipline) {
+    val type = TimetableDisciplineType.valueOf(discipline.type)
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -49,7 +49,7 @@ fun TimetableItem(discipline: JSONObject) {
         Box(modifier = Modifier.padding(5.dp)) {
             Column {
                 Text(
-                    discipline.getString("time"),
+                    discipline.time,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     color = if (settingsPreferences.getBoolean(
@@ -59,7 +59,7 @@ fun TimetableItem(discipline: JSONObject) {
                     ) Color.Black else theme.value[SurfaceTheme.text]!!
                 )
                 Text(
-                    discipline.getString("name"),
+                    discipline.name,
                     modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
                     textAlign = TextAlign.Center,
                     fontSize = 20.sp,
@@ -86,7 +86,7 @@ fun TimetableItem(discipline: JSONObject) {
                             )
 
                             Text(
-                                text = discipline.getString("audienceId"),
+                                text = discipline.audienceID,
                                 fontWeight = FontWeight.Bold,
                                 color = if (settingsPreferences.getBoolean(
                                         "color_timetable",
@@ -98,7 +98,7 @@ fun TimetableItem(discipline: JSONObject) {
                     else
                         if (selectedOwner.value.lowercase() != "group")
                             Text(
-                                multiplyGroupFilter(discipline.getString("groupName")),
+                                multiplyGroupFilter(discipline.groupName),
                                 color = if (settingsPreferences.getBoolean(
                                         "color_timetable",
                                         true
@@ -109,7 +109,7 @@ fun TimetableItem(discipline: JSONObject) {
                             )
                     if (selectedOwner.value.lowercase() != "teacher")
                         Text(
-                            discipline.getString("teacherName"),
+                            discipline.teacherName,
                             color = if (settingsPreferences.getBoolean(
                                     "color_timetable",
                                     true
@@ -120,7 +120,7 @@ fun TimetableItem(discipline: JSONObject) {
                         )
                     if (selectedOwner.value.lowercase() == "teacher")
                         Text(
-                            multiplyGroupFilter(discipline.getString("groupName")),
+                            multiplyGroupFilter(discipline.groupName),
                             color = if (settingsPreferences.getBoolean(
                                     "color_timetable",
                                     true
@@ -138,9 +138,9 @@ fun TimetableItem(discipline: JSONObject) {
                         "ВМ-ИВТ-2-1"
                     ) != selectedId.value)
                 ) {
-                    if (discipline.getInt("subgroup") != 0)
+                    if (discipline.subgroup != 0)
                         Text(
-                            "Подгруппа: ${discipline.getString("subgroup")}",
+                            "Подгруппа: ${discipline.subgroup}",
                             color = if (settingsPreferences.getBoolean(
                                     "color_timetable",
                                     true
@@ -155,7 +155,7 @@ fun TimetableItem(discipline: JSONObject) {
                         contentAlignment = Alignment.BottomEnd
                     ) {
                         Text(
-                            getDisciplineNumberByTime(discipline.getString("time")).toString(),
+                            getDisciplineNumberByTime(discipline.time).toString(),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (settingsPreferences.getBoolean(
@@ -182,7 +182,7 @@ fun TimetableItem(discipline: JSONObject) {
                             )
                     }
                 }
-                if (discipline.getBoolean("distant")) {
+                if (discipline.distant) {
                     Divider(color = theme.value[SurfaceTheme.divider]!!)
                     Text(
                         text = "ДИСТАНЦИОННО",

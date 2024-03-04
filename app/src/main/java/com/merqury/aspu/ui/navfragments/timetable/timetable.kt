@@ -29,11 +29,11 @@ import com.merqury.aspu.services.getTodayDate
 import com.merqury.aspu.ui.SwipeableBox
 import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
+import com.merqury.aspu.ui.navfragments.timetable.DTO.Discipline
+import com.merqury.aspu.ui.navfragments.timetable.DTO.TimetableDay
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
-import org.json.JSONArray
-import org.json.JSONObject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -41,7 +41,7 @@ val selectedId = mutableStateOf(settingsPreferences.getString("timetable_id", "�
 val selectedOwner = mutableStateOf(settingsPreferences.getString("timetable_id_owner", "GROUP")!!)
 val selectedDate = mutableStateOf(getTodayDate())
 val timetableLoaded = mutableStateOf(false)
-val timetableDay = mutableStateOf(JSONObject())
+val timetableDay = mutableStateOf(TimetableDay("","", "", listOf()))
 val timetableLoadSuccess = mutableStateOf(true)
 
 
@@ -99,7 +99,7 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
                             .fillMaxSize()
                             .background(color = theme.value[SurfaceTheme.background]!!)
                     ) {
-                        if (timetableDay.value.getJSONArray("disciplines").length() == 0)
+                        if (timetableDay.value.disciplines.size == 0)
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize(),
@@ -118,12 +118,12 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
                             )
                                 filter(timetableDay.value)
                             else
-                                timetableDay.value.getJSONArray("disciplines")
+                                timetableDay.value.disciplines
 
                             LazyColumn {
-                                items(count = disciplines.length()) {
+                                items(count = disciplines.size) {
                                     TimetableItem(
-                                        discipline = disciplines.get(it) as JSONObject
+                                        discipline = disciplines[it]
                                     )
                                 }
 
@@ -157,42 +157,42 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
 }
 
 fun filter(
-    timetableDay: JSONObject
-): JSONArray {
-    var disciplines = JSONArray()
-    if (timetableDay.getString("id") == settingsPreferences.getString("timetable_id", "ВМ-ИВТ-2-1"))
-        (0..<timetableDay.getJSONArray("disciplines").length()).forEach {
-            val currentDiscipline = timetableDay.getJSONArray("disciplines").get(it) as JSONObject
-            if (isSelectableDiscipline(currentDiscipline.getString("name")))
+    timetableDay: TimetableDay
+): ArrayList<Discipline> {
+    var disciplines = arrayListOf<Discipline>()
+    if (timetableDay.id == settingsPreferences.getString("timetable_id", "ВМ-ИВТ-2-1"))
+        (0..<timetableDay.disciplines.size).forEach {
+            val currentDiscipline = timetableDay.disciplines[it]
+            if (isSelectableDiscipline(currentDiscipline.name))
                 filterSelectableDiscipline(disciplines, currentDiscipline)
             else
                 filterBySubgroup(disciplines, currentDiscipline)
         }
     else
-        disciplines = timetableDay.getJSONArray("disciplines")
+        disciplines = ArrayList(timetableDay.disciplines)
     return disciplines
 }
 
-fun filterBySubgroup(res: JSONArray, discipline: JSONObject) {
+fun filterBySubgroup(res: ArrayList<Discipline>, discipline: Discipline) {
     if (
-        discipline.getInt("subgroup") == 0
+        discipline.subgroup == 0
         ||
-        discipline.getInt("subgroup") == settingsPreferences.getInt("selected_subgroup", 0)
+        discipline.subgroup == settingsPreferences.getInt("selected_subgroup", 0)
         ||
         settingsPreferences.getInt("selected_subgroup", 0) == 0
     )
-        res.put(discipline)
+        res.add(discipline)
 }
 
-fun filterSelectableDiscipline(res: JSONArray, discipline: JSONObject) {
-    val factName = getNameOfSelectableDiscipline(discipline.getString("name"))
+fun filterSelectableDiscipline(res: ArrayList<Discipline>, discipline: Discipline) {
+    val factName = getNameOfSelectableDiscipline(discipline.name)
     if (!selectableDisciplines.contains(factName)) {
         answerShowingSelectableDiscipline(factName)
         selectableDisciplines.edit().putBoolean(factName, false).apply()
     } else {
         if (selectableDisciplines.getBoolean(factName, false)) {
-            discipline.put("name", factName)
-            res.put(discipline)
+            discipline.name = factName
+            res.add(discipline)
         }
     }
 }

@@ -5,7 +5,7 @@ import androidx.compose.runtime.MutableState
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.requestQueue
-import org.json.JSONObject
+import com.merqury.aspu.ui.navfragments.timetable.DTO.TimetableDay
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -13,7 +13,7 @@ fun getTimetableByDate(
     id: String,
     owner: String,
     date: String,
-    result: MutableState<JSONObject>,
+    result: MutableState<TimetableDay>,
     isLoaded: MutableState<Boolean>,
     success: MutableState<Boolean>
 ) {
@@ -24,7 +24,7 @@ fun getTimetableByDate(
         url,
         { response ->
             val convertedResponse = EncodingConverter.translateISO8859_1toUTF_8(response)
-            result.value = JSONObject(convertedResponse)
+            result.value = TimetableDay.fromJson(convertedResponse)
             isLoaded.value = true
             success.value = true
         },
