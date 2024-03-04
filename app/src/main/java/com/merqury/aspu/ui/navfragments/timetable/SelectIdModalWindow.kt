@@ -43,7 +43,8 @@ import com.merqury.aspu.ui.theme.theme
 @SuppressLint("MutableCollectionMutableState")
 val facultiesList = mutableStateOf(FacultiesList(listOf()))
 fun getButtonsFacultyAndGroups(
-    it: MutableState<Boolean>
+    it: MutableState<Boolean>,
+    onResultClick: (searchResult: SearchContentElement) -> Unit
 ): HashMap<String, () -> Unit> {
     return HashMap<String, () -> Unit>().apply {
         facultiesList.value.forEach { faculty ->
@@ -53,8 +54,7 @@ fun getButtonsFacultyAndGroups(
                     buttons = HashMap<String, () -> Unit>().apply {
                     faculty.groups.forEach { group ->
                         put(group) {
-                            selectedId.value = group
-                            selectedOwner.value = "GROUP"
+                            onResultClick(SearchContentElement(group, "Group", 0, 0))
                             it.value = false
                             timetableLoaded.value = false
                         }
@@ -133,7 +133,7 @@ fun showSelectIdModalWindow(
                 }
                 Column {
                     if (facultiesLoaded.value)
-                        buttonsMapState.value = getButtonsFacultyAndGroups(it)
+                        buttonsMapState.value = getButtonsFacultyAndGroups(it, onResultClick)
                     if (
                         textFieldValue.value.isEmpty()
                         && (filteredBy.lowercase() == "any" || filteredBy.lowercase() == "group")

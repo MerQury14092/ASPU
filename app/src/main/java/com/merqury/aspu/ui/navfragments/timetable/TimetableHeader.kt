@@ -84,9 +84,26 @@ fun prettyDate(
     return when (date) {
         today -> "Сегодня"
         today.plusDays(1) -> "Завтра"
+        today.plusDays(2) -> "Послезавтра"
         today.minusDays(1) -> "Вчера"
-        else -> rawDate
+        today.minusDays(2) -> "Позавчера"
+        else -> humanDate(rawDate)
     }
+}
+
+fun humanDate(
+    rawDate: String
+): String {
+    val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+    val date = LocalDate.parse(rawDate, formatter)
+    val today = LocalDate.now()
+    val year = if (today.year == date.year) "" else date.year.toString()
+    return "${date.dayOfMonth} ${
+        date.month.getDisplayName(
+            TextStyle.FULL,
+            context!!.resources.configuration.locale
+        )
+    } $year"
 }
 
 fun dayOfWeek(rawDate: String): String {

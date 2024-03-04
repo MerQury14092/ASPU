@@ -1,17 +1,10 @@
 package com.merqury.aspu.ui.navfragments.settings
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import com.merqury.aspu.ui.navBarUpdate
 import com.merqury.aspu.ui.navfragments.timetable.timetableLoaded
 import com.merqury.aspu.ui.showSelectListDialog
-import com.merqury.aspu.ui.showSimpleUpdatableModalWindow
-import com.merqury.aspu.ui.theme.SurfaceTheme
-import com.merqury.aspu.ui.theme.theme
 
 fun selectInitialSubgroup(update: () -> Unit) {
     showSelectListDialog(
@@ -58,7 +51,7 @@ fun selectInitialRoute() {
     )
 }
 
-fun selectUser() {
+fun selectUser(result: MutableState<Boolean> = mutableStateOf(false)){
     showSelectListDialog(
         mapOf(
             "Студент" to {
@@ -76,6 +69,7 @@ fun selectUser() {
                     .apply()
                 reloadSettingsScreen()
                 selectableDisciplines.edit().clear().apply()
+                result.value = true
                 navBarUpdate()
             },
             "Преподаватель" to {
@@ -93,6 +87,7 @@ fun selectUser() {
                     .apply()
                 reloadSettingsScreen()
                 selectableDisciplines.edit().clear().apply()
+                result.value = true
                 navBarUpdate()
             }
         )

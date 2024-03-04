@@ -34,6 +34,7 @@ import com.merqury.aspu.R
 import com.merqury.aspu.services.getNewsArticle
 import com.merqury.aspu.ui.GifImage
 import com.merqury.aspu.ui.ModalWindow
+import com.merqury.aspu.ui.navfragments.timetable.prettyDate
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
@@ -103,7 +104,7 @@ private fun ArticleViewContent(articleJson: JSONObject) {
                 color = theme.value[SurfaceTheme.text]!!
             )
             Text(
-                text = articleJson.getString("date"),
+                text = prettyDate(articleJson.getString("date")),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.End,
                 color = theme.value[SurfaceTheme.text]!!
