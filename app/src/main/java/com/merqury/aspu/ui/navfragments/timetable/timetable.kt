@@ -45,7 +45,6 @@ val timetableDay = mutableStateOf(JSONObject())
 val timetableLoadSuccess = mutableStateOf(true)
 
 
-
 @Composable
 fun TimetableScreen(header: MutableState<@Composable () -> Unit>) {
     TimetableScreenContent(header)
@@ -140,7 +139,10 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
                             .background(color = theme.value[SurfaceTheme.background]!!),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "Ошибка загрузки расписания!",color = theme.value[SurfaceTheme.text]!!)
+                        Text(
+                            text = "Ошибка загрузки расписания!",
+                            color = theme.value[SurfaceTheme.text]!!
+                        )
                     }
             }
             PullRefreshIndicator(
@@ -157,14 +159,17 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
 fun filter(
     timetableDay: JSONObject
 ): JSONArray {
-    val disciplines = JSONArray()
-    (0..<timetableDay.getJSONArray("disciplines").length()).forEach {
-        val currentDiscipline = timetableDay.getJSONArray("disciplines").get(it) as JSONObject
-        if (isSelectableDiscipline(currentDiscipline.getString("name")))
-            filterSelectableDiscipline(disciplines, currentDiscipline)
-        else
-            filterBySubgroup(disciplines, currentDiscipline)
-    }
+    var disciplines = JSONArray()
+    if (timetableDay.getString("id") == settingsPreferences.getString("timetable_id", "ВМ-ИВТ-2-1"))
+        (0..<timetableDay.getJSONArray("disciplines").length()).forEach {
+            val currentDiscipline = timetableDay.getJSONArray("disciplines").get(it) as JSONObject
+            if (isSelectableDiscipline(currentDiscipline.getString("name")))
+                filterSelectableDiscipline(disciplines, currentDiscipline)
+            else
+                filterBySubgroup(disciplines, currentDiscipline)
+        }
+    else
+        disciplines = timetableDay.getJSONArray("disciplines")
     return disciplines
 }
 
@@ -205,7 +210,10 @@ fun answerShowingSelectableDiscipline(name: String) {
                         .padding(10.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Показывать дисциплину по выбору: $name?", color = theme.value[SurfaceTheme.text]!!)
+                    Text(
+                        "Показывать дисциплину по выбору: $name?",
+                        color = theme.value[SurfaceTheme.text]!!
+                    )
                 }
             }
             Row {

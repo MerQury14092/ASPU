@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.merqury.aspu.R
 import com.merqury.aspu.services.getFacultiesAndThemGroups
 import com.merqury.aspu.services.getSearchResults
+import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.navfragments.timetable.DTO.FacultiesList
 import com.merqury.aspu.ui.navfragments.timetable.DTO.SearchContent
 import com.merqury.aspu.ui.navfragments.timetable.DTO.SearchContentElement
@@ -47,7 +48,9 @@ fun getButtonsFacultyAndGroups(
     return HashMap<String, () -> Unit>().apply {
         facultiesList.value.forEach { faculty ->
             put(faculty.facultyName.toAbbreviation()) {
-                showSelectListDialog(HashMap<String, () -> Unit>().apply {
+                showSelectListDialog(
+                    sortedByAlphabet = true,
+                    buttons = HashMap<String, () -> Unit>().apply {
                     faculty.groups.forEach { group ->
                         put(group) {
                             selectedId.value = group
@@ -128,43 +131,89 @@ fun showSelectIdModalWindow(
                 val buttonsMapState = remember {
                     mutableStateOf(mapOf("Загружается..." to {}))
                 }
-                if(facultiesLoaded.value)
-                    buttonsMapState.value = getButtonsFacultyAndGroups(it)
-                if (
-                    textFieldValue.value.isEmpty()
-                    && (filteredBy.lowercase() == "any" || filteredBy.lowercase() == "group")
-                ) {
-                    Card(
-                        modifier = Modifier
-                            .padding(10.dp)
-                            .clickable {
-                                getFacultiesAndThemGroups(
-                                    facultiesList,
-                                    facultiesLoaded,
-                                    mutableStateOf(true)
-                                )
-                                showSelectListDialog(
-                                    sortedByAlphabet = true,
-                                    buttons = buttonsMapState
-                                )
-                            },
-                        colors = CardDefaults.cardColors(
-                            containerColor = theme.value[SurfaceTheme.foreground]!!
-                        )
+                Column {
+                    if (facultiesLoaded.value)
+                        buttonsMapState.value = getButtonsFacultyAndGroups(it)
+                    if (
+                        textFieldValue.value.isEmpty()
+                        && (filteredBy.lowercase() == "any" || filteredBy.lowercase() == "group")
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp),
-                            horizontalArrangement = Arrangement.SpaceAround,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                "Или выберите из списка групп",
-                                color = theme.value[SurfaceTheme.text]!!
-                            )
+                        Column {
+                            Card(
+                                modifier = Modifier
+                                    .padding(10.dp)
+                                    .clickable {
+                                        getFacultiesAndThemGroups(
+                                            facultiesList,
+                                            facultiesLoaded,
+                                            mutableStateOf(true)
+                                        )
+                                        showSelectListDialog(
+                                            sortedByAlphabet = true,
+                                            buttons = buttonsMapState
+                                        )
+                                    },
+                                colors = CardDefaults.cardColors(
+                                    containerColor = theme.value[SurfaceTheme.foreground]!!
+                                )
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(50.dp),
+                                    horizontalArrangement = Arrangement.SpaceAround,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        "Или выберите из списка групп",
+                                        color = theme.value[SurfaceTheme.text]!!
+                                    )
+                                }
+                            }
                         }
                     }
+                    if (selectedId.value != settingsPreferences.getString(
+                            "timetable_id",
+                            "ВМ-ИВТ-2-1"
+                        ) && filteredBy.lowercase() == "any"
+                    )
+                        Card(
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .clickable {
+                                    selectedOwner.value = if (settingsPreferences.getString(
+                                            "user",
+                                            "student"
+                                        ) == "student"
+                                    )
+                                        "GROUP"
+                                    else
+                                        "TEACHER"
+                                    selectedId.value =
+                                        settingsPreferences.getString(
+                                            "timetable_id",
+                                            "ВМ-ИВТ-2-1"
+                                        )!!
+                                    timetableLoaded.value = false
+                                    it.value = false
+                                },
+                            colors = CardDefaults.cardColors(
+                                containerColor = theme.value[SurfaceTheme.foreground]!!
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(50.dp),
+                                horizontalArrangement = Arrangement.SpaceAround,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    "Вернуть ваше расписание",
+                                    color = theme.value[SurfaceTheme.text]!!
+                                )
+                            }
+                        }
                 }
                 val results = if (filteredBy.lowercase() == "any")
                     searchResults.value
