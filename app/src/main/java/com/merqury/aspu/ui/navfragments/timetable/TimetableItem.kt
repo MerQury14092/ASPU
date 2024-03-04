@@ -1,5 +1,6 @@
 package com.merqury.aspu.ui.navfragments.timetable
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,11 +32,9 @@ fun TimetableItem(discipline: Discipline) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 4.dp, vertical = 2.dp)
-//            .shadow(
-//                elevation = 5.dp,
-//                shape = RoundedCornerShape(15.dp),
-//                spotColor = Color.Black
-//            )
+            .clickable {
+                showDisciplineDetails(discipline)
+            }
         ,
         colors = CardDefaults.cardColors(
             containerColor =

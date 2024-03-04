@@ -22,8 +22,11 @@ import com.merqury.aspu.ui.navfragments.timetable.showSelectIdModalWindow
 var context: Context? = null
 var requestQueue: RequestQueue? = null
 
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+
+
         super.onCreate(savedInstanceState)
         context = this
         requestQueue = Volley.newRequestQueue(context)
