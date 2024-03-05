@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -69,23 +68,26 @@ private fun DisciplineDetails(discipline: Discipline) {
                 TextAlign.Center
             )
             ThemeDivider()
+
+            val corps = getCorpsByAudience(discipline.audienceID)
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    if (discipline.audienceID == "Спортзал ФОК")
-                        "Спортзал"
-                    else
-                        "Аудитория: ${discipline.audienceID}",
-                    color = theme.value[SurfaceTheme.text]!!
-                )
-                val corps = getCorpsByAudience(discipline.audienceID)
-                Text(
-                    corps.name,
-                    color = theme.value[SurfaceTheme.text]!!
-                )
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ){
+                Column {
+                    Text(
+                        if (discipline.audienceID == "Спортзал ФОК")
+                            "Спортзал"
+                        else
+                            "Аудитория: ${discipline.audienceID}",
+                        color = theme.value[SurfaceTheme.text]!!
+                    )
+                    Text(
+                        corps.name,
+                        color = theme.value[SurfaceTheme.text]!!
+                    )
+                }
+
                 Image(
                     painter = painterResource(id = R.drawable.map),
                     contentDescription = null,
@@ -98,6 +100,7 @@ private fun DisciplineDetails(discipline: Discipline) {
                     colorFilter = ColorFilter.tint(theme.value[SurfaceTheme.text]!!)
                 )
             }
+
             ThemeDivider()
             AlignText(discipline.groupName)
             ThemeDivider()
