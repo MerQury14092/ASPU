@@ -43,6 +43,7 @@ val selectedDate = mutableStateOf(getTodayDate())
 val timetableLoaded = mutableStateOf(false)
 val timetableDay = mutableStateOf(TimetableDay("","", "", listOf()))
 val timetableLoadSuccess = mutableStateOf(true)
+val timetableLoadStatusText = mutableStateOf("")
 
 
 @Composable
@@ -76,7 +77,8 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
                     selectedDate.value,
                     timetableDay,
                     timetableLoaded,
-                    timetableLoadSuccess
+                    timetableLoadSuccess,
+                    timetableLoadStatusText
                 )
             } else {
                 if (timetableLoadSuccess.value)
@@ -140,7 +142,7 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Ошибка загрузки расписания!",
+                            text = timetableLoadStatusText.value,
                             color = theme.value[SurfaceTheme.text]!!
                         )
                     }

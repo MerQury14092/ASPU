@@ -48,6 +48,12 @@ fun show(
     contentList.add(content)
 }
 
+fun close(
+    content: @Composable () -> Unit
+){
+    contentList.remove(content)
+}
+
 @Composable
 fun FirstStart() {
     val userSelected = remember {

@@ -34,6 +34,7 @@ val countPages = mutableIntStateOf(1)
 val showArticleView = mutableStateOf(false)
 val clickedArticleId = mutableIntStateOf(0)
 val newsLoadSuccess = mutableStateOf(true)
+val newsLoadStatusText = mutableStateOf("")
 val selectedFaculty = mutableStateOf(
     NewsCategoryEnum.valueOf(
         settingsPreferences.getString(
@@ -71,7 +72,6 @@ fun NewsContent(
         }
     )
     Column(modifier = Modifier.fillMaxSize()) {
-
         if (!newsLoaded.value) {
             getNews(
                 selectedFaculty.value,
@@ -79,7 +79,8 @@ fun NewsContent(
                 newsResponseState,
                 countPages,
                 newsLoaded,
-                newsLoadSuccess
+                newsLoadSuccess,
+                newsLoadStatusText
             )
         }
         Box(
@@ -97,7 +98,10 @@ fun NewsContent(
                             .verticalScroll(rememberScrollState()),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "Ошибка загрузки новостей!",color = theme.value[SurfaceTheme.text]!!)
+                        Text(
+                            text = newsLoadStatusText.value,
+                            color = theme.value[SurfaceTheme.text]!!
+                        )
                     }
                 else
                     SwipeableBox(
@@ -112,9 +116,9 @@ fun NewsContent(
                         swipeableRight = currentPage.intValue < countPages.intValue,
                         swipeableLeft = currentPage.intValue > 1
                     ) {
-                        LazyColumn (
+                        LazyColumn(
                             modifier = Modifier.background(theme.value[SurfaceTheme.background]!!)
-                        ){
+                        ) {
                             items(count = data.value.getJSONArray("articles").length()) {
                                 val article = data.value.getJSONArray("articles").getJSONObject(it)
                                 NewsItem(

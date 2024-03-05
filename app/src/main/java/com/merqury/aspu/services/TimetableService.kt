@@ -2,7 +2,9 @@ package com.merqury.aspu.services
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
+import com.android.volley.NoConnectionError
 import com.android.volley.Request
+import com.android.volley.ServerError
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.requestQueue
 import com.merqury.aspu.ui.navfragments.timetable.DTO.TimetableDay
@@ -15,7 +17,8 @@ fun getTimetableByDate(
     date: String,
     result: MutableState<TimetableDay>,
     isLoaded: MutableState<Boolean>,
-    success: MutableState<Boolean>
+    success: MutableState<Boolean>,
+    responseText: MutableState<String>
 ) {
     isLoaded.value = false
     val url = "https://agpu.merqury.fun/api/timetable/day?id=$id&owner=$owner&date=$date"
@@ -32,6 +35,13 @@ fun getTimetableByDate(
             success.value = false
             isLoaded.value = true
             Log.d("network-error", "ERROR")
+            if(it.javaClass == NoConnectionError::class.java)
+                responseText.value = "Нет подключения к интернету!"
+            else if(it.javaClass == ServerError::class.java)
+                if (it.networkResponse.statusCode == 502)
+                    responseText.value = "На сервере ведутся плановые технические работы."
+                else
+                    responseText.value = "Неизвестная ошибка! Отчёт был отправлен разработчику."
         }
     )
     requestQueue!!.add(request)

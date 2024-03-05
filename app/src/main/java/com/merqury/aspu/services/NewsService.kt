@@ -3,7 +3,9 @@ package com.merqury.aspu.services
 import android.util.Log
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
+import com.android.volley.NoConnectionError
 import com.android.volley.Request
+import com.android.volley.ServerError
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.requestQueue
@@ -15,7 +17,8 @@ fun getNews(
     newsResponse: MutableState<JSONObject>,
     countPages: MutableIntState,
     newsLoaded: MutableState<Boolean>,
-    success: MutableState<Boolean>
+    success: MutableState<Boolean>,
+    responseText: MutableState<String>
 ) {
     newsLoaded.value = false
     var url = "https://agpu.merqury.fun/api/news"
@@ -35,7 +38,13 @@ fun getNews(
         {
             success.value = false
             newsLoaded.value = true
-            Log.d("network-error", "ERROR")
+            if(it.javaClass == NoConnectionError::class.java)
+                responseText.value = "Нет подключения к интернету!"
+            else if(it.javaClass == ServerError::class.java)
+                if (it.networkResponse.statusCode == 502)
+                    responseText.value = "На сервере ведутся плановые технические работы."
+                else
+                    responseText.value = "Неизвестная ошибка! Отчёт был отправлен разработчику."
         }
     )
     requestQueue!!.add(request)
