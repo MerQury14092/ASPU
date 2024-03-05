@@ -22,6 +22,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,6 +41,7 @@ import coil.request.ImageRequest
 import coil.size.Size
 import com.google.accompanist.web.WebView
 import com.google.accompanist.web.rememberWebViewState
+import com.merqury.aspu.close
 import com.merqury.aspu.show
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
@@ -114,14 +116,15 @@ fun showSimpleUpdatableModalWindow(
     containerColor: Color = Color.White,
     content: @Composable (showed: MutableState<Boolean>, update: () -> Unit, forUpdate: MutableState<Boolean>) -> Unit
 ) {
-    show {
+    var dialogContent: @Composable () -> Unit = {}
+    dialogContent = {
         val forUpdate = remember {
             mutableStateOf(false)
         }
         val update = {
             forUpdate.value = !forUpdate.value
         }
-        val showed = remember {
+        val showed = rememberSaveable {
             mutableStateOf(true)
         }
         if (showed.value)
@@ -131,6 +134,7 @@ fun showSimpleUpdatableModalWindow(
                     if (closeable)
                         showed.value = false
                     onClosed()
+                    close(dialogContent)
                 }) {
                 Card(
                     modifier = modifier, colors = CardDefaults.cardColors(
@@ -142,6 +146,7 @@ fun showSimpleUpdatableModalWindow(
                 }
             }
     }
+    show(dialogContent)
 }
 
 @Composable
