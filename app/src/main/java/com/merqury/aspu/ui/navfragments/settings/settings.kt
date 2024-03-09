@@ -4,17 +4,27 @@ import android.content.Context
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.merqury.aspu.context
 import com.merqury.aspu.enums.NewsCategoryEnum
+import com.merqury.aspu.pInfo
+import com.merqury.aspu.services.sendToDevEmail
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.navBarUpdate
 import com.merqury.aspu.ui.navfragments.news.showFacultySelectModalWindow
@@ -39,19 +49,21 @@ fun reloadSettingsScreen() {
 @Composable
 fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
     header.value = { TitleHeader(title = "Настройки") }
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .background(
-            animateColorAsState(
-                targetValue = theme.value[SurfaceTheme.background]!!,
-                animationSpec = tween(durationMillis = themeChangeDuration),
-                label = ""
-            ).value
-        )){
-        Column (
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                animateColorAsState(
+                    targetValue = theme.value[SurfaceTheme.background]!!,
+                    animationSpec = tween(durationMillis = themeChangeDuration),
+                    label = ""
+                ).value
+            )
+    ) {
+        Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
-        ){
+        ) {
             settingsUpdate.value
             SettingsChapter(
                 title = "Общие настройки",
@@ -99,7 +111,8 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                                 else -> "group"
                             }
                         ) {
-                            settingsPreferences.edit().putString("timetable_id", it.searchContent).apply()
+                            settingsPreferences.edit().putString("timetable_id", it.searchContent)
+                                .apply()
                             settingsPreferences.edit()
                                 .putString("timetable_id_owner", it.type.uppercase())
                                 .apply()
@@ -113,26 +126,30 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                         ) == "student"
                     ) "Настройки фильтрации расписания" to { filterSettings() } else "" to {},
 
-                )
+                    )
             )
             SettingsChapter(title = "Настройки внешнего вида", buttons = mapOf(
                 "${
-                    if(settingsPreferences.getString("theme",
-                            if(context!!.isDarkThemeOn())
+                    if (settingsPreferences.getString(
+                            "theme",
+                            if (context!!.isDarkThemeOn())
                                 "dark"
                             else
                                 "light"
-                        ) == "dark")
+                        ) == "dark"
+                    )
                         "Тёмная"
                     else
                         "Светлая"
                 } тема" to {
-                    if(settingsPreferences.getString("theme",
-                            if(context!!.isDarkThemeOn())
+                    if (settingsPreferences.getString(
+                            "theme",
+                            if (context!!.isDarkThemeOn())
                                 "dark"
                             else
                                 "light"
-                        ) == "dark")
+                        ) == "dark"
+                    )
                         settingsPreferences.edit().putString("theme", "light").apply()
                     else
                         settingsPreferences.edit().putString("theme", "dark").apply()
@@ -171,6 +188,58 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                     navBarUpdate()
                 }
             ))
+            Text(
+                "О приложении", color = animateColorAsState(
+                    targetValue = theme.value[SurfaceTheme.text]!!,
+                    animationSpec = tween(durationMillis = themeChangeDuration),
+                    label = ""
+                ).value,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(
+                "Версия приложения: ${pInfo!!.versionName}",
+                color = animateColorAsState(
+                    targetValue = theme.value[SurfaceTheme.text]!!,
+                    animationSpec = tween(durationMillis = themeChangeDuration),
+                    label = ""
+                ).value,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Left
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(
+                "Приложение находится на этапе активной разработки и тестирования, в связи с этим в нём могут быть баги и ошибки",
+                color = animateColorAsState(
+                    targetValue = theme.value[SurfaceTheme.text]!!,
+                    animationSpec = tween(durationMillis = themeChangeDuration),
+                    label = ""
+                ).value,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Left
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(
+                "Если встретились с ошибкой, сообщите разработчику",
+                color = animateColorAsState(
+                    targetValue = theme.value[SurfaceTheme.text]!!,
+                    animationSpec = tween(durationMillis = themeChangeDuration),
+                    label = ""
+                ).value,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Left
+            )
+            Text(
+                "petrakov.developer@gmail.com",
+                color = Color.Blue,
+                modifier = Modifier.fillMaxWidth()
+                    .clickable {
+                        sendToDevEmail()
+                    },
+                textAlign = TextAlign.Left,
+                
+            )
         }
     }
 }
