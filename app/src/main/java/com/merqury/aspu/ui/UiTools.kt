@@ -60,8 +60,6 @@ import com.merqury.aspu.show
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
 import com.merqury.aspu.ui.theme.themeChangeDuration
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 @Composable
 fun GifImage(
@@ -225,9 +223,7 @@ fun SwipeableBox(
 }
 
 fun async(runnable: () -> Unit){
-    GlobalScope.launch {
-        runnable
-    }
+    Thread {runnable()}.start()
 }
 
 fun showSelectListDialog(

@@ -32,32 +32,27 @@ import com.merqury.aspu.R
 import com.merqury.aspu.services.getFacultiesAndThemGroups
 import com.merqury.aspu.services.getSearchResults
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
+import com.merqury.aspu.ui.navfragments.timetable.DTO.FacultiesList
 import com.merqury.aspu.ui.navfragments.timetable.DTO.SearchContent
 import com.merqury.aspu.ui.navfragments.timetable.DTO.SearchContentElement
 import com.merqury.aspu.ui.showSelectListDialog
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
-import org.json.JSONArray
-import org.json.JSONObject
 
 @SuppressLint("MutableCollectionMutableState")
-val facultiesList = mutableStateOf(JSONArray())
+val facultiesList = mutableStateOf(FacultiesList(listOf()))
 fun getButtonsFacultyAndGroups(
     it: MutableState<Boolean>,
     onResultClick: (searchResult: SearchContentElement) -> Unit
 ): HashMap<String, () -> Unit> {
     return HashMap<String, () -> Unit>().apply {
-        (0..<facultiesList.value.length()).forEach { flindex ->
-            val faculty = facultiesList.value[flindex] as JSONObject
-            put(faculty.getString("facultyName").toAbbreviation()) {
+        facultiesList.value.forEach { faculty ->
+            put(faculty.facultyName.toAbbreviation()) {
                 showSelectListDialog(
                     sortedByAlphabet = true,
                     buttons = HashMap<String, () -> Unit>().apply {
-                        val groups = faculty.getJSONArray("groups")
-
-                        (0..<groups.length()).forEach { glindex ->
-                            val group = groups[glindex] as String
+                        faculty.groups.forEach { group ->
                             put(group) {
                                 onResultClick(SearchContentElement(group, "Group", 0, 0))
                                 it.value = false

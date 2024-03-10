@@ -6,8 +6,8 @@ import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.requestQueue
 import com.merqury.aspu.ui.async
+import com.merqury.aspu.ui.navfragments.timetable.DTO.FacultiesList
 import com.merqury.aspu.ui.navfragments.timetable.DTO.SearchContent
-import org.json.JSONArray
 
 fun getSearchResults(
     query: String,
@@ -33,7 +33,7 @@ fun getSearchResults(
 }
 
 fun getFacultiesAndThemGroups(
-    result: MutableState<JSONArray>,
+    result: MutableState<FacultiesList>,
     loaded: MutableState<Boolean>,
     success: MutableState<Boolean>
 ){
@@ -42,7 +42,7 @@ fun getFacultiesAndThemGroups(
         Request.Method.GET,
         url,
         {
-            result.value = JSONArray(EncodingConverter.translateISO8859_1toUTF_8(it))
+            result.value = FacultiesList.fromJson(EncodingConverter.translateISO8859_1toUTF_8(it))
             success.value = true
             loaded.value = true
         },
