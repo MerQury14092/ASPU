@@ -10,12 +10,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.LinearProgressIndicator
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,9 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
-import com.merqury.aspu.R
 import com.merqury.aspu.services.getNewsArticle
-import com.merqury.aspu.ui.GifImage
 import com.merqury.aspu.ui.ModalWindow
 import com.merqury.aspu.ui.navfragments.timetable.prettyDate
 import com.merqury.aspu.ui.showSimpleModalWindow
@@ -69,18 +67,20 @@ fun ArticleView() {
                 articleLoaded,
                 newsArticleLoadSuccess
             )
-            Box(Modifier.fillMaxSize().background(color = theme.value[SurfaceTheme.background]!!), contentAlignment = Alignment.Center) {
-                GifImage(
-                    modifier = Modifier.size(50.dp),
-                    contentScale = ContentScale.Fit,
-                    gifResourceId = R.drawable.loading,
-                )
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(color = theme.value[SurfaceTheme.background]!!), contentAlignment = Alignment.Center)
+            {
+                CircularProgressIndicator(color = theme.value[SurfaceTheme.text]!!)
             }
         } else {
             if (newsArticleLoadSuccess.value)
                 ArticleViewContent(articleJson.value)
             else
-                Box(modifier = Modifier.fillMaxSize().background(color = theme.value[SurfaceTheme.background]!!), contentAlignment = Alignment.Center) {
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = theme.value[SurfaceTheme.background]!!), contentAlignment = Alignment.Center) {
                     androidx.compose.material.Text(text = "Ошибка загрузки статьи!")
                 }
         }
@@ -90,7 +90,9 @@ fun ArticleView() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ArticleViewContent(articleJson: JSONObject) {
-    Box(modifier = Modifier.padding(15.dp).background(color = theme.value[SurfaceTheme.background]!!)) {
+    Box(modifier = Modifier
+        .padding(15.dp)
+        .background(color = theme.value[SurfaceTheme.background]!!)) {
         Divider(color = theme.value[SurfaceTheme.divider]!!)
         Column(
             Modifier.verticalScroll(rememberScrollState())

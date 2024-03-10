@@ -23,6 +23,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.services.getTimetableByDate
 import com.merqury.aspu.services.getTodayDate
@@ -101,7 +102,7 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
                             .fillMaxSize()
                             .background(color = theme.value[SurfaceTheme.background]!!)
                     ) {
-                        if (timetableDay.value.disciplines.size == 0)
+                        if (timetableDay.value.disciplines.isEmpty())
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize(),
@@ -143,7 +144,8 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
                     ) {
                         Text(
                             text = timetableLoadStatusText.value,
-                            color = theme.value[SurfaceTheme.text]!!
+                            color = theme.value[SurfaceTheme.text]!!,
+                            textAlign = TextAlign.Center
                         )
                     }
             }

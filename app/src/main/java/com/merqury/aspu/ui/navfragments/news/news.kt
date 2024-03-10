@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.services.getNews
 import com.merqury.aspu.ui.SwipeableBox
@@ -100,7 +101,8 @@ fun NewsContent(
                     ) {
                         Text(
                             text = newsLoadStatusText.value,
-                            color = theme.value[SurfaceTheme.text]!!
+                            color = theme.value[SurfaceTheme.text]!!,
+                            textAlign = TextAlign.Center
                         )
                     }
                 else

@@ -52,14 +52,14 @@ fun getButtonsFacultyAndGroups(
                 showSelectListDialog(
                     sortedByAlphabet = true,
                     buttons = HashMap<String, () -> Unit>().apply {
-                    faculty.groups.forEach { group ->
-                        put(group) {
-                            onResultClick(SearchContentElement(group, "Group", 0, 0))
-                            it.value = false
-                            timetableLoaded.value = false
+                        faculty.groups.forEach { group ->
+                            put(group) {
+                                onResultClick(SearchContentElement(group, "Group", 0, 0))
+                                it.value = false
+                                timetableLoaded.value = false
+                            }
                         }
-                    }
-                })
+                    })
             }
         }
     }

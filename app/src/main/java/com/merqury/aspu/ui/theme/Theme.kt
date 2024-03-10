@@ -20,7 +20,7 @@ enum class SurfaceTheme {
 
 const val themeChangeDuration = 300
 
-private val lightTheme = mapOf(
+val lightTheme = mapOf(
     SurfaceTheme.background to Color.White,
     SurfaceTheme.foreground to Color(0xffedeef0),
     SurfaceTheme.divider to Color(0xffdee1e6),
@@ -30,7 +30,7 @@ private val lightTheme = mapOf(
     SurfaceTheme.button to Color(0xffd4d4d4)
 )
 
-private val darkTheme = mapOf(
+val darkTheme = mapOf(
     SurfaceTheme.background to Color(0xff141414),
     SurfaceTheme.foreground to Color(0xff222222),
     SurfaceTheme.divider to Color(0xff1f1f1f),

@@ -5,6 +5,7 @@ import androidx.compose.runtime.MutableState
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.requestQueue
+import com.merqury.aspu.ui.async
 import com.merqury.aspu.ui.navfragments.timetable.DTO.FacultiesList
 import com.merqury.aspu.ui.navfragments.timetable.DTO.SearchContent
 
@@ -18,7 +19,9 @@ fun getSearchResults(
         Request.Method.GET,
         url,
         {
-            searchResults.value = SearchContent.fromJson(it)
+            async {
+                searchResults.value = SearchContent.fromJson(it)
+            }
             success.value = true
         },
         {
