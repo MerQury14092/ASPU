@@ -20,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.context
 import com.merqury.aspu.enums.NewsCategoryEnum
@@ -238,6 +239,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                         sendToDevEmail()
                     },
                 textAlign = TextAlign.Left,
+                textDecoration = TextDecoration.Underline
                 
             )
         }
