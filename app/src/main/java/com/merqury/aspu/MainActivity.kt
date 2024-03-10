@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,10 +43,16 @@ class MainActivity : ComponentActivity() {
             MainScreen()
         }
     }
+
+    override fun onPause() {
+        super.onPause()
+        contentList.clear()
+    }
 }
 
 private val contentList = mutableStateListOf<@Composable () -> Unit>()
 fun show(
+    visibility: MutableState<Boolean>,
     content: @Composable () -> Unit
 ) {
     contentList.add(content)
@@ -54,7 +61,7 @@ fun show(
 fun close(
     content: @Composable () -> Unit
 ){
-    contentList.remove(content)
+
 }
 
 @Composable

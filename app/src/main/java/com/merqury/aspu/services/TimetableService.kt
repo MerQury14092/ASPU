@@ -5,6 +5,7 @@ import androidx.compose.runtime.MutableState
 import com.android.volley.NoConnectionError
 import com.android.volley.Request
 import com.android.volley.ServerError
+import com.android.volley.TimeoutError
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.requestQueue
 import com.merqury.aspu.ui.navfragments.timetable.DTO.TimetableDay
@@ -42,6 +43,8 @@ fun getTimetableByDate(
                     responseText.value = "На сервере ведутся плановые технические работы."
                 else
                     responseText.value = "Неизвестная ошибка! Отчёт был отправлен разработчику."
+            else if (it.javaClass == TimeoutError::class.java)
+                responseText.value = "Истекло время ожидания ответа. Возможно у вас проблемы с интернетом"
         }
     )
     requestQueue!!.add(request)

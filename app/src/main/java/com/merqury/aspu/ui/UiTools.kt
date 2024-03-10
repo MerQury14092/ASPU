@@ -33,7 +33,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -61,6 +60,8 @@ import com.merqury.aspu.show
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
 import com.merqury.aspu.ui.theme.themeChangeDuration
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun GifImage(
@@ -132,15 +133,13 @@ fun showSimpleUpdatableModalWindow(
     content: @Composable (showed: MutableState<Boolean>, update: () -> Unit, forUpdate: MutableState<Boolean>) -> Unit
 ) {
     var dialogContent: @Composable () -> Unit = {}
+    val showed = mutableStateOf(true)
     dialogContent = {
         val forUpdate = remember {
             mutableStateOf(false)
         }
         val update = {
             forUpdate.value = !forUpdate.value
-        }
-        val showed = rememberSaveable {
-            mutableStateOf(true)
         }
         if (showed.value)
             Dialog(
@@ -163,7 +162,7 @@ fun showSimpleUpdatableModalWindow(
         else
             close(dialogContent)
     }
-    show(dialogContent)
+    show(showed, dialogContent)
 }
 
 @Composable
@@ -211,8 +210,10 @@ fun SwipeableBox(
             Box(
                 modifier = Modifier.offset(
                     x = animateDpAsState(
-                        targetValue = (summaryOffset.floatValue / 2).dp,
-                        animationSpec = tween(durationMillis = 50), label = ""
+                        targetValue = (summaryOffset.floatValue / 3).dp,
+                        animationSpec = tween(durationMillis =
+                            if (summaryOffset.floatValue == 0f) 250 else 50
+                        ), label = ""
                     ).value
                 )
             ) {
@@ -221,6 +222,12 @@ fun SwipeableBox(
         }
     }
 
+}
+
+fun async(runnable: () -> Unit){
+    GlobalScope.launch {
+        runnable
+    }
 }
 
 fun showSelectListDialog(
