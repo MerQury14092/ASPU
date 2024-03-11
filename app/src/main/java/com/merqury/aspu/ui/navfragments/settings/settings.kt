@@ -22,9 +22,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import com.merqury.aspu.appVersion
 import com.merqury.aspu.context
 import com.merqury.aspu.enums.NewsCategoryEnum
-import com.merqury.aspu.pInfo
 import com.merqury.aspu.services.sendToDevEmail
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.navBarUpdate
@@ -200,7 +200,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
             )
             Spacer(modifier = Modifier.height(5.dp))
             Text(
-                "Версия приложения: ${pInfo!!.versionName}",
+                "Версия приложения: $appVersion",
                 color = animateColorAsState(
                     targetValue = theme.value[SurfaceTheme.text]!!,
                     animationSpec = tween(durationMillis = themeChangeDuration),

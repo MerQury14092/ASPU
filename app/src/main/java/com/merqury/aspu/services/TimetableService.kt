@@ -9,6 +9,10 @@ import com.android.volley.TimeoutError
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.requestQueue
 import com.merqury.aspu.ui.navfragments.timetable.DTO.TimetableDay
+import com.merqury.aspu.ui.navfragments.timetable.selectedDate
+import com.merqury.aspu.ui.navfragments.timetable.selectedId
+import com.merqury.aspu.ui.printlog
+import com.merqury.aspu.ui.showWebPage
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -41,13 +45,29 @@ fun getTimetableByDate(
             else if(it.javaClass == ServerError::class.java)
                 if (it.networkResponse.statusCode == 502)
                     responseText.value = "На сервере ведутся плановые технические работы."
+                else if(it.networkResponse.statusCode >= 500)
+                    responseText.value = "Ошибка на стороне сервера"
                 else
-                    responseText.value = "Неизвестная ошибка! Отчёт был отправлен разработчику."
+                    responseText.value = "Неизвестная ошибка! Отчёт был анонимно отправлен разработчику."
             else if (it.javaClass == TimeoutError::class.java)
                 responseText.value = "Истекло время ожидания ответа. Возможно у вас проблемы с интернетом"
         }
     )
     requestQueue!!.add(request)
+}
+
+fun showTimetableWebPageView(){
+    getSearchId(selectedId.value) {id, type ->
+        showTimetableWebPageView(id, type)
+    }
+}
+fun showTimetableWebPageView(searchId: Long, searchType: String){
+    val url = "www.it-institut.ru/Raspisanie/SearchedRaspisanie?OwnerId=118&SearchId=" +
+            searchId +
+            "&Type=$searchType&WeekId=${WeekIdService.weekIdByDate(selectedDate.value)}" +
+            "&SearchString=${selectedId.value}"
+    printlog(url)
+    showWebPage(url, "https")
 }
 
 fun getTodayDate(): String {

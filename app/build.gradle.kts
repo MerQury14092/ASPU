@@ -11,8 +11,8 @@ android {
         applicationId = "com.merqury.aspu"
         minSdk = 28
         targetSdk = 34
-        versionCode = 4
-        versionName = "1.01-alpha"
+        versionCode = 9
+        versionName = "1.02-alpha"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -61,6 +61,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
     implementation("androidx.activity:activity-compose:1.7.0")
+    implementation("org.jsoup:jsoup:1.17.2")
     implementation(platform("androidx.compose:compose-bom:2024.02.02"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
