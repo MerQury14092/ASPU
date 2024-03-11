@@ -10,7 +10,7 @@ public class WeekIdService {
 
         return mappingWeekId + countDays(date) / 7;
     }
-    private static long countDays(String endDate) {
+    private static long countDays(String endDate) { 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         LocalDate dt = LocalDate.parse("28.08.2023", formatter);
         long mappingWeek = dt.toEpochDay();

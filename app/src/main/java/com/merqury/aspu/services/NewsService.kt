@@ -10,6 +10,7 @@ import com.android.volley.TimeoutError
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.requestQueue
+import com.merqury.aspu.ui.navfragments.news.currentPage
 import com.merqury.aspu.ui.navfragments.news.selectedFaculty
 import org.json.JSONObject
 
@@ -84,9 +85,9 @@ fun getNewsArticle(
 }
 fun urlForCurrentFaculty(): String {
     return when (selectedFaculty.value.name) {
-        "agpu" -> "agpu.net/news.php"
-        "educationaltechnopark" -> "www.agpu.net/struktura-vuza/educationaltechnopark/news/news.php"
-        "PedagogicalQuantorium" -> "www.agpu.net/struktura-vuza/PedagogicalQuantorium/news/news.php"
-        else -> "agpu.net/struktura-vuza/faculties-institutes/${selectedFaculty.value.name}/news/news.php"
+        "agpu" -> "agpu.net/news.php?PAGEN_1=${currentPage.value}"
+        "educationaltechnopark" -> "www.agpu.net/struktura-vuza/educationaltechnopark/news/news.php?PAGEN_1=${currentPage.value}"
+        "PedagogicalQuantorium" -> "www.agpu.net/struktura-vuza/PedagogicalQuantorium/news/news.php?PAGEN_1=${currentPage.value}"
+        else -> "agpu.net/struktura-vuza/faculties-institutes/${selectedFaculty.value.name}/news/news.php?PAGEN_1=${currentPage.value}"
     }
 }

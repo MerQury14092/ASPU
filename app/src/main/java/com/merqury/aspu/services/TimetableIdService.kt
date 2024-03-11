@@ -36,24 +36,25 @@ fun getSearchResults(
 
 fun getSearchId(query: String, onLoaded: (resultId: Long, resultType: String) -> Unit) {
     async {
-        val content = SearchContent
-            .fromJson(
-                URI(
-                    "https://www.it-institut.ru/SearchString/KeySearch?Id=118&SearchProductName=${
-                        URLEncoder.encode(
-                            query,
-                            "utf-8"
-                        )
-                    }"
-                ).toURL().readText()
-            )
-        val result = if (content.isEmpty()) 0
-        else
-            content[0].searchID
-        val type = if (content.isEmpty()) "Group"
-        else
-            content[0].type
-        onLoaded(result, type)
+        val resp = URI(
+            "https://www.it-institut.ru/SearchString/KeySearch?Id=118&SearchProductName=${
+                URLEncoder.encode(
+                    query,
+                    "utf-8"
+                )
+            }"
+        ).toURL().readText()
+
+        val type = resp
+            .split("Type\":\"")[1]
+            .split("\"")[0]
+
+        val searchId = resp
+            .split("SearchId\":")[1]
+            .split(",")[0]
+            .toLong()
+
+        onLoaded(searchId, type)
     }
 }
 
