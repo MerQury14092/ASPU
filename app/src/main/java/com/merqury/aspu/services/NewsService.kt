@@ -10,6 +10,7 @@ import com.android.volley.TimeoutError
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.requestQueue
+import com.merqury.aspu.ui.navfragments.news.selectedFaculty
 import org.json.JSONObject
 
 fun getNews(
@@ -44,8 +45,10 @@ fun getNews(
             else if(it.javaClass == ServerError::class.java)
                 if (it.networkResponse.statusCode == 502)
                     responseText.value = "На сервере ведутся плановые технические работы."
+                else if(it.networkResponse.statusCode >= 500)
+                    responseText.value = "Ошибка на стороне сервера"
                 else
-                    responseText.value = "Неизвестная ошибка! Отчёт был отправлен разработчику."
+                    responseText.value = "Неизвестная ошибка! Отчёт был анонимно отправлен разработчику."
             else if (it.javaClass == TimeoutError::class.java)
                 responseText.value = "Истекло время ожидания ответа. Возможно у вас проблемы с интернетом"
         }
@@ -78,4 +81,12 @@ fun getNewsArticle(
         }
     )
     requestQueue!!.add(request)
+}
+fun urlForCurrentFaculty(): String {
+    return when (selectedFaculty.value.name) {
+        "agpu" -> "agpu.net/news.php"
+        "educationaltechnopark" -> "www.agpu.net/struktura-vuza/educationaltechnopark/news/news.php"
+        "PedagogicalQuantorium" -> "www.agpu.net/struktura-vuza/PedagogicalQuantorium/news/news.php"
+        else -> "agpu.net/struktura-vuza/faculties-institutes/${selectedFaculty.value.name}/news/news.php"
+    }
 }

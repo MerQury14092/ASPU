@@ -11,10 +11,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Divider
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
         requestQueue = Volley.newRequestQueue(context)
         getLastPublishedVersion(storeAppVersion, storeAppReleaseNotes)
         setContent {
-            if (storeAppVersion.value != "UNKNOWN" && storeAppVersion.value != appVersion)
+            if (storeAppVersion.value != "UNKNOWN" && storeAppVersionBigger())
                 NewVersionNotification()
             contentList.forEach {
                 it()
@@ -73,6 +73,12 @@ class MainActivity : ComponentActivity() {
         super.onPause()
         contentList.clear()
     }
+}
+
+fun storeAppVersionBigger(): Boolean {
+    val sav = storeAppVersion.value.replace(Regex("[^0-9.]"), "").toDouble()
+    val cav = appVersion!!.replace(Regex("[^0-9.]"), "").toDouble()
+    return sav > cav
 }
 
 @Composable
@@ -113,7 +119,7 @@ private fun NewVersionNotification() {
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.BottomEnd) {
                     Button(
                         onClick = { it.value = false }, colors = ButtonDefaults.buttonColors(
-                            backgroundColor = theme.value[SurfaceTheme.button]!!
+                            containerColor = theme.value[SurfaceTheme.button]!!
                         )
                     ) {
                         Text(text = "Хорошо", color = theme.value[SurfaceTheme.text]!!)

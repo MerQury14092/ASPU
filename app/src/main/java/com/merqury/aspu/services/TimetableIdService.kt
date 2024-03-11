@@ -8,6 +8,8 @@ import com.merqury.aspu.requestQueue
 import com.merqury.aspu.ui.async
 import com.merqury.aspu.ui.navfragments.timetable.DTO.FacultiesList
 import com.merqury.aspu.ui.navfragments.timetable.DTO.SearchContent
+import java.net.URI
+import java.net.URLEncoder
 
 fun getSearchResults(
     query: String,
@@ -32,11 +34,34 @@ fun getSearchResults(
     requestQueue!!.add(request)
 }
 
+fun getSearchId(query: String, onLoaded: (resultId: Long, resultType: String) -> Unit) {
+    async {
+        val content = SearchContent
+            .fromJson(
+                URI(
+                    "https://www.it-institut.ru/SearchString/KeySearch?Id=118&SearchProductName=${
+                        URLEncoder.encode(
+                            query,
+                            "utf-8"
+                        )
+                    }"
+                ).toURL().readText()
+            )
+        val result = if (content.isEmpty()) 0
+        else
+            content[0].searchID
+        val type = if (content.isEmpty()) "Group"
+        else
+            content[0].type
+        onLoaded(result, type)
+    }
+}
+
 fun getFacultiesAndThemGroups(
     result: MutableState<FacultiesList>,
     loaded: MutableState<Boolean>,
     success: MutableState<Boolean>
-){
+) {
     val url = "https://agpu.merqury.fun/api/timetable/groups"
     val request = StringRequest(
         Request.Method.GET,

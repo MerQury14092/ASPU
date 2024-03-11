@@ -36,6 +36,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.merqury.aspu.R
+import com.merqury.aspu.services.showTimetableWebPageView
+import com.merqury.aspu.services.urlForCurrentFaculty
 import com.merqury.aspu.ui.navfragments.news.NewsScreen
 import com.merqury.aspu.ui.navfragments.other.OtherScreen
 import com.merqury.aspu.ui.navfragments.settings.SettingsScreen
@@ -49,8 +51,15 @@ val topBarContent: MutableState<@Composable () -> Unit> = mutableStateOf({})
 val content: MutableState<@Composable () -> Unit> =
     mutableStateOf(getContentByRoute(settingsPreferences.getString("initial_route", "news")!!))
 val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
-    content.value = getContentByRoute(settingsPreferences.getString("initial_route", "news")!!)
-    selected_page.value = settingsPreferences.getString("initial_route", "news")!!
+    when (selected_page.value) {
+        "news" -> {
+            showWebPage(urlForCurrentFaculty(), "http")
+        }
+        "timetable" -> {
+            showTimetableWebPageView()
+        }
+        else -> showWebPage("agpu.net", "http")
+    }
 })
 
 @Composable

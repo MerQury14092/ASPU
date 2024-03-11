@@ -11,7 +11,7 @@ android {
         applicationId = "com.merqury.aspu"
         minSdk = 28
         targetSdk = 34
-        versionCode = 4
+        versionCode = 8
         versionName = "1.01-alpha"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
