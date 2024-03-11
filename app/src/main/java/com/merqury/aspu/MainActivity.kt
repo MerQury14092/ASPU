@@ -35,6 +35,7 @@ import com.merqury.aspu.ui.navfragments.settings.selectUser
 import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.navfragments.timetable.showSelectIdModalWindow
+import com.merqury.aspu.ui.printlog
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
@@ -58,6 +59,7 @@ class MainActivity : ComponentActivity() {
         requestQueue = Volley.newRequestQueue(context)
         getLastPublishedVersion(storeAppVersion, storeAppReleaseNotes)
         setContent {
+            printlog(storeAppVersion.value)
             if (storeAppVersion.value != "UNKNOWN" && storeAppVersionBigger())
                 NewVersionNotification()
             contentList.forEach {
