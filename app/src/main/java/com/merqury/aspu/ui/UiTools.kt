@@ -1,8 +1,11 @@
 package com.merqury.aspu.ui
 
+import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -26,7 +29,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -44,6 +47,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.ImageLoader
@@ -51,7 +55,6 @@ import coil.compose.rememberAsyncImagePainter
 import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import coil.size.Size
-import com.google.accompanist.web.WebView
 import com.google.accompanist.web.rememberWebViewState
 import com.merqury.aspu.R
 import com.merqury.aspu.close
@@ -284,6 +287,7 @@ fun showSelectListDialog(
     }
 }
 
+@SuppressLint("SetJavaScriptEnabled")
 fun showWebPage(url: String, scheme: String) {
     if (scheme in listOf("http", "https")) {
         showSimpleModalWindow {
@@ -337,9 +341,16 @@ fun showWebPage(url: String, scheme: String) {
                         }
                     }
                 }
-                Divider(color = theme.value[SurfaceTheme.divider]!!)
+                HorizontalDivider(color = theme.value[SurfaceTheme.divider]!!)
                 Box(modifier = Modifier.fillMaxSize()) {
-                    WebView(webViewState)
+                    AndroidView(factory = {
+                        WebView(it).apply {
+                            webViewClient = WebViewClient()
+                            settings.javaScriptEnabled = true
+                            settings.setSupportZoom(true)
+                            loadUrl(url)
+                        }
+                    })
                 }
             }
         }

@@ -11,7 +11,6 @@ import com.merqury.aspu.requestQueue
 import com.merqury.aspu.ui.navfragments.timetable.DTO.TimetableDay
 import com.merqury.aspu.ui.navfragments.timetable.selectedDate
 import com.merqury.aspu.ui.navfragments.timetable.selectedId
-import com.merqury.aspu.ui.printlog
 import com.merqury.aspu.ui.showWebPage
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -66,7 +65,6 @@ fun showTimetableWebPageView(searchId: Long, searchType: String){
             searchId +
             "&Type=$searchType&WeekId=${WeekIdService.weekIdByDate(selectedDate.value)}" +
             "&SearchString=${selectedId.value}"
-    printlog(url)
     showWebPage(url, "https")
 }
 

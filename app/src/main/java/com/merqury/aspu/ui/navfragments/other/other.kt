@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Divider
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -21,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,7 +63,19 @@ fun OtherScreenContent() {
         Column(
             Modifier.verticalScroll(rememberScrollState())
         ) {
-            data class Entry(val name: String, val icon: Int, val url: String, val scheme: String = "http")
+            Text(
+                text = "Нажмите на кнопку «АГПУ», чтоб посетить мобильную версию сайта",
+                color = theme.value[SurfaceTheme.text]!!,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+            Divider(color = theme.value[SurfaceTheme.divider]!!)
+            data class Entry(
+                val name: String,
+                val icon: Int,
+                val url: String,
+                val scheme: String = "http"
+            )
             listOf(
                 Entry(
                     "Сведения об образовательной организации",
@@ -145,7 +159,7 @@ fun OtherScreenContent() {
                     "www.youtube.com/channel/UCknLhL11-3y4jS7U0S8vGcw?view_as=subscriber",
                     "vnd.youtube"
                 ),
-                ).forEach {
+            ).forEach {
                 HyperReferenceButton(
                     name = it.name,
                     icon = it.icon,
