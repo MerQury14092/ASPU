@@ -1,5 +1,6 @@
 package com.merqury.aspu.ui
 
+import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
@@ -286,6 +287,7 @@ fun showSelectListDialog(
     }
 }
 
+@SuppressLint("SetJavaScriptEnabled")
 fun showWebPage(url: String, scheme: String) {
     if (scheme in listOf("http", "https")) {
         showSimpleModalWindow {
@@ -344,6 +346,8 @@ fun showWebPage(url: String, scheme: String) {
                     AndroidView(factory = {
                         WebView(it).apply {
                             webViewClient = WebViewClient()
+                            settings.javaScriptEnabled = true
+                            settings.setSupportZoom(true)
                             loadUrl(url)
                         }
                     })

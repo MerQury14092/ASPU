@@ -143,19 +143,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                     else
                         "Светлая"
                 } тема" to {
-                    if (settingsPreferences.getString(
-                            "theme",
-                            if (context!!.isDarkThemeOn())
-                                "dark"
-                            else
-                                "light"
-                        ) == "dark"
-                    )
-                        settingsPreferences.edit().putString("theme", "light").apply()
-                    else
-                        settingsPreferences.edit().putString("theme", "dark").apply()
-                    updateTheme()
-                    reloadSettingsScreen()
+                    toggleTheme()
                 },
                 "${
                     if (settingsPreferences.getBoolean("color_timetable", true))
@@ -244,6 +232,22 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
             )
         }
     }
+}
+
+fun toggleTheme(){
+    if (settingsPreferences.getString(
+            "theme",
+            if (context!!.isDarkThemeOn())
+                "dark"
+            else
+                "light"
+        ) == "dark"
+    )
+        settingsPreferences.edit().putString("theme", "light").apply()
+    else
+        settingsPreferences.edit().putString("theme", "dark").apply()
+    updateTheme()
+    reloadSettingsScreen()
 }
 
 

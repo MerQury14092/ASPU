@@ -42,6 +42,7 @@ import com.merqury.aspu.ui.navfragments.news.NewsScreen
 import com.merqury.aspu.ui.navfragments.other.OtherScreen
 import com.merqury.aspu.ui.navfragments.settings.SettingsScreen
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
+import com.merqury.aspu.ui.navfragments.settings.toggleTheme
 import com.merqury.aspu.ui.navfragments.timetable.TimetableScreen
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
@@ -58,6 +59,7 @@ val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
         "timetable" -> {
             showTimetableWebPageView()
         }
+        "settings" -> toggleTheme()
         else -> showWebPage("agpu.net", "http")
     }
 })
