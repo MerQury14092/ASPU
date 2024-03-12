@@ -23,7 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.appVersion
-import com.merqury.aspu.context
+import com.merqury.aspu.appContext
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.services.sendToDevEmail
 import com.merqury.aspu.ui.TitleHeader
@@ -36,9 +36,9 @@ import com.merqury.aspu.ui.theme.theme
 import com.merqury.aspu.ui.theme.themeChangeDuration
 import com.merqury.aspu.ui.theme.updateTheme
 
-val settingsPreferences = context?.getSharedPreferences("settings", Context.MODE_PRIVATE)!!
+val settingsPreferences = appContext?.getSharedPreferences("settings", Context.MODE_PRIVATE)!!
 val selectableDisciplines =
-    context?.getSharedPreferences("selectable_disciplines", Context.MODE_PRIVATE)!!
+    appContext?.getSharedPreferences("selectable_disciplines", Context.MODE_PRIVATE)!!
 
 
 private val settingsUpdate = mutableStateOf(false)
@@ -133,7 +133,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                 "${
                     if (settingsPreferences.getString(
                             "theme",
-                            if (context!!.isDarkThemeOn())
+                            if (appContext!!.isDarkThemeOn())
                                 "dark"
                             else
                                 "light"
@@ -237,7 +237,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
 fun toggleTheme(){
     if (settingsPreferences.getString(
             "theme",
-            if (context!!.isDarkThemeOn())
+            if (appContext!!.isDarkThemeOn())
                 "dark"
             else
                 "light"

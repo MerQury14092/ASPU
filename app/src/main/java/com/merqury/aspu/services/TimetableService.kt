@@ -12,6 +12,9 @@ import com.merqury.aspu.ui.navfragments.timetable.DTO.TimetableDay
 import com.merqury.aspu.ui.navfragments.timetable.selectedDate
 import com.merqury.aspu.ui.navfragments.timetable.selectedId
 import com.merqury.aspu.ui.showWebPage
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -55,9 +58,12 @@ fun getTimetableByDate(
     requestQueue!!.add(request)
 }
 
+@OptIn(DelicateCoroutinesApi::class)
 fun showTimetableWebPageView(){
     getSearchId(selectedId.value) {id, type ->
-        showTimetableWebPageView(id, type)
+        GlobalScope.launch {
+            showTimetableWebPageView(id, type)
+        }
     }
 }
 fun showTimetableWebPageView(searchId: Long, searchType: String){

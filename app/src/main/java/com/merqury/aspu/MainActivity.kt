@@ -41,7 +41,7 @@ import com.merqury.aspu.ui.theme.theme
 
 
 @SuppressLint("StaticFieldLeak")
-var context: Context? = null
+var appContext: Context? = null
 var requestQueue: RequestQueue? = null
 var appVersion: String? = null
 const val RUSTORE_RELEASE = "rustore"
@@ -53,9 +53,9 @@ private val storeAppReleaseNotes = mutableStateOf("")
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        context = this
-        appVersion = context!!.packageManager.getPackageInfo(context!!.packageName, 0).versionName
-        requestQueue = Volley.newRequestQueue(context)
+        appContext = this
+        appVersion = appContext!!.packageManager.getPackageInfo(appContext!!.packageName, 0).versionName
+        requestQueue = Volley.newRequestQueue(appContext)
         getLastPublishedVersion(storeAppVersion, storeAppReleaseNotes)
         setContent {
             if (storeAppVersion.value != "UNKNOWN" && storeAppVersionBigger())

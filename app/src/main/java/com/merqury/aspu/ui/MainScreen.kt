@@ -3,6 +3,7 @@ package com.merqury.aspu.ui
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,7 +20,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.ripple
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -54,15 +54,23 @@ val content: MutableState<@Composable () -> Unit> =
 val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
     when (selected_page.value) {
         "news" -> {
+            aspuButtonLoading.value = true
             showWebPage(urlForCurrentFaculty(), "http")
         }
+
         "timetable" -> {
+            aspuButtonLoading.value = true
             showTimetableWebPageView()
         }
+
         "settings" -> toggleTheme()
-        else -> showWebPage("agpu.net", "http")
+        else -> {
+            aspuButtonLoading.value = true
+            showWebPage("agpu.net", "http")
+        }
     }
 })
+val aspuButtonLoading = mutableStateOf(false)
 
 @Composable
 fun MainScreen() {
@@ -147,17 +155,28 @@ fun NavigationBar() {
             icon = R.drawable.timetable_icon,
             "timetable"
         )
-        Image(painter = painterResource(id = R.drawable.agpu_logo), contentDescription = null,
-            modifier = Modifier.clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = ripple(
-                    bounded = true
-                )
+        Box (
+            Modifier.fillMaxHeight(),
+            contentAlignment = Alignment.Center
+        ){
+            Image(painter = painterResource(id = R.drawable.agpu_logo), contentDescription = null,
+                modifier = Modifier
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    )
+                    {
+                        onASPUButtonClick.value()
+                    }
+                    .fillMaxHeight(
+                        animateFloatAsState(targetValue =
+                            if(aspuButtonLoading.value) .8f else 1f,
+                            label = "",
+                            animationSpec = tween(durationMillis = 100)
+                        ).value
+                    )
             )
-            {
-                onASPUButtonClick.value()
-            }
-        )
+        }
         NavBarItem(
             title =
             when (settingsPreferences.getString("user", "student")) {

@@ -117,11 +117,11 @@ fun OtherScreenContent() {
                     R.drawable.study_plan,
                     "plany.agpu.net/Plans/"
                 ),
-                Entry(
-                    "Аккаунт ЭИОС",
-                    R.drawable.account,
-                    "plany.agpu.net/WebApp/#/"
-                ),
+//                Entry(
+//                    "Аккаунт ЭИОС",
+//                    R.drawable.account,
+//                    "plany.agpu.net/WebApp/#/"
+//                ),
                 Entry(
                     "Рабочие программы",
                     R.drawable.programs,
@@ -151,7 +151,7 @@ fun OtherScreenContent() {
                     "АГПУ в Телеграм",
                     R.drawable.telegram,
                     "t.me/agpu_official",
-                    "tg"
+                    "https"
                 ),
                 Entry(
                     "АГПУ в YouTube",
