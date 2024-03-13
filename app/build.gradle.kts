@@ -11,8 +11,8 @@ android {
         applicationId = "com.merqury.aspu"
         minSdk = 28
         targetSdk = 34
-        versionCode = 10
-        versionName = "1.03-alpha"
+        versionCode = 12
+        versionName = "1.05"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

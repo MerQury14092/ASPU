@@ -20,6 +20,8 @@ fun getLastPublishedVersionRustore(
     releaseNotes: MutableState<String>
 ) {
     async {
+        URI("https://apps.rustore.ru/app/com.merqury.aspu").toURL().readText()
+        Thread.sleep(500)
         val response = URI("https://apps.rustore.ru/app/com.merqury.aspu").toURL().readText()
         val document = Jsoup.parse(response)
 

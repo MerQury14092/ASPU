@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
+import com.merqury.aspu.apiDomain
 import com.merqury.aspu.requestQueue
 import com.merqury.aspu.ui.async
 import com.merqury.aspu.ui.navfragments.timetable.DTO.FacultiesList
@@ -63,7 +64,7 @@ fun getFacultiesAndThemGroups(
     loaded: MutableState<Boolean>,
     success: MutableState<Boolean>
 ) {
-    val url = "https://agpu.merqury.fun/api/timetable/groups"
+    val url = "https://$apiDomain/api/timetable/groups"
     val request = StringRequest(
         Request.Method.GET,
         url,

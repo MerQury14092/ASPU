@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.merqury.aspu.context
+import com.merqury.aspu.appContext
 import com.merqury.aspu.ui.navfragments.timetable.timetableLoaded
 import com.merqury.aspu.ui.showSimpleUpdatableModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
@@ -90,7 +90,7 @@ fun ClearSelectableDisciplinesPolicy(){
     SettingsButton(onClick = {
         selectableDisciplines.edit().clear().apply()
         timetableLoaded.value = false
-        Toast.makeText(context, "Очищено", Toast.LENGTH_LONG).show()
+        Toast.makeText(appContext, "Очищено", Toast.LENGTH_LONG).show()
     }) {
         Text(text = "Очистить политику показа дисциплин по выбору", color = theme.value[SurfaceTheme.text]!!)
     }

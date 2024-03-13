@@ -5,7 +5,7 @@ import android.content.res.Configuration
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
-import com.merqury.aspu.context
+import com.merqury.aspu.appContext
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 
 enum class SurfaceTheme {
@@ -42,7 +42,7 @@ val darkTheme = mapOf(
 
 var theme = mutableStateOf(
     if (settingsPreferences.getString("theme",
-            if(context!!.isDarkThemeOn())
+            if(appContext!!.isDarkThemeOn())
                 "dark"
             else
                 "light"
@@ -52,7 +52,7 @@ var theme = mutableStateOf(
 fun updateTheme(){
     theme.value =
         if (settingsPreferences.getString("theme",
-                if(context!!.isDarkThemeOn())
+                if(appContext!!.isDarkThemeOn())
                     "dark"
                 else
                     "light"

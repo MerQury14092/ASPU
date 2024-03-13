@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
-import com.merqury.aspu.context
+import com.merqury.aspu.appContext
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
 import java.time.LocalDate
@@ -35,7 +35,7 @@ fun TimetableHeader() {
                     val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
                     val date = LocalDate.parse(selectedDate.value, formatter)
                     DatePickerDialog(
-                        context!!,
+                        appContext!!,
                         { _, year, month, day ->
                             changeDate(day, month, year)
                             timetableLoaded.value = false
@@ -101,7 +101,7 @@ fun humanDate(
     return "${date.dayOfMonth} ${
         date.month.getDisplayName(
             TextStyle.FULL,
-            context!!.resources.configuration.locale
+            appContext!!.resources.configuration.locale
         )
     } $year"
 }
@@ -109,7 +109,7 @@ fun humanDate(
 fun dayOfWeek(rawDate: String): String {
     val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
     val date = LocalDate.parse(rawDate, formatter)
-    return date.dayOfWeek.getDisplayName(TextStyle.SHORT, context!!.resources.configuration.locale)
+    return date.dayOfWeek.getDisplayName(TextStyle.SHORT, appContext!!.resources.configuration.locale)
 }
 
 fun changeDate(

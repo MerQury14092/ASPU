@@ -3,16 +3,17 @@ package com.merqury.aspu.services
 import android.util.Log
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
-import com.android.volley.NoConnectionError
 import com.android.volley.Request
-import com.android.volley.ServerError
-import com.android.volley.TimeoutError
 import com.android.volley.toolbox.StringRequest
+import com.merqury.aspu.apiDomain
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.requestQueue
+import com.merqury.aspu.ui.async
 import com.merqury.aspu.ui.navfragments.news.currentPage
 import com.merqury.aspu.ui.navfragments.news.selectedFaculty
+import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import org.json.JSONObject
+import java.util.concurrent.TimeUnit
 
 fun getNews(
     faculty: NewsCategoryEnum,
@@ -23,8 +24,23 @@ fun getNews(
     success: MutableState<Boolean>,
     responseText: MutableState<String>
 ) {
+    val timeCache = settingsPreferences.getLong("timeCache", TimeUnit.HOURS.toSeconds(3))
+    if(timeCache != 0L && cache.getString("${faculty.name} $pageNumber", "") != ""){
+        val cacheNewsPage = cache.getString("${faculty.name} $pageNumber", "")
+            ?.let { JSONObject(it) }
+        if(timestampDifference(timestampNow(), cacheNewsPage!!.getString("created")) < timeCache){
+            async {
+                Thread.sleep(100)
+                newsResponse.value = cacheNewsPage.getJSONObject("value")
+                countPages.intValue = cacheNewsPage.getJSONObject("value").getInt("countPages")
+                success.value = true
+                newsLoaded.value = true
+            }
+            return
+        }
+    }
     newsLoaded.value = false
-    var url = "https://agpu.merqury.fun/api/news"
+    var url = "https://$apiDomain/api/news"
     if (faculty != NewsCategoryEnum.agpu)
         url = "$url/${faculty.name}"
     url = "$url?page=$pageNumber"
@@ -37,21 +53,18 @@ fun getNews(
             countPages.intValue = newsResponse.value.getInt("countPages")
             newsLoaded.value = true
             success.value = true
+            cache.edit().putString(
+                "${faculty.name} $pageNumber",
+                JSONObject().apply {
+                    put("created", timestampNow())
+                    put("value", newsResponse.value)
+                }.toString()
+            ).apply()
         },
         {
             success.value = false
             newsLoaded.value = true
-            if(it.javaClass == NoConnectionError::class.java)
-                responseText.value = "Нет подключения к интернету!"
-            else if(it.javaClass == ServerError::class.java)
-                if (it.networkResponse.statusCode == 502)
-                    responseText.value = "На сервере ведутся плановые технические работы."
-                else if(it.networkResponse.statusCode >= 500)
-                    responseText.value = "Ошибка на стороне сервера"
-                else
-                    responseText.value = "Неизвестная ошибка! Отчёт был анонимно отправлен разработчику."
-            else if (it.javaClass == TimeoutError::class.java)
-                responseText.value = "Истекло время ожидания ответа. Возможно у вас проблемы с интернетом"
+            handleVolleyError(it, responseText)
         }
     )
     requestQueue!!.add(request)
@@ -65,7 +78,7 @@ fun getNewsArticle(
     success: MutableState<Boolean>
 ) {
     articleLoaded.value = false
-    val url = "https://agpu.merqury.fun/api/news/${faculty.name}/$id"
+    val url = "https://$apiDomain/api/news/${faculty.name}/$id"
     val request = StringRequest(
         Request.Method.GET,
         url,
