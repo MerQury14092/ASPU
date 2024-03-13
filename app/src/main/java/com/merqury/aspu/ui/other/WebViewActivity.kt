@@ -1,4 +1,4 @@
-package com.merqury.aspu.ui.navfragments.other
+package com.merqury.aspu.ui.other
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
@@ -38,6 +38,7 @@ import com.merqury.aspu.R
 import com.merqury.aspu.appContext
 import com.merqury.aspu.services.FileOpener
 import com.merqury.aspu.ui.aspuButtonLoading
+import com.merqury.aspu.ui.navfragments.other.ObservableString
 import com.merqury.aspu.ui.openInBrowser
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import java.util.Stack
@@ -151,10 +152,10 @@ class WebViewActivity : ComponentActivity() {
                         WebView(it).apply {
                             this.webViewClient = webViewClient
                             settings.javaScriptEnabled = true
-                            if(WebViewActivity.url.value.contains("it-institut"))
+                            if(Companion.url.value.contains("it-institut"))
                                 settings.builtInZoomControls = true
-                            loadUrl(WebViewActivity.url.value)
-                            WebViewActivity.url.subscribe { newUrl ->
+                            loadUrl(Companion.url.value)
+                            Companion.url.subscribe { newUrl ->
                                 post {
                                     loadUrl(newUrl)
                                 }

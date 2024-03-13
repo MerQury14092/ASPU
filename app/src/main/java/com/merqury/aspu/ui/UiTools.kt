@@ -45,7 +45,7 @@ import coil.size.Size
 import com.merqury.aspu.appContext
 import com.merqury.aspu.close
 import com.merqury.aspu.show
-import com.merqury.aspu.ui.navfragments.other.WebViewActivity
+import com.merqury.aspu.ui.other.WebViewActivity
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
 import com.merqury.aspu.ui.theme.themeChangeDuration

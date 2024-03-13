@@ -24,7 +24,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.navfragments.other.WebViewActivity"
+            android:name=".ui.other.WebViewActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ASPU">
+        </activity>
+        <activity
+            android:name=".ui.other.Terminal"
             android:exported="true"
             android:theme="@style/Theme.ASPU">
         </activity>
