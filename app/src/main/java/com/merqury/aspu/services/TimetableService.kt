@@ -8,6 +8,8 @@ import com.android.volley.ServerError
 import com.android.volley.TimeoutError
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.requestQueue
+import com.merqury.aspu.ui.async
+import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.navfragments.timetable.DTO.TimetableDay
 import com.merqury.aspu.ui.navfragments.timetable.selectedDate
 import com.merqury.aspu.ui.navfragments.timetable.selectedId
@@ -15,8 +17,11 @@ import com.merqury.aspu.ui.showWebPage
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.TimeUnit
+
 
 fun getTimetableByDate(
     id: String,
@@ -28,6 +33,20 @@ fun getTimetableByDate(
     responseText: MutableState<String>
 ) {
     isLoaded.value = false
+    val timeCache = settingsPreferences.getLong("timeCache", TimeUnit.HOURS.toSeconds(3))
+    if(timeCache != 0L && cache.getString("$id $date", "") != ""){
+        val cacheTimetableDay = cache.getString("$id $date", "")
+            ?.let { JSONObject(it) }
+        if(timestampDifference(timestampNow(), cacheTimetableDay!!.getString("created")) < timeCache){
+            async {
+                Thread.sleep(100)
+                result.value = TimetableDay.fromJson(cacheTimetableDay.getString("value"))
+                success.value = true
+                isLoaded.value = true
+            }
+            return
+        }
+    }
     val url = "https://agpu.merqury.fun/api/timetable/day?id=$id&owner=$owner&date=$date"
     val request = StringRequest(
         Request.Method.GET,
@@ -37,6 +56,13 @@ fun getTimetableByDate(
             result.value = TimetableDay.fromJson(convertedResponse)
             isLoaded.value = true
             success.value = true
+            cache.edit().putString(
+                "$id $date",
+                JSONObject().apply {
+                    put("created", timestampNow())
+                    put("value", convertedResponse)
+                }.toString()
+            ).apply()
         },
         {
             success.value = false

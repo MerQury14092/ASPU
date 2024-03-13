@@ -1,6 +1,7 @@
 package com.merqury.aspu.ui.navfragments.settings
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -22,19 +23,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import com.merqury.aspu.appVersion
 import com.merqury.aspu.appContext
+import com.merqury.aspu.appVersion
 import com.merqury.aspu.enums.NewsCategoryEnum
+import com.merqury.aspu.services.cache
 import com.merqury.aspu.services.sendToDevEmail
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.navBarUpdate
+import com.merqury.aspu.ui.navfragments.news.newsLoaded
 import com.merqury.aspu.ui.navfragments.news.showFacultySelectModalWindow
 import com.merqury.aspu.ui.navfragments.timetable.showSelectIdModalWindow
+import com.merqury.aspu.ui.navfragments.timetable.timetableLoaded
+import com.merqury.aspu.ui.showSelectListDialog
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.isDarkThemeOn
 import com.merqury.aspu.ui.theme.theme
 import com.merqury.aspu.ui.theme.themeChangeDuration
 import com.merqury.aspu.ui.theme.updateTheme
+import java.util.concurrent.TimeUnit
 
 val settingsPreferences = appContext?.getSharedPreferences("settings", Context.MODE_PRIVATE)!!
 val selectableDisciplines =
@@ -126,8 +132,64 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                             "student"
                         ) == "student"
                     ) "Настройки фильтрации расписания" to { filterSettings() } else "" to {},
-
-                    )
+                    "Данные хранятся в кэше: ${
+                        when (settingsPreferences.getLong(
+                            "timeCache",
+                            TimeUnit.HOURS.toSeconds(3)
+                        )) {
+                            0L -> "не хранятся"
+                            TimeUnit.MINUTES.toSeconds(30) -> "пол часа"
+                            TimeUnit.HOURS.toSeconds(1) -> "1 час"
+                            TimeUnit.HOURS.toSeconds(3) -> "3 часа"
+                            TimeUnit.HOURS.toSeconds(5) -> "5 часов"
+                            TimeUnit.HOURS.toSeconds(12) -> "12 часов"
+                            else -> "${
+                                settingsPreferences.getLong(
+                                    "timeCache",
+                                    TimeUnit.HOURS.toSeconds(3)
+                                )
+                            } minutes"
+                        }
+                    }" to {
+                        showSelectListDialog(mapOf(
+                            "Отключить" to {
+                                settingsPreferences.edit().putLong("timeCache", 0L).apply()
+                                reloadSettingsScreen()
+                            },
+                            "Пол часа" to {
+                                settingsPreferences.edit()
+                                    .putLong("timeCache", TimeUnit.MINUTES.toSeconds(30)).apply()
+                                reloadSettingsScreen()
+                            },
+                            "Час" to {
+                                settingsPreferences.edit()
+                                    .putLong("timeCache", TimeUnit.HOURS.toSeconds(1)).apply()
+                                reloadSettingsScreen()
+                            },
+                            "3 часа" to {
+                                settingsPreferences.edit()
+                                    .putLong("timeCache", TimeUnit.HOURS.toSeconds(3)).apply()
+                                reloadSettingsScreen()
+                            },
+                            "5 часов" to {
+                                settingsPreferences.edit()
+                                    .putLong("timeCache", TimeUnit.HOURS.toSeconds(5)).apply()
+                                reloadSettingsScreen()
+                            },
+                            "12 часов" to {
+                                settingsPreferences.edit()
+                                    .putLong("timeCache", TimeUnit.HOURS.toSeconds(12)).apply()
+                                reloadSettingsScreen()
+                            }
+                        ))
+                    },
+                    "Очистить кэш" to {
+                        cache.edit().clear().apply()
+                        Toast.makeText(appContext!!, "Очищено!", Toast.LENGTH_LONG).show()
+                        newsLoaded.value = false
+                        timetableLoaded.value = false
+                    }
+                )
             )
             SettingsChapter(title = "Настройки внешнего вида", buttons = mapOf(
                 "${
@@ -222,19 +284,20 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
             Text(
                 "petrakov.developer@gmail.com",
                 color = Color.Blue,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .clickable {
                         sendToDevEmail()
                     },
                 textAlign = TextAlign.Left,
                 textDecoration = TextDecoration.Underline
-                
+
             )
         }
     }
 }
 
-fun toggleTheme(){
+fun toggleTheme() {
     if (settingsPreferences.getString(
             "theme",
             if (appContext!!.isDarkThemeOn())

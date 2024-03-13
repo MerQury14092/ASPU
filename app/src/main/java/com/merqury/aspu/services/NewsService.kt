@@ -10,9 +10,12 @@ import com.android.volley.TimeoutError
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.requestQueue
+import com.merqury.aspu.ui.async
 import com.merqury.aspu.ui.navfragments.news.currentPage
 import com.merqury.aspu.ui.navfragments.news.selectedFaculty
+import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import org.json.JSONObject
+import java.util.concurrent.TimeUnit
 
 fun getNews(
     faculty: NewsCategoryEnum,
@@ -24,6 +27,21 @@ fun getNews(
     responseText: MutableState<String>
 ) {
     newsLoaded.value = false
+    val timeCache = settingsPreferences.getLong("timeCache", TimeUnit.HOURS.toSeconds(3))
+    if(timeCache != 0L && cache.getString("${faculty.name} $pageNumber", "") != ""){
+        val cacheNewsPage = cache.getString("${faculty.name} $pageNumber", "")
+            ?.let { JSONObject(it) }
+        if(timestampDifference(timestampNow(), cacheNewsPage!!.getString("created")) < timeCache){
+            async {
+                Thread.sleep(100)
+                newsResponse.value = cacheNewsPage.getJSONObject("value")
+                countPages.intValue = cacheNewsPage.getJSONObject("value").getInt("countPages")
+                success.value = true
+                newsLoaded.value = true
+            }
+            return
+        }
+    }
     var url = "https://agpu.merqury.fun/api/news"
     if (faculty != NewsCategoryEnum.agpu)
         url = "$url/${faculty.name}"
@@ -37,6 +55,13 @@ fun getNews(
             countPages.intValue = newsResponse.value.getInt("countPages")
             newsLoaded.value = true
             success.value = true
+            cache.edit().putString(
+                "${faculty.name} $pageNumber",
+                JSONObject().apply {
+                    put("created", timestampNow())
+                    put("value", newsResponse.value)
+                }.toString()
+            ).apply()
         },
         {
             success.value = false

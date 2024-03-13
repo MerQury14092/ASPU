@@ -46,7 +46,7 @@ var requestQueue: RequestQueue? = null
 var appVersion: String? = null
 const val RUSTORE_RELEASE = "rustore"
 const val PLAYMARKET_RELEASE = "google"
-const val releaseType = RUSTORE_RELEASE
+const val releaseType = PLAYMARKET_RELEASE
 private val storeAppVersion = mutableStateOf("UNKNOWN")
 private val storeAppReleaseNotes = mutableStateOf("")
 
