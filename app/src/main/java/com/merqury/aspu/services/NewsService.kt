@@ -26,7 +26,6 @@ fun getNews(
     success: MutableState<Boolean>,
     responseText: MutableState<String>
 ) {
-    newsLoaded.value = false
     val timeCache = settingsPreferences.getLong("timeCache", TimeUnit.HOURS.toSeconds(3))
     if(timeCache != 0L && cache.getString("${faculty.name} $pageNumber", "") != ""){
         val cacheNewsPage = cache.getString("${faculty.name} $pageNumber", "")
@@ -42,6 +41,7 @@ fun getNews(
             return
         }
     }
+    newsLoaded.value = false
     var url = "https://agpu.merqury.fun/api/news"
     if (faculty != NewsCategoryEnum.agpu)
         url = "$url/${faculty.name}"

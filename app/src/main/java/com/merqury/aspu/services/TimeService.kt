@@ -15,15 +15,16 @@ fun timestampDifference(a: String, b: String): Long{
     return ChronoUnit.SECONDS.between(dtA, dtB)
 }
 
-fun forEachDayInCurrentWeek(runnable: (day: String) -> Unit){
-    var nowDate = LocalDate.now()
+fun forEachDayInWeekByDate(date: String, runnable: (day: String) -> Unit){
+    val localFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+    var nowDate = LocalDate.parse(date, localFormatter)
     while (nowDate.dayOfWeek.value != 1)
         nowDate = nowDate.minusDays(1)
     while (nowDate.dayOfWeek.value < 7){
-        runnable(nowDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
+        runnable(nowDate.format(localFormatter))
         nowDate = nowDate.plusDays(1)
     }
-    runnable(nowDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
+    runnable(nowDate.format(localFormatter))
 }
 
 fun timestampNow(): String{

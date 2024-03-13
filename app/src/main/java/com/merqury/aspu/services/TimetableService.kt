@@ -34,7 +34,7 @@ fun getTimetableByDate(
     responseText: MutableState<String>
 ) {
     _getTimetableByDate(id, owner, date, result, isLoaded, success, responseText)
-    forEachDayInCurrentWeek {
+    forEachDayInWeekByDate(selectedDate.value) {
         _getTimetableByDate(
             id,
             owner,
@@ -56,7 +56,6 @@ fun _getTimetableByDate(
     success: MutableState<Boolean>,
     responseText: MutableState<String>
 ) {
-    isLoaded.value = false
     val timeCache = settingsPreferences.getLong("timeCache", TimeUnit.HOURS.toSeconds(3))
     if(timeCache != 0L && cache.getString("$id $date", "") != ""){
         val cacheTimetableDay = cache.getString("$id $date", "")
@@ -71,6 +70,7 @@ fun _getTimetableByDate(
             return
         }
     }
+    isLoaded.value = false
     val url = "https://agpu.merqury.fun/api/timetable/day?id=$id&owner=$owner&date=$date"
     val request = StringRequest(
         Request.Method.GET,
