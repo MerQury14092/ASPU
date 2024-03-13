@@ -2,6 +2,7 @@ package com.merqury.aspu.services
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import com.android.volley.NoConnectionError
 import com.android.volley.Request
 import com.android.volley.ServerError
@@ -24,6 +25,29 @@ import java.util.concurrent.TimeUnit
 
 
 fun getTimetableByDate(
+    id: String,
+    owner: String,
+    date: String,
+    result: MutableState<TimetableDay>,
+    isLoaded: MutableState<Boolean>,
+    success: MutableState<Boolean>,
+    responseText: MutableState<String>
+) {
+    _getTimetableByDate(id, owner, date, result, isLoaded, success, responseText)
+    forEachDayInCurrentWeek {
+        _getTimetableByDate(
+            id,
+            owner,
+            it,
+            mutableStateOf(TimetableDay("", "", "", listOf())),
+            mutableStateOf(false),
+            mutableStateOf(false),
+            mutableStateOf("")
+        )
+    }
+}
+
+fun _getTimetableByDate(
     id: String,
     owner: String,
     date: String,
