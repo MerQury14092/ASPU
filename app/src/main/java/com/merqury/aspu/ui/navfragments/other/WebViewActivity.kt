@@ -151,7 +151,8 @@ class WebViewActivity : ComponentActivity() {
                         WebView(it).apply {
                             this.webViewClient = webViewClient
                             settings.javaScriptEnabled = true
-                            settings.setSupportZoom(true)
+                            if(WebViewActivity.url.value.contains("it-institut"))
+                                settings.builtInZoomControls = true
                             loadUrl(WebViewActivity.url.value)
                             WebViewActivity.url.subscribe { newUrl ->
                                 post {

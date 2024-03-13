@@ -33,9 +33,9 @@ fun getTimetableByDate(
     success: MutableState<Boolean>,
     responseText: MutableState<String>
 ) {
-    _getTimetableByDate(id, owner, date, result, isLoaded, success, responseText)
+    oldGetTimetableByDate(id, owner, date, result, isLoaded, success, responseText)
     forEachDayInWeekByDate(selectedDate.value) {
-        _getTimetableByDate(
+        oldGetTimetableByDate(
             id,
             owner,
             it,
@@ -47,7 +47,7 @@ fun getTimetableByDate(
     }
 }
 
-fun _getTimetableByDate(
+fun oldGetTimetableByDate(
     id: String,
     owner: String,
     date: String,
