@@ -260,17 +260,19 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                 textAlign = TextAlign.Left
             )
             Spacer(modifier = Modifier.height(5.dp))
-            Text(
-                "Приложение находится на этапе активной разработки и тестирования, в связи с этим в нём могут быть баги и ошибки",
-                color = animateColorAsState(
-                    targetValue = theme.value[SurfaceTheme.text]!!,
-                    animationSpec = tween(durationMillis = themeChangeDuration),
-                    label = ""
-                ).value,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Left
-            )
-            Spacer(modifier = Modifier.height(5.dp))
+            if(appVersion!!.contains("alpha")){
+                Text(
+                    "Приложение находится на этапе активной разработки и тестирования, в связи с этим в нём могут быть баги и ошибки",
+                    color = animateColorAsState(
+                        targetValue = theme.value[SurfaceTheme.text]!!,
+                        animationSpec = tween(durationMillis = themeChangeDuration),
+                        label = ""
+                    ).value,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Left
+                )
+                Spacer(modifier = Modifier.height(5.dp))
+            }
             Text(
                 "Если встретились с ошибкой, сообщите разработчику",
                 color = animateColorAsState(
