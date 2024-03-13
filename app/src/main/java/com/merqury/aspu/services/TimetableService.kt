@@ -3,11 +3,9 @@ package com.merqury.aspu.services
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import com.android.volley.NoConnectionError
 import com.android.volley.Request
-import com.android.volley.ServerError
-import com.android.volley.TimeoutError
 import com.android.volley.toolbox.StringRequest
+import com.merqury.aspu.apiDomain
 import com.merqury.aspu.requestQueue
 import com.merqury.aspu.ui.async
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
@@ -71,7 +69,7 @@ fun oldGetTimetableByDate(
         }
     }
     isLoaded.value = false
-    val url = "https://agpu.merqury.fun/api/timetable/day?id=$id&owner=$owner&date=$date"
+    val url = "https://$apiDomain/api/timetable/day?id=$id&owner=$owner&date=$date"
     val request = StringRequest(
         Request.Method.GET,
         url,
@@ -92,17 +90,7 @@ fun oldGetTimetableByDate(
             success.value = false
             isLoaded.value = true
             Log.d("network-error", "ERROR")
-            if(it.javaClass == NoConnectionError::class.java)
-                responseText.value = "Нет подключения к интернету!"
-            else if(it.javaClass == ServerError::class.java)
-                if (it.networkResponse.statusCode == 502)
-                    responseText.value = "На сервере ведутся плановые технические работы."
-                else if(it.networkResponse.statusCode >= 500)
-                    responseText.value = "Ошибка на стороне сервера"
-                else
-                    responseText.value = "Неизвестная ошибка! Отчёт был анонимно отправлен разработчику."
-            else if (it.javaClass == TimeoutError::class.java)
-                responseText.value = "Истекло время ожидания ответа. Возможно у вас проблемы с интернетом"
+            handleVolleyError(it, responseText)
         }
     )
     requestQueue!!.add(request)

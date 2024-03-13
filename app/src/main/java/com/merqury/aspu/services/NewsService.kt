@@ -3,11 +3,9 @@ package com.merqury.aspu.services
 import android.util.Log
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
-import com.android.volley.NoConnectionError
 import com.android.volley.Request
-import com.android.volley.ServerError
-import com.android.volley.TimeoutError
 import com.android.volley.toolbox.StringRequest
+import com.merqury.aspu.apiDomain
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.requestQueue
 import com.merqury.aspu.ui.async
@@ -42,7 +40,7 @@ fun getNews(
         }
     }
     newsLoaded.value = false
-    var url = "https://agpu.merqury.fun/api/news"
+    var url = "https://$apiDomain/api/news"
     if (faculty != NewsCategoryEnum.agpu)
         url = "$url/${faculty.name}"
     url = "$url?page=$pageNumber"
@@ -66,17 +64,7 @@ fun getNews(
         {
             success.value = false
             newsLoaded.value = true
-            if(it.javaClass == NoConnectionError::class.java)
-                responseText.value = "Нет подключения к интернету!"
-            else if(it.javaClass == ServerError::class.java)
-                if (it.networkResponse.statusCode == 502)
-                    responseText.value = "На сервере ведутся плановые технические работы."
-                else if(it.networkResponse.statusCode >= 500)
-                    responseText.value = "Ошибка на стороне сервера"
-                else
-                    responseText.value = "Неизвестная ошибка! Отчёт был анонимно отправлен разработчику."
-            else if (it.javaClass == TimeoutError::class.java)
-                responseText.value = "Истекло время ожидания ответа. Возможно у вас проблемы с интернетом"
+            handleVolleyError(it, responseText)
         }
     )
     requestQueue!!.add(request)
@@ -90,7 +78,7 @@ fun getNewsArticle(
     success: MutableState<Boolean>
 ) {
     articleLoaded.value = false
-    val url = "https://agpu.merqury.fun/api/news/${faculty.name}/$id"
+    val url = "https://$apiDomain/api/news/${faculty.name}/$id"
     val request = StringRequest(
         Request.Method.GET,
         url,

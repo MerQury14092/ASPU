@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.Volley
+import com.merqury.aspu.services.getApiDomain
 import com.merqury.aspu.services.getLastPublishedVersion
 import com.merqury.aspu.ui.MainScreen
 import com.merqury.aspu.ui.navfragments.settings.reloadSettingsScreen
@@ -49,10 +50,15 @@ const val PLAYMARKET_RELEASE = "google"
 const val releaseType = PLAYMARKET_RELEASE
 private val storeAppVersion = mutableStateOf("UNKNOWN")
 private val storeAppReleaseNotes = mutableStateOf("")
+var apiDomain = "agpu.merqury.fun"
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        getApiDomain {
+            if(it != apiDomain)
+                apiDomain = it
+        }
         appContext = this
         appVersion = appContext!!.packageManager.getPackageInfo(appContext!!.packageName, 0).versionName
         requestQueue = Volley.newRequestQueue(appContext)
