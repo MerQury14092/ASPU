@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import com.merqury.aspu.R
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
+import com.merqury.aspu.ui.openInBrowser
 import com.merqury.aspu.ui.showWebPage
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
@@ -74,7 +75,8 @@ fun OtherScreenContent() {
                 val name: String,
                 val icon: Int,
                 val url: String,
-                val scheme: String = "http"
+                val scheme: String = "http",
+                val inBrowser: Boolean = false
             )
             listOf(
                 Entry(
@@ -151,7 +153,7 @@ fun OtherScreenContent() {
                     "АГПУ в Телеграм",
                     R.drawable.telegram,
                     "t.me/agpu_official",
-                    "https"
+                    inBrowser = true
                 ),
                 Entry(
                     "АГПУ в YouTube",
@@ -164,7 +166,8 @@ fun OtherScreenContent() {
                     name = it.name,
                     icon = it.icon,
                     url = it.url,
-                    scheme = it.scheme
+                    scheme = it.scheme,
+                    inBrowser = it.inBrowser
                 )
             }
         }
@@ -177,14 +180,21 @@ fun HyperReferenceButton(
     name: String,
     icon: Int,
     url: String,
-    scheme: String
+    scheme: String,
+    inBrowser: Boolean
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(3.dp)
             .clickable {
-                showWebPage(url, scheme)
+                if (!inBrowser)
+                    if (settingsPreferences.getBoolean("use_included_browser", false))
+                        showWebPage(url, scheme)
+                    else
+                        openInBrowser(url, scheme)
+                else
+                    openInBrowser(url, scheme)
             },
         colors = CardDefaults.cardColors(
             containerColor = theme.value[SurfaceTheme.foreground]!!

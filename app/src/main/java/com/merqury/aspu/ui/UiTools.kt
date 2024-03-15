@@ -2,8 +2,10 @@ package com.merqury.aspu.ui
 
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -277,7 +279,7 @@ fun showSelectListDialog(
 @SuppressLint("SetJavaScriptEnabled")
 fun showWebPage(url: String, scheme: String) {
     if (scheme in listOf("http", "https")) {
-        WebViewActivity.url.value = url
+        WebViewActivity.url.value = "$scheme://$url"
         val intent = Intent(appContext, WebViewActivity::class.java)
         appContext!!.startActivity(intent)
     } else
@@ -306,4 +308,8 @@ fun TitleHeader(title: String) {
             fontStyle = FontStyle.Italic
         )
     }
+}
+
+fun Context.makeToast(text: String){
+    Toast.makeText(this, text, Toast.LENGTH_LONG).show()
 }

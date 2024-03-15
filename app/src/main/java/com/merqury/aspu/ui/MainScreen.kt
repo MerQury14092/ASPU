@@ -55,7 +55,11 @@ val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
     when (selected_page.value) {
         "news" -> {
             aspuButtonLoading.value = true
-            showWebPage(urlForCurrentFaculty(), "http")
+            val inBrowser = settingsPreferences.getBoolean("use_included_browser", false)
+            if (inBrowser)
+                showWebPage(urlForCurrentFaculty(), "http")
+            else
+                openInBrowser(urlForCurrentFaculty(), "http")
         }
 
         "timetable" -> {
@@ -66,7 +70,11 @@ val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
         "settings" -> toggleTheme()
         else -> {
             aspuButtonLoading.value = true
-            showWebPage("agpu.net", "http")
+            val inBrowser = settingsPreferences.getBoolean("use_included_browser", false)
+            if (inBrowser)
+                showWebPage("agpu.net", "http")
+            else
+                openInBrowser("agpu.net", "http")
         }
     }
 })
@@ -155,10 +163,10 @@ fun NavigationBar() {
             icon = R.drawable.timetable_icon,
             "timetable"
         )
-        Box (
+        Box(
             Modifier.fillMaxHeight(),
             contentAlignment = Alignment.Center
-        ){
+        ) {
             Image(painter = painterResource(id = R.drawable.agpu_logo), contentDescription = null,
                 modifier = Modifier
                     .clickable(
@@ -169,8 +177,9 @@ fun NavigationBar() {
                         onASPUButtonClick.value()
                     }
                     .fillMaxHeight(
-                        animateFloatAsState(targetValue =
-                            if(aspuButtonLoading.value) .8f else 1f,
+                        animateFloatAsState(
+                            targetValue =
+                            if (aspuButtonLoading.value) .8f else 1f,
                             label = "",
                             animationSpec = tween(durationMillis = 100)
                         ).value

@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -57,11 +58,11 @@ class WebViewActivity : ComponentActivity() {
         savedInstanceState: Bundle?
     ) {
         super.onCreate(savedInstanceState)
+        var currentUrl = ""
         setContent {
             val loading = remember {
                 mutableStateOf(false)
             }
-            var currentUrl = ""
             Column {
                 Box(
                     modifier = Modifier
@@ -117,61 +118,77 @@ class WebViewActivity : ComponentActivity() {
                         .fillMaxSize(),
                     contentAlignment = Alignment.TopCenter
                 ) {
-                    AndroidView(factory = {
-                        val webViewClient = object : WebViewClient() {
-                            override fun onPageStarted(
-                                view: WebView?,
-                                url: String?,
-                                favicon: Bitmap?
-                            ) {
-                                if (!urlReturned)
-                                    urlHistory.push(currentUrl)
-                                urlReturned = false
-                                if (urlHistory.isEmpty())
-                                    finish()
-                                view!!.loadUrl("javascript:window.android.onUrlChange(window.location.href);")
-                                currentUrl = url!!
-                            }
+                    LazyColumn(
+                        Modifier.fillMaxSize(),
+                        content = {
+                            item {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.TopCenter
+                                ) {
+                                    AndroidView(factory = {
+                                        val webViewClient = object : WebViewClient() {
+                                            override fun onPageStarted(
+                                                view: WebView?,
+                                                url: String?,
+                                                favicon: Bitmap?
+                                            ) {
+                                                if (!urlReturned)
+                                                    urlHistory.push(currentUrl)
+                                                urlReturned = false
+                                                if (urlHistory.isEmpty())
+                                                    finish()
+                                                view!!.loadUrl("javascript:window.android.onUrlChange(window.location.href);")
+                                                currentUrl = url!!
+                                            }
 
-                            override fun onPageCommitVisible(view: WebView?, url: String?) {
-                                super.onPageCommitVisible(view, url)
-                                loading.value = false
-                            }
+                                            override fun onPageCommitVisible(
+                                                view: WebView?,
+                                                url: String?
+                                            ) {
+                                                super.onPageCommitVisible(view, url)
+                                                loading.value = false
+                                            }
 
-                            override fun shouldInterceptRequest(
-                                view: WebView?,
-                                request: WebResourceRequest?
-                            ): WebResourceResponse? {
-                                if (request!!.isForMainFrame) {
-                                    aspuButtonLoading.value = false
-                                    loading.value = true
+                                            override fun shouldInterceptRequest(
+                                                view: WebView?,
+                                                request: WebResourceRequest?
+                                            ): WebResourceResponse? {
+                                                if (request!!.isForMainFrame) {
+                                                    aspuButtonLoading.value = false
+                                                    loading.value = true
+                                                }
+                                                return super.shouldInterceptRequest(view, request)
+                                            }
+                                        }
+                                        WebView(it).apply {
+                                            this.webViewClient = webViewClient
+                                            settings.javaScriptEnabled = true
+                                            if (Companion.url.value.contains("it-institut"))
+                                                settings.builtInZoomControls = true
+                                            loadUrl(Companion.url.value)
+                                            Companion.url.subscribe { newUrl ->
+                                                post {
+                                                    loadUrl(newUrl)
+                                                }
+                                            }
+                                            setDownloadListener { url, _, _, _, _ ->
+                                                FileOpener.open(appContext!!, url)
+                                                loading.value = false
+                                            }
+                                        }
+                                    })
+                                    PullRefreshIndicator(
+                                        refreshing = loading.value,
+                                        state = rememberPullRefreshState(
+                                            refreshing = loading.value,
+                                            onRefresh = { /*TODO*/ }),
+                                        backgroundColor = com.merqury.aspu.ui.theme.theme.value[SurfaceTheme.foreground]!!,
+                                        contentColor = com.merqury.aspu.ui.theme.theme.value[SurfaceTheme.text]!!
+                                    )
                                 }
-                                return super.shouldInterceptRequest(view, request)
                             }
-                        }
-                        WebView(it).apply {
-                            this.webViewClient = webViewClient
-                            settings.javaScriptEnabled = true
-                            if(Companion.url.value.contains("it-institut"))
-                                settings.builtInZoomControls = true
-                            loadUrl(Companion.url.value)
-                            Companion.url.subscribe { newUrl ->
-                                post {
-                                    loadUrl(newUrl)
-                                }
-                            }
-                            setDownloadListener { url, _, _, _, _ ->
-                                FileOpener.open(appContext!!, url)
-                                loading.value = false
-                            }
-                        }
-                    })
-                    PullRefreshIndicator(refreshing = loading.value, state = rememberPullRefreshState(
-                        refreshing = loading.value,
-                        onRefresh = { /*TODO*/ }),
-                        backgroundColor = com.merqury.aspu.ui.theme.theme.value[SurfaceTheme.foreground]!!,
-                        contentColor = com.merqury.aspu.ui.theme.theme.value[SurfaceTheme.text]!!
-                    )
+                        })
                 }
             }
         }

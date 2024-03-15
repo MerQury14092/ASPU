@@ -29,6 +29,7 @@ import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.services.cache
 import com.merqury.aspu.services.sendToDevEmail
 import com.merqury.aspu.ui.TitleHeader
+import com.merqury.aspu.ui.makeToast
 import com.merqury.aspu.ui.navBarUpdate
 import com.merqury.aspu.ui.navfragments.news.newsLoaded
 import com.merqury.aspu.ui.navfragments.news.showFacultySelectModalWindow
@@ -89,7 +90,10 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                             "other" -> "студенту"
                             else -> "настройки"
                         }
-                    }" to { selectInitialRoute() }
+                    }" to { selectInitialRoute() },
+                    "Использовать встроенный браузер" to {
+                        toggleBooleanSettingsPreference("use_included_browser")
+                    }
                 )
             )
             SettingsChapter(
@@ -313,6 +317,19 @@ fun toggleTheme() {
         settingsPreferences.edit().putString("theme", "dark").apply()
     updateTheme()
     reloadSettingsScreen()
+}
+
+fun toggleBooleanSettingsPreference(name: String){
+    settingsPreferences
+        .edit()
+        .putBoolean(
+            name,
+            !settingsPreferences
+                .getBoolean(name, false)
+        )
+        .apply()
+    appContext!!.makeToast(settingsPreferences
+        .getBoolean(name, false).toString()+": "+name)
 }
 
 
