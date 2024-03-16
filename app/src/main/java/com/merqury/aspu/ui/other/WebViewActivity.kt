@@ -182,7 +182,7 @@ class WebViewActivity : ComponentActivity() {
                                         refreshing = loading.value,
                                         state = rememberPullRefreshState(
                                             refreshing = loading.value,
-                                            onRefresh = { /*TODO*/ }),
+                                            onRefresh = {}),
                                         backgroundColor = com.merqury.aspu.ui.theme.theme.value[SurfaceTheme.foreground]!!,
                                         contentColor = com.merqury.aspu.ui.theme.theme.value[SurfaceTheme.text]!!
                                     )

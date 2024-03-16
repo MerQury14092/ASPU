@@ -6,22 +6,22 @@ import com.merqury.aspu.ui.navBarUpdate
 import com.merqury.aspu.ui.navfragments.timetable.timetableLoaded
 import com.merqury.aspu.ui.showSelectListDialog
 
-fun selectInitialSubgroup(update: () -> Unit) {
+fun selectInitialSubgroup() {
     showSelectListDialog(
         mapOf(
             "Нет" to {
                 settingsPreferences.edit().putInt("selected_subgroup", 0).apply()
-                update()
+                reloadSettingsScreen()
                 timetableLoaded.value = false
             },
             "1" to {
                 settingsPreferences.edit().putInt("selected_subgroup", 1).apply()
-                update()
+                reloadSettingsScreen()
                 timetableLoaded.value = false
             },
             "2" to {
                 settingsPreferences.edit().putInt("selected_subgroup", 2).apply()
-                update()
+                reloadSettingsScreen()
                 timetableLoaded.value = false
             }
         )

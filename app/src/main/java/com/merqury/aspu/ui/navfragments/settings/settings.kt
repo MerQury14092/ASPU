@@ -29,7 +29,7 @@ import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.services.cache
 import com.merqury.aspu.services.sendToDevEmail
 import com.merqury.aspu.ui.TitleHeader
-import com.merqury.aspu.ui.navBarUpdate
+import com.merqury.aspu.ui.makeToast
 import com.merqury.aspu.ui.navfragments.news.newsLoaded
 import com.merqury.aspu.ui.navfragments.news.showFacultySelectModalWindow
 import com.merqury.aspu.ui.navfragments.timetable.showSelectIdModalWindow
@@ -74,52 +74,54 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
             settingsUpdate.value
             SettingsChapter(
                 title = "Общие настройки",
-                buttons = mapOf(
-                    "Кто использует приложение: ${
-                        when (settingsPreferences.getString("user", "student")) {
-                            "student" -> "студент"
-                            "teacher" -> "преподаватель"
-                            else -> "group"
-                        }
-                    }" to { selectUser() },
-                    "Начальная вкладка при входе: ${
-                        when (settingsPreferences.getString("initial_route", "news")) {
-                            "news" -> "новости"
-                            "timetable" -> "расписание"
-                            "other" -> "студенту"
-                            else -> "настройки"
-                        }
-                    }" to { selectInitialRoute() },
-                    "${
-                        if (settingsPreferences.getBoolean("use_included_browser", true))
-                            "Не использовать"
-                        else
-                            "Использовать"
-                    } встроенный браузер" to {
-                        toggleBooleanSettingsPreference("use_included_browser")
-                        reloadSettingsScreen()
-                    }
+                buttons = listOf(
+                    ClickableSettingsButton(
+                        "Кто использует приложение: ${
+                            when (settingsPreferences.getString("user", "student")) {
+                                "student" -> "студент"
+                                "teacher" -> "преподаватель"
+                                else -> "group"
+                            }
+                        }"
+                    ) { selectUser() },
+                    ClickableSettingsButton(
+                        "Начальная вкладка при входе: ${
+                            when (settingsPreferences.getString("initial_route", "news")) {
+                                "news" -> "новости"
+                                "timetable" -> "расписание"
+                                "other" -> "студенту"
+                                else -> "настройки"
+                            }
+                        }"
+                    ) { selectInitialRoute() },
+                    SwitchableSettingsPreferenceButton(
+                        "Использовать встроенный браузер", "use_included_browser"
+                    )
                 )
             )
             SettingsChapter(
                 title = "Новости и расписание",
-                buttons = mapOf(
-                    "Выбранная категория новостей при входе: ${
-                        NewsCategoryEnum.valueOf(
-                            settingsPreferences.getString("news_category", "agpu")!!
-                        ).localizedName
-                    }" to {
+                buttons = listOf(
+                    ClickableSettingsButton(
+                        "Выбранная категория новостей при входе: ${
+                            NewsCategoryEnum.valueOf(
+                                settingsPreferences.getString("news_category", "agpu")!!
+                            ).localizedName
+                        }"
+                    ) {
                         showFacultySelectModalWindow {
                             settingsPreferences.edit().putString("news_category", it.name).apply()
                             reloadSettingsScreen()
                         }
                     },
-                    "${
-                        when (settingsPreferences.getString("user", "student")) {
-                            "teacher" -> "Вы"
-                            else -> "Выбранная группа"
-                        }
-                    }: ${settingsPreferences.getString("timetable_id", "ВМ-ИВТ-2-1")}" to {
+                    ClickableSettingsButton(
+                        "${
+                            when (settingsPreferences.getString("user", "student")) {
+                                "teacher" -> "Вы"
+                                else -> "Выбранная группа"
+                            }
+                        }: ${settingsPreferences.getString("timetable_id", "ВМ-ИВТ-2-1")}"
+                    ) {
                         showSelectIdModalWindow(
                             filteredBy = when (settingsPreferences.getString("user", "student")) {
                                 "student" -> "group"
@@ -140,26 +142,31 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                             "user",
                             "student"
                         ) == "student"
-                    ) "Настройки фильтрации расписания" to { filterSettings() } else "" to {},
-                    "Данные хранятся в кэше: ${
-                        when (settingsPreferences.getLong(
-                            "timeCache",
-                            TimeUnit.HOURS.toSeconds(3)
-                        )) {
-                            0L -> "не хранятся"
-                            TimeUnit.MINUTES.toSeconds(30) -> "пол часа"
-                            TimeUnit.HOURS.toSeconds(1) -> "1 час"
-                            TimeUnit.HOURS.toSeconds(3) -> "3 часа"
-                            TimeUnit.HOURS.toSeconds(5) -> "5 часов"
-                            TimeUnit.HOURS.toSeconds(12) -> "12 часов"
-                            else -> "${
-                                settingsPreferences.getLong(
-                                    "timeCache",
-                                    TimeUnit.HOURS.toSeconds(3)
-                                )
-                            } minutes"
-                        }
-                    }" to {
+                    ) SwitchableSettingsPreferenceButton(
+                        "Фильтрация пар",
+                        "filtration_on"
+                    ) else ClickableSettingsButton("") {},
+                    ClickableSettingsButton(
+                        "Данные хранятся в кэше: ${
+                            when (settingsPreferences.getLong(
+                                "timeCache",
+                                TimeUnit.HOURS.toSeconds(3)
+                            )) {
+                                0L -> "не хранятся"
+                                TimeUnit.MINUTES.toSeconds(30) -> "пол часа"
+                                TimeUnit.HOURS.toSeconds(1) -> "1 час"
+                                TimeUnit.HOURS.toSeconds(3) -> "3 часа"
+                                TimeUnit.HOURS.toSeconds(5) -> "5 часов"
+                                TimeUnit.HOURS.toSeconds(12) -> "12 часов"
+                                else -> "${
+                                    settingsPreferences.getLong(
+                                        "timeCache",
+                                        TimeUnit.HOURS.toSeconds(3)
+                                    )
+                                } minutes"
+                            }
+                        }"
+                    ) {
                         showSelectListDialog(mapOf(
                             "Отключить" to {
                                 settingsPreferences.edit().putLong("timeCache", 0L).apply()
@@ -192,7 +199,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                             }
                         ))
                     },
-                    "Очистить кэш" to {
+                    ClickableSettingsButton("Очистить кэш") {
                         cache.edit().clear().apply()
                         Toast.makeText(appContext!!, "Очищено!", Toast.LENGTH_LONG).show()
                         newsLoaded.value = false
@@ -200,54 +207,65 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                     }
                 )
             )
-            SettingsChapter(title = "Настройки внешнего вида", buttons = mapOf(
-                "${
-                    if (settingsPreferences.getString(
-                            "theme",
-                            if (appContext!!.isDarkThemeOn())
-                                "dark"
+            if(settingsPreferences.getBoolean("filtration_on", false)){
+                SettingsChapter(title = "Настройки фильтрации расписания", buttons = listOf(
+                    ClickableSettingsButton(
+                        "Выбранная подгруппа: ${
+                            if (settingsPreferences.getInt(
+                                    "selected_subgroup",
+                                    0
+                                ) == 0)
+                                "нет"
                             else
-                                "light"
-                        ) == "dark"
+                                settingsPreferences.getInt(
+                                    "selected_subgroup",
+                                    0
+                                ).toString()
+                        }"
+                    ) {
+                        selectInitialSubgroup()
+                    },
+                    ClickableSettingsButton(
+                        "Настроить политику показа дисциплин по выбору"
+                    ) {showSelectableDisciplinesPreferences()},
+                    ClickableSettingsButton(
+                        "Очистить политику показа дисциплин по выбору"
+                    ) {
+                        selectableDisciplines.edit().clear().apply()
+                        timetableLoaded.value = false
+                        appContext!!.makeToast("Очищено!")
+                    }
+                ))
+            }
+            SettingsChapter(
+                title = "Настройки внешнего вида", buttons = listOf(
+                    ClickableSettingsButton(
+                        "${
+                            if (settingsPreferences.getString(
+                                    "theme",
+                                    if (appContext!!.isDarkThemeOn())
+                                        "dark"
+                                    else
+                                        "light"
+                                ) == "dark"
+                            )
+                                "Тёмная"
+                            else
+                                "Светлая"
+                        } тема"
+                    ) {
+                        toggleTheme()
+                    },
+                    SwitchableSettingsPreferenceButton(
+                        "Цветной фон ячеек в расписании",
+                        "color_timetable"
+                    ),
+                    SwitchableSettingsPreferenceButton(
+                        "Текст под иконками вкладок",
+                        "text_in_navbar"
                     )
-                        "Тёмная"
-                    else
-                        "Светлая"
-                } тема" to {
-                    toggleTheme()
-                },
-                "${
-                    if (settingsPreferences.getBoolean("color_timetable", true))
-                        "Выключить"
-                    else
-                        "Включить"
-                } цветной фон ячеек в расписании" to {
-                    settingsPreferences
-                        .edit()
-                        .putBoolean(
-                            "color_timetable",
-                            !settingsPreferences.getBoolean("color_timetable", true)
-                        )
-                        .apply()
-                    reloadSettingsScreen()
-                },
-                "${
-                    if (settingsPreferences.getBoolean("text_in_navbar", true))
-                        "Не показывать"
-                    else
-                        "Показывать"
-                } текст под иконками вкладок" to {
-                    settingsPreferences
-                        .edit()
-                        .putBoolean(
-                            "text_in_navbar",
-                            !settingsPreferences.getBoolean("text_in_navbar", true)
-                        )
-                        .apply()
-                    reloadSettingsScreen()
-                    navBarUpdate()
-                }
-            ))
+                )
+            )
             Text(
                 "О приложении", color = animateColorAsState(
                     targetValue = theme.value[SurfaceTheme.text]!!,

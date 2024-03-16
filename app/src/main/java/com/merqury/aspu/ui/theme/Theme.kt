@@ -3,6 +3,9 @@ package com.merqury.aspu.ui.theme
 import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import com.merqury.aspu.appContext
@@ -63,4 +66,13 @@ fun updateTheme(){
 fun Context.isDarkThemeOn(): Boolean {
     return resources.configuration.uiMode and
             Configuration.UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
+}
+
+@Composable
+fun Color.animatedColorOnThemeChange(): Color {
+    return animateColorAsState(
+        targetValue = this,
+        animationSpec = tween(durationMillis = themeChangeDuration),
+        label = ""
+    ).value
 }
