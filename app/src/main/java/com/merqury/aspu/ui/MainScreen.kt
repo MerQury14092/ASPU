@@ -1,13 +1,16 @@
 package com.merqury.aspu.ui
 
+import android.os.Vibrator
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -35,18 +39,25 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.getSystemService
 import com.merqury.aspu.R
+import com.merqury.aspu.appContext
 import com.merqury.aspu.services.showTimetableWebPageView
 import com.merqury.aspu.services.urlForCurrentFaculty
 import com.merqury.aspu.ui.navfragments.news.NewsScreen
+import com.merqury.aspu.ui.navfragments.news.newsLoaded
 import com.merqury.aspu.ui.navfragments.other.OtherScreen
 import com.merqury.aspu.ui.navfragments.settings.SettingsScreen
+import com.merqury.aspu.ui.navfragments.settings.reloadSettingsScreen
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
+import com.merqury.aspu.ui.navfragments.settings.toggleBooleanSettingsPreference
 import com.merqury.aspu.ui.navfragments.settings.toggleTheme
 import com.merqury.aspu.ui.navfragments.timetable.TimetableScreen
+import com.merqury.aspu.ui.navfragments.timetable.timetableLoaded
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
 import com.merqury.aspu.ui.theme.themeChangeDuration
+
 
 val topBarContent: MutableState<@Composable () -> Unit> = mutableStateOf({})
 val content: MutableState<@Composable () -> Unit> =
@@ -55,7 +66,11 @@ val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
     when (selected_page.value) {
         "news" -> {
             aspuButtonLoading.value = true
-            showWebPage(urlForCurrentFaculty(), "http")
+            val inBrowser = settingsPreferences.getBoolean("use_included_browser", true)
+            if (inBrowser)
+                showWebPage(urlForCurrentFaculty(), "http")
+            else
+                openInBrowser(urlForCurrentFaculty(), "http")
         }
 
         "timetable" -> {
@@ -66,11 +81,44 @@ val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
         "settings" -> toggleTheme()
         else -> {
             aspuButtonLoading.value = true
-            showWebPage("agpu.net", "http")
+            val inBrowser = settingsPreferences.getBoolean("use_included_browser", true)
+            if (inBrowser)
+                showWebPage("agpu.net", "http")
+            else
+                openInBrowser("agpu.net", "http")
+        }
+    }
+})
+val magicState = mutableIntStateOf(3)
+val onASPUButtonLongClick: MutableState<() -> Unit> = mutableStateOf({
+    when (selected_page.value) {
+        "news" -> {
+            newsLoaded.value = false
+        }
+
+        "timetable" -> {
+            timetableLoaded.value = false
+        }
+
+        "settings" -> {
+            val v = getSystemService(appContext!!, Vibrator::class.java)!!
+            if(magicState.intValue == 0 && !settingsPreferences.getBoolean("debug_mode", false)) {
+                toggleBooleanSettingsPreference("debug_mode")
+                printlog("Если хотите отключить это, пропишите debug off")
+                reloadSettingsScreen()
+                appContext!!.makeToast("DEBUG MODE ON")
+                v.vibrate(100)
+            }
+            if(magicState.intValue > 0 && !settingsPreferences.getBoolean("debug_mode", false)) {
+                v.vibrate(100)
+                magicState.intValue--
+            }
         }
     }
 })
 val aspuButtonLoading = mutableStateOf(false)
+
+
 
 @Composable
 fun MainScreen() {
@@ -141,6 +189,7 @@ fun navBarUpdate() {
 
 var selected_page = mutableStateOf(settingsPreferences.getString("initial_route", "news")!!)
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NavigationBar() {
     Row(
@@ -155,22 +204,26 @@ fun NavigationBar() {
             icon = R.drawable.timetable_icon,
             "timetable"
         )
-        Box (
+        Box(
             Modifier.fillMaxHeight(),
             contentAlignment = Alignment.Center
-        ){
+        ) {
             Image(painter = painterResource(id = R.drawable.agpu_logo), contentDescription = null,
                 modifier = Modifier
-                    .clickable(
+                    .combinedClickable(
                         interactionSource = remember { MutableInteractionSource() },
-                        indication = null
+                        indication = null,
+                        onClick = {
+                            onASPUButtonClick.value()
+                        },
+                        onLongClick = {
+                            onASPUButtonLongClick.value()
+                        }
                     )
-                    {
-                        onASPUButtonClick.value()
-                    }
                     .fillMaxHeight(
-                        animateFloatAsState(targetValue =
-                            if(aspuButtonLoading.value) .8f else 1f,
+                        animateFloatAsState(
+                            targetValue =
+                            if (aspuButtonLoading.value) .8f else 1f,
                             label = "",
                             animationSpec = tween(durationMillis = 100)
                         ).value

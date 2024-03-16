@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.merqury.aspu.services.fetchFullFio
 
 
 data class TimetableDay (
@@ -26,7 +27,13 @@ data class TimetableDay (
             propertyNamingStrategy = PropertyNamingStrategy.LOWER_CAMEL_CASE
             setSerializationInclusion(JsonInclude.Include.NON_NULL)
         }
-        fun fromJson(json: String) = mapper.readValue<TimetableDay>(json)
+        fun fromJson(json: String): TimetableDay {
+            val res = mapper.readValue<TimetableDay>(json)
+            res.disciplines.forEach {
+                it.teacherName.fetchFullFio()
+            }
+            return res
+        }
     }
 }
 

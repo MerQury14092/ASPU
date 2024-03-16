@@ -29,8 +29,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.R
+import com.merqury.aspu.services.executeSqlQuery
 import com.merqury.aspu.services.getFacultiesAndThemGroups
 import com.merqury.aspu.services.getSearchResults
+import com.merqury.aspu.services.toInitials
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.navfragments.timetable.DTO.FacultiesList
 import com.merqury.aspu.ui.navfragments.timetable.DTO.SearchContent
@@ -136,46 +138,134 @@ fun showSelectIdModalWindow(
                         buttonsMapState.value = getButtonsFacultyAndGroups(it, onResultClick)
                     if (
                         textFieldValue.value.isEmpty()
-                        && (filteredBy.lowercase() == "any" || filteredBy.lowercase() == "group")
                     ) {
-                        Column {
-                            Card(
-                                modifier = Modifier
-                                    .padding(10.dp)
-                                    .clickable {
-                                        getFacultiesAndThemGroups(
-                                            facultiesList,
-                                            facultiesLoaded,
-                                            mutableStateOf(true)
-                                        )
-                                        showSelectListDialog(
-                                            sortedByAlphabet = true,
-                                            buttons = buttonsMapState
-                                        )
-                                    },
-                                colors = CardDefaults.cardColors(
-                                    containerColor = theme.value[SurfaceTheme.foreground]!!
-                                )
-                            ) {
-                                Row(
+                        if (filteredBy.lowercase() == "any" || filteredBy.lowercase() == "group")
+                            Column {
+                                Card(
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(50.dp),
-                                    horizontalArrangement = Arrangement.SpaceAround,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        "Или выберите из списка групп",
-                                        color = theme.value[SurfaceTheme.text]!!
+                                        .padding(10.dp)
+                                        .clickable {
+                                            getFacultiesAndThemGroups(
+                                                facultiesList,
+                                                facultiesLoaded,
+                                                mutableStateOf(true)
+                                            )
+                                            showSelectListDialog(
+                                                sortedByAlphabet = true,
+                                                buttons = buttonsMapState
+                                            )
+                                        },
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = theme.value[SurfaceTheme.foreground]!!
                                     )
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(50.dp),
+                                        horizontalArrangement = Arrangement.SpaceAround,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Row (
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ){
+                                            Image(
+                                                painter = painterResource(id = R.drawable.group),
+                                                contentDescription = null,
+                                                contentScale = ContentScale.Fit,
+                                                modifier = Modifier.size(25.dp),
+                                                colorFilter = ColorFilter.tint(theme.value[SurfaceTheme.text]!!)
+                                            )
+                                            Text(
+                                                "Выбрать из списка групп",
+                                                color = theme.value[SurfaceTheme.text]!!,
+                                                modifier = Modifier.padding(start = 10.dp)
+                                            )
+                                        }
+                                    }
                                 }
                             }
-                        }
+                        if (filteredBy.lowercase() == "any" || filteredBy.lowercase() == "teacher")
+                            Column {
+                                Card(
+                                    modifier = Modifier
+                                        .padding(10.dp)
+                                        .clickable {
+                                            showSelectDepartmentForTeacherWindow(it, onResultClick)
+                                        },
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = theme.value[SurfaceTheme.foreground]!!
+                                    )
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(50.dp),
+                                        horizontalArrangement = Arrangement.SpaceAround,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Row (
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ){
+                                            Image(
+                                                painter = painterResource(id = R.drawable.teacher),
+                                                contentDescription = null,
+                                                contentScale = ContentScale.Fit,
+                                                modifier = Modifier.size(30.dp),
+                                                colorFilter = ColorFilter.tint(theme.value[SurfaceTheme.text]!!)
+                                            )
+                                            Text(
+                                                "Выбрать из списка учителей",
+                                                color = theme.value[SurfaceTheme.text]!!,
+                                                modifier = Modifier.padding(start = 10.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        if (filteredBy.lowercase() == "any" || filteredBy.lowercase() == "classroom")
+                            Column {
+                                Card(
+                                    modifier = Modifier
+                                        .padding(10.dp)
+                                        .clickable {
+                                            showSelectCorpsForAudiencesWindow(it, onResultClick)
+                                        },
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = theme.value[SurfaceTheme.foreground]!!
+                                    )
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(50.dp),
+                                        horizontalArrangement = Arrangement.SpaceAround,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Image(
+                                                painter = painterResource(id = R.drawable.audience),
+                                                contentDescription = null,
+                                                contentScale = ContentScale.Fit,
+                                                modifier = Modifier.size(25.dp),
+                                                colorFilter = ColorFilter.tint(theme.value[SurfaceTheme.text]!!)
+                                            )
+                                            Text(
+                                                "Выбрать из списка аудиторий",
+                                                color = theme.value[SurfaceTheme.text]!!,
+                                                modifier = Modifier.padding(start = 10.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
                     }
                     if (selectedId.value != settingsPreferences.getString(
                             "timetable_id",
                             "ВМ-ИВТ-2-1"
-                        ) && filteredBy.lowercase() == "any"
+                        ) && filteredBy.lowercase() == "any" && textFieldValue.value.isEmpty()
                     )
                         Card(
                             modifier = Modifier
@@ -208,10 +298,22 @@ fun showSelectIdModalWindow(
                                 horizontalArrangement = Arrangement.SpaceAround,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    "Вернуть ваше расписание",
-                                    color = theme.value[SurfaceTheme.text]!!
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.back),
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Fit,
+                                        modifier = Modifier.size(25.dp),
+                                        colorFilter = ColorFilter.tint(theme.value[SurfaceTheme.text]!!)
+                                    )
+                                    Text(
+                                        "Вернуть ваше расписание",
+                                        color = theme.value[SurfaceTheme.text]!!,
+                                        modifier = Modifier.padding(start = 10.dp)
+                                    )
+                                }
                             }
                         }
                 }
@@ -245,6 +347,201 @@ fun showSelectIdModalWindow(
             }
         }
     }
+}
+
+fun showSelectDepartmentForTeacherWindow(
+    selectIdWindowVisibility: MutableState<Boolean>,
+    onResultClick: (searchResult: SearchContentElement) -> Unit
+) {
+    val buttons = mutableStateOf(mapOf(
+        "Загружается..." to {}
+    ))
+    loadDepartmentsOnButtons(buttons, selectIdWindowVisibility, onResultClick)
+    showSelectListDialog(buttons, sortedByAlphabet = true)
+}
+
+fun loadDepartmentsOnButtons(
+    buttons: MutableState<Map<String, () -> Unit>>,
+    selectIdWindowVisibility: MutableState<Boolean>,
+    onResultClick: (searchResult: SearchContentElement) -> Unit
+) {
+    executeSqlQuery(
+        """
+            SELECT * FROM departments
+        """.trimIndent(),
+        {
+            val buttonEntries = HashMap<String, () -> Unit>()
+            while (it.next()) {
+                val departmentId = it.getInt("id")
+                buttonEntries.put(
+                    it.getString("name")
+                ) {
+                    showSelectTeacherWindow(departmentId, selectIdWindowVisibility, onResultClick)
+                }
+            }
+            buttons.value = buttonEntries
+        },
+        {
+            buttons.value = mapOf(
+                "Прозошла ошибка" to {}
+            )
+        }
+    )
+}
+
+fun showSelectTeacherWindow(
+    departmentId: Int,
+    selectIdWindowVisibility: MutableState<Boolean>,
+    onResultClick: (searchResult: SearchContentElement) -> Unit
+) {
+    val buttons = mutableStateOf(mapOf(
+        "Загружается..." to {}
+    ))
+    loadTeachersOnButtons(buttons, departmentId, selectIdWindowVisibility, onResultClick)
+    showSelectListDialog(buttons, sortedByAlphabet = true)
+}
+
+fun loadTeachersOnButtons(
+    buttons: MutableState<Map<String, () -> Unit>>,
+    departmentId: Int,
+    selectIdWindowVisibility: MutableState<Boolean>,
+    onResultClick: (searchResult: SearchContentElement) -> Unit
+) {
+    executeSqlQuery(
+        """
+            SELECT * FROM teachers t 
+            JOIN lnk_teacher_department ltd ON t.id = ltd.teacher_id 
+            WHERE ltd.department_id = $departmentId
+        """.trimIndent(),
+        {
+            val buttonEntries = HashMap<String, () -> Unit>()
+            while (it.next()) {
+                val fio = "${it.getString("last_name")} " +
+                        "${it.getString("first_name")} " +
+                        it.getString("father_name")
+                buttonEntries.put(
+                    fio
+                ) {
+                    onResultClick(
+                        SearchContentElement(
+                            fio.toInitials(),
+                            "Teacher",
+                            0,
+                            0
+                        )
+                    )
+                    selectIdWindowVisibility.value = false
+                }
+            }
+            buttons.value = buttonEntries
+        },
+        {
+            buttons.value = mapOf(
+                "Прозошла ошибка" to {}
+            )
+        }
+    )
+}
+
+fun showSelectCorpsForAudiencesWindow(
+    selectIdWindowVisibility: MutableState<Boolean>,
+    onResultClick: (searchResult: SearchContentElement) -> Unit
+) {
+    val buttons = mutableStateOf(mapOf(
+        "Загружается..." to {}
+    ))
+    loadCorpsOnButtons(buttons, selectIdWindowVisibility, onResultClick)
+    showSelectListDialog(buttons, sortedByAlphabet = true)
+}
+
+fun loadCorpsOnButtons(
+    buttons: MutableState<Map<String, () -> Unit>>,
+    selectIdWindowVisibility: MutableState<Boolean>,
+    onResultClick: (searchResult: SearchContentElement) -> Unit
+) {
+    executeSqlQuery(
+        """
+            SELECT * FROM corps
+        """.trimIndent(),
+        {
+            val buttonEntries = HashMap<String, () -> Unit>()
+            while (it.next()) {
+                val corpsId = it.getInt("id")
+                buttonEntries[it.getString("name")] = {
+                    showSelectAudienceWindow(corpsId, selectIdWindowVisibility, onResultClick)
+                }
+            }
+            buttons.value = buttonEntries
+        },
+        {
+            buttons.value = mapOf(
+                "Прозошла ошибка" to {}
+            )
+        }
+    )
+}
+
+fun showSelectAudienceWindow(
+    corpsId: Int,
+    selectIdWindowVisibility: MutableState<Boolean>,
+    onResultClick: (searchResult: SearchContentElement) -> Unit
+) {
+    val buttons = mutableStateOf(mapOf(
+        "Загружается..." to {}
+    ))
+    loadAudiencesOnButtons(buttons, corpsId, selectIdWindowVisibility, onResultClick)
+    showSelectListDialog(buttons, sortedByAlphabet = false)
+}
+
+fun loadAudiencesOnButtons(
+    buttons: MutableState<Map<String, () -> Unit>>,
+    corpsId: Int,
+    selectIdWindowVisibility: MutableState<Boolean>,
+    onResultClick: (searchResult: SearchContentElement) -> Unit
+) {
+    executeSqlQuery(
+        """
+            SELECT * FROM audiences a 
+            JOIN corps c ON a.corps_id = c.id 
+            WHERE c.id = $corpsId
+        """.trimIndent(),
+        {
+            val buttonEntries = HashMap<String, () -> Unit>()
+            while (it.next()) {
+                val audienceId = it.getString("name")
+                buttonEntries[audienceId] = {
+                    onResultClick(
+                        SearchContentElement(
+                            audienceId,
+                            "Classroom",
+                            0,
+                            0
+                        )
+                    )
+                    selectIdWindowVisibility.value = false
+                }
+            }
+            buttons.value = buttonEntries.toSortedMap { o1, o2 ->
+                return@toSortedMap if (o1.extractDigits().toInt() > o2.extractDigits().toInt())
+                    1
+                else -1
+            }
+        },
+        {
+            buttons.value = mapOf(
+                "Прозошла ошибка" to {}
+            )
+        }
+    )
+}
+
+fun String.extractDigits(): String {
+    val builder = StringBuilder()
+    forEach {
+        if (it.isDigit())
+            builder.append(it)
+    }
+    return builder.toString()
 }
 
 fun String.toAbbreviation(): String {

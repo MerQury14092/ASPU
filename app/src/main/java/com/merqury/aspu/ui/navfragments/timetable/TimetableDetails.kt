@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.R
 import com.merqury.aspu.enums.TimetableDisciplineType
+import com.merqury.aspu.services.cache
 import com.merqury.aspu.services.openMapWithMarker
 import com.merqury.aspu.ui.navfragments.timetable.DTO.Discipline
 import com.merqury.aspu.ui.navfragments.timetable.DTO.getCorpsByAudience
@@ -73,7 +74,7 @@ private fun DisciplineDetails(discipline: Discipline) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
-            ){
+            ) {
                 Column {
                     Text(
                         if (discipline.audienceID == "Спортзал ФОК")
@@ -82,29 +83,30 @@ private fun DisciplineDetails(discipline: Discipline) {
                             "Аудитория: ${discipline.audienceID}",
                         color = theme.value[SurfaceTheme.text]!!
                     )
-                    Text(
-                        corps.name,
-                        color = theme.value[SurfaceTheme.text]!!
-                    )
+                    if (corps.name != "НЕИЗВЕСТНО")
+                        Text(
+                            corps.name,
+                            color = theme.value[SurfaceTheme.text]!!
+                        )
                 }
-
-                Image(
-                    painter = painterResource(id = R.drawable.map),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .size(25.dp)
-                        .clickable {
-                            openMapWithMarker(corps.lat, corps.lon, corps.name)
-                        },
-                    colorFilter = ColorFilter.tint(theme.value[SurfaceTheme.text]!!)
-                )
+                if (corps.name != "НЕИЗВЕСТНО")
+                    Image(
+                        painter = painterResource(id = R.drawable.map),
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .size(25.dp)
+                            .clickable {
+                                openMapWithMarker(corps.lat, corps.lon, corps.name)
+                            },
+                        colorFilter = ColorFilter.tint(theme.value[SurfaceTheme.text]!!)
+                    )
             }
 
             ThemeDivider()
             AlignText(discipline.groupName)
             ThemeDivider()
-            AlignText(discipline.teacherName)
+            AlignText(cache.getString("fio ${discipline.teacherName}", discipline.teacherName)!!)
             ThemeDivider()
             AlignText(
                 "Подгруппа: ${

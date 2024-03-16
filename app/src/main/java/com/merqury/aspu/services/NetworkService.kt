@@ -8,10 +8,7 @@ import com.android.volley.VolleyError
 
 fun handleVolleyError(it: VolleyError, responseText: MutableState<String>){
     if(it.javaClass == NoConnectionError::class.java) {
-        if(it.message!!.contains("UnknownHost"))
-            responseText.value = "Ошибка подключения к API: хост изменился"
-        else
-            responseText.value = "Нет подключения к интернету!"
+        responseText.value = "Нет подключения к интернету!"
     }
     else if(it.javaClass == ServerError::class.java)
         if (it.networkResponse.statusCode == 502)

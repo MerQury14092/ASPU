@@ -5,7 +5,9 @@ import java.net.URI
 
 fun getApiDomain(onComplete: (domain: String) -> Unit){
     async {
-        val domain = URI("https://text-host.ru/raw/agpu-api-domain").toURL().readText()
-        onComplete(domain)
+        try {
+            val domain = URI("https://text-host.ru/raw/agpu-api-domain").toURL().readText()
+            onComplete(domain)
+        } catch (_: Exception){}
     }
 }

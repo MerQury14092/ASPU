@@ -12,6 +12,7 @@ import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.navfragments.timetable.DTO.TimetableDay
 import com.merqury.aspu.ui.navfragments.timetable.selectedDate
 import com.merqury.aspu.ui.navfragments.timetable.selectedId
+import com.merqury.aspu.ui.openInBrowser
 import com.merqury.aspu.ui.showWebPage
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -55,10 +56,14 @@ fun oldGetTimetableByDate(
     responseText: MutableState<String>
 ) {
     val timeCache = settingsPreferences.getLong("timeCache", TimeUnit.HOURS.toSeconds(3))
-    if(timeCache != 0L && cache.getString("$id $date", "") != ""){
+    if (timeCache != 0L && cache.getString("$id $date", "") != "") {
         val cacheTimetableDay = cache.getString("$id $date", "")
             ?.let { JSONObject(it) }
-        if(timestampDifference(timestampNow(), cacheTimetableDay!!.getString("created")) < timeCache){
+        if (timestampDifference(
+                timestampNow(),
+                cacheTimetableDay!!.getString("created")
+            ) < timeCache
+        ) {
             async {
                 Thread.sleep(100)
                 result.value = TimetableDay.fromJson(cacheTimetableDay.getString("value"))
@@ -97,19 +102,24 @@ fun oldGetTimetableByDate(
 }
 
 @OptIn(DelicateCoroutinesApi::class)
-fun showTimetableWebPageView(){
-    getSearchId(selectedId.value) {id, type ->
+fun showTimetableWebPageView() {
+    getSearchId(selectedId.value) { id, type ->
         GlobalScope.launch {
             showTimetableWebPageView(id, type)
         }
     }
 }
-fun showTimetableWebPageView(searchId: Long, searchType: String){
+
+fun showTimetableWebPageView(searchId: Long, searchType: String) {
     val url = "www.it-institut.ru/Raspisanie/SearchedRaspisanie?OwnerId=118&SearchId=" +
             searchId +
             "&Type=$searchType&WeekId=${WeekIdService.weekIdByDate(selectedDate.value)}" +
             "&SearchString=${selectedId.value}"
-    showWebPage(url, "https")
+    val inBrowser = settingsPreferences.getBoolean("use_included_browser", false)
+    if (inBrowser)
+        showWebPage(url, "https")
+    else
+        openInBrowser(url, "https")
 }
 
 fun getTodayDate(): String {

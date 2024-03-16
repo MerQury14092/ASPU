@@ -20,7 +20,7 @@ class SearchContent(elements: Collection<SearchContentElement>) : ArrayList<Sear
 
 data class SearchContentElement (
     @get:JsonProperty("SearchContent", required=true)@field:JsonProperty("SearchContent", required=true)
-    val searchContent: String,
+    var searchContent: String,
 
     @get:JsonProperty("Type", required=true)@field:JsonProperty("Type", required=true)
     val type: String,
