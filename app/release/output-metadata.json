@@ -4,15 +4,15 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.merqury.aspu",
+  "applicationId": "com.merqury.aspudev",
   "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 12,
-      "versionName": "1.05",
+      "versionCode": 13,
+      "versionName": "1.1",
       "outputFile": "app-release.apk"
     }
   ],
