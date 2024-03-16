@@ -8,7 +8,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.merqury.aspudev"
+        applicationId = "com.merqury.aspu"
         minSdk = 28
         targetSdk = 34
         versionCode = 13
