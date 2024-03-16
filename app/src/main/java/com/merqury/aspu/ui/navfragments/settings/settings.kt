@@ -357,7 +357,7 @@ fun toggleBooleanSettingsPreference(name: String) {
         .putBoolean(
             name,
             !settingsPreferences
-                .getBoolean(name, false)
+                .getBoolean(name, getDefault(name))
         )
         .apply()
 //    appContext!!.makeToast(
@@ -366,10 +366,14 @@ fun toggleBooleanSettingsPreference(name: String) {
 //    )
 }
 
-fun debugModeOn() {
-
+fun getDefault(name: String): Boolean {
+    return when (name){
+        "use_included_browser" -> true
+        "text_in_navbar" -> true
+        "color_timetable" -> true
+        else -> false
+    }
 }
-
 
 
 

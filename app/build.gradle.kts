@@ -8,11 +8,11 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.merqury.aspudev"
+        applicationId = "com.merqury.aspu"
         minSdk = 28
         targetSdk = 34
-        versionCode = 12
-        versionName = "1.05"
+        versionCode = 13
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

@@ -66,7 +66,7 @@ val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
     when (selected_page.value) {
         "news" -> {
             aspuButtonLoading.value = true
-            val inBrowser = settingsPreferences.getBoolean("use_included_browser", false)
+            val inBrowser = settingsPreferences.getBoolean("use_included_browser", true)
             if (inBrowser)
                 showWebPage(urlForCurrentFaculty(), "http")
             else
@@ -81,7 +81,7 @@ val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
         "settings" -> toggleTheme()
         else -> {
             aspuButtonLoading.value = true
-            val inBrowser = settingsPreferences.getBoolean("use_included_browser", false)
+            val inBrowser = settingsPreferences.getBoolean("use_included_browser", true)
             if (inBrowser)
                 showWebPage("agpu.net", "http")
             else
