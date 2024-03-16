@@ -28,6 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -88,7 +89,7 @@ val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
         }
     }
 })
-val magicState = mutableStateOf(3)
+val magicState = mutableIntStateOf(3)
 val onASPUButtonLongClick: MutableState<() -> Unit> = mutableStateOf({
     when (selected_page.value) {
         "news" -> {
@@ -101,15 +102,16 @@ val onASPUButtonLongClick: MutableState<() -> Unit> = mutableStateOf({
 
         "settings" -> {
             val v = getSystemService(appContext!!, Vibrator::class.java)!!
-            if(magicState.value == 0 && !settingsPreferences.getBoolean("debug_mode", false)) {
+            if(magicState.intValue == 0 && !settingsPreferences.getBoolean("debug_mode", false)) {
                 toggleBooleanSettingsPreference("debug_mode")
+                printlog("Если хотите отключить это, пропишите debug off")
                 reloadSettingsScreen()
                 appContext!!.makeToast("DEBUG MODE ON")
                 v.vibrate(100)
             }
-            if(magicState.value > 0) {
+            if(magicState.intValue > 0 && !settingsPreferences.getBoolean("debug_mode", false)) {
                 v.vibrate(100)
-                magicState.value--
+                magicState.intValue--
             }
         }
     }

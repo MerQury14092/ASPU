@@ -64,7 +64,12 @@ class SwitchableSettingsPreferenceButton(text: String, private val settingsPrefe
                     Switch(
                         checked = settingsPreferences.getBoolean(
                             settingsPreferenceBooleanName,
-                            false
+                            when (settingsPreferenceBooleanName){
+                                "use_included_browser" -> true
+                                "text_in_navbar" -> true
+                                "color_timetable" -> true
+                                else -> false
+                            }
                         ), onCheckedChange = {
                             toggleBooleanSettingsPreference(settingsPreferenceBooleanName)
                             reloadSettingsScreen()

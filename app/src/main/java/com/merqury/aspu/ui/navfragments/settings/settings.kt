@@ -82,7 +82,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                             when (settingsPreferences.getString("user", "student")) {
                                 "student" -> "студент"
                                 "teacher" -> "преподаватель"
-                                else -> "group"
+                                else -> settingsPreferences.getString("user", "Кто?")
                             }
                         }"
                     ) { selectUser() },
@@ -209,16 +209,17 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                     }
                 )
             )
-            if(settingsPreferences.getBoolean("filtration_on", false)
+            if (settingsPreferences.getBoolean("filtration_on", false)
                 && settingsPreferences.getString("user", "student") == "student"
-                ){
+            ) {
                 SettingsChapter(title = "Настройки фильтрации расписания", buttons = listOf(
                     ClickableSettingsButton(
                         "Выбранная подгруппа: ${
                             if (settingsPreferences.getInt(
                                     "selected_subgroup",
                                     0
-                                ) == 0)
+                                ) == 0
+                            )
                                 "нет"
                             else
                                 settingsPreferences.getInt(
@@ -231,7 +232,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                     },
                     ClickableSettingsButton(
                         "Настроить политику показа дисциплин по выбору"
-                    ) {showSelectableDisciplinesPreferences()},
+                    ) { showSelectableDisciplinesPreferences() },
                     ClickableSettingsButton(
                         "Очистить политику показа дисциплин по выбору"
                     ) {
@@ -326,9 +327,10 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                 textDecoration = TextDecoration.Underline
 
             )
-            ClickableSettingsButton("Для разработчика"){
-                goToScreen(Terminal::class.java)
-            }.getContent()()
+            if (settingsPreferences.getBoolean("debug_mode", false))
+                ClickableSettingsButton("Для разработчика") {
+                    goToScreen(Terminal::class.java)
+                }.getContent()()
         }
     }
 }
@@ -364,7 +366,7 @@ fun toggleBooleanSettingsPreference(name: String) {
 //    )
 }
 
-fun debugModeOn(){
+fun debugModeOn() {
 
 }
 

@@ -1,6 +1,7 @@
 package com.merqury.aspu.ui.other
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -24,6 +25,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import com.merqury.aspu.ui.magicState
+import com.merqury.aspu.ui.navfragments.settings.reloadSettingsScreen
+import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
+import com.merqury.aspu.ui.navfragments.settings.toggleBooleanSettingsPreference
 import com.merqury.aspu.ui.printlog
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
@@ -67,22 +72,31 @@ private fun updateOutput() {
     )
     var line: String?
     while (bufferedReader.readLine().also { line = it } != null) {
-        if (line!!.contains(filteringString))
+        if (line!!.contains(filteringString) || line!!.contains("D no-meta-info"))
             output.add(parseStdoutMessage(line!!))
     }
 }
 
 private fun parseStdoutMessage(line: String): TerminalStdoutMessage {
-    val words = line.split(" ")
-    val date = LocalDate.parse(words[0]+".2024", DateTimeFormatter.ofPattern("MM-dd.yyyy"))
+    val words = line.removeSpaces().split(" ")
+    val date = LocalDate.parse(words[0] + ".2024", DateTimeFormatter.ofPattern("MM-dd.yyyy"))
     val time = LocalTime.parse(words[1], DateTimeFormatter.ofPattern("HH:mm:ss.SSS"))
     val tag = words[4]
     val type = words[5]
     var message = ""
     (6..<words.size).forEach {
-        message += words[it]+" "
+        message += words[it] + " "
     }
+    if (type == "no-meta-info:")
+        return TerminalStdoutMessage("", message, type, tag)
     return TerminalStdoutMessage("", line, type, tag)
+}
+
+fun String.removeSpaces(): String{
+    var res = trim()
+    while (res.contains("  "))
+        res = res.replace("  ", " ")
+    return res
 }
 
 @Composable
@@ -162,16 +176,86 @@ private fun TerminalContent() {
 }
 
 fun execCommand(command: String) {
-    val args = command.replace("\n", "").split(" ")
+    if (command.lowercase().trim() == "debug off") {
+        toggleBooleanSettingsPreference("debug_mode")
+        reloadSettingsScreen()
+        printlog("Отключено, можете выходить отсюда")
+        updateOutput()
+        magicState.intValue = 3
+        return
+    }
+    val args = command.lowercase().replace("\n", "").split(" ")
     when (args[0]) {
         "filter" -> filter(args[1])
         "echo" -> {
-            printlog(args[1])
+            if (args[1][0] == '$') {
+                val varName = args[1].substring(1)
+                if (varName == "all")
+                    printAllPreferences()
+                else printPreference(varName)
+            } else printlog(args[1])
             updateOutput()
         }
 
         "fatal" -> throw RuntimeException(args[1])
+        "set" -> {
+            val name = args[1]
+            val val_list = args.subList(2, args.size)
+            val builder = StringBuilder()
+            val_list.forEach {
+                builder.append(it)
+            }
+            setPreference(name, builder.toString())
+        }
+
+        "reset" -> {
+            val name = args[1]
+            if (name == "all")
+                settingsPreferences.edit().clear().apply()
+            else
+                settingsPreferences.edit().remove(name).apply()
+        }
+
+        "help" -> {
+            helpMePlease()
+        }
     }
+}
+
+fun helpMePlease() {
+    filter("")
+    Log.d("no-meta-info",
+        """
+        Привет
+        Ты сейчас находишся в консоли приложения
+        Все доступные тебе команды:
+            - filter fatal : вывести причины недавних вылетов
+            - echo <text> : вывести текст
+            - echo $<name> : вывести значение переменной name
+            - fatal : завершить работу приложения ошибкой (Зачем?)
+            - set <name> <value> : установить в переменную name значение value
+            - reset <name> : сбросить значение переменной до стандартного
+        В командах echo и reset можно использовать имя переменной all
+        для того чтобы обратиться ко всем переменным
+    """.trimIndent()
+    )
+    updateOutput()
+}
+
+fun setPreference(name: String, value: String) {
+    settingsPreferences.edit().putString(name, value).apply()
+}
+
+fun printPreference(name: String) {
+    printlog(settingsPreferences.getString(name, "$name undeclared!"))
+    updateOutput()
+}
+
+fun printAllPreferences() {
+    settingsPreferences.all.forEach {
+        printlog("${it.key} = ${it.value}")
+    }
+    updateOutput()
 }
 
 fun filter(filter: String) {
