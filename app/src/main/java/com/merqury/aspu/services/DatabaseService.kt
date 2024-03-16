@@ -1,5 +1,6 @@
 package com.merqury.aspu.services
 
+import android.util.Log
 import com.merqury.aspu.apiDomain
 import com.merqury.aspu.ui.async
 import org.postgresql.util.PSQLException
@@ -28,6 +29,8 @@ fun executeSqlQuery(sql: String, onSuccess: (resultSet: ResultSet) -> Unit, onEr
             connection.close()
         } catch (e: PSQLException){
             onError(e)
+        } catch (e: Exception){
+            Log.e("unknown-exception", e.toString())
         }
     }
 }

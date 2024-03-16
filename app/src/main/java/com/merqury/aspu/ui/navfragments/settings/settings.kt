@@ -29,11 +29,13 @@ import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.services.cache
 import com.merqury.aspu.services.sendToDevEmail
 import com.merqury.aspu.ui.TitleHeader
+import com.merqury.aspu.ui.goToScreen
 import com.merqury.aspu.ui.makeToast
 import com.merqury.aspu.ui.navfragments.news.newsLoaded
 import com.merqury.aspu.ui.navfragments.news.showFacultySelectModalWindow
 import com.merqury.aspu.ui.navfragments.timetable.showSelectIdModalWindow
 import com.merqury.aspu.ui.navfragments.timetable.timetableLoaded
+import com.merqury.aspu.ui.other.Terminal
 import com.merqury.aspu.ui.showSelectListDialog
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.isDarkThemeOn
@@ -145,7 +147,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                     ) SwitchableSettingsPreferenceButton(
                         "Фильтрация пар",
                         "filtration_on"
-                    ) else ClickableSettingsButton("") {},
+                    ) else null,
                     ClickableSettingsButton(
                         "Данные хранятся в кэше: ${
                             when (settingsPreferences.getLong(
@@ -207,7 +209,9 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                     }
                 )
             )
-            if(settingsPreferences.getBoolean("filtration_on", false)){
+            if(settingsPreferences.getBoolean("filtration_on", false)
+                && settingsPreferences.getString("user", "student") == "student"
+                ){
                 SettingsChapter(title = "Настройки фильтрации расписания", buttons = listOf(
                     ClickableSettingsButton(
                         "Выбранная подгруппа: ${
@@ -322,6 +326,9 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                 textDecoration = TextDecoration.Underline
 
             )
+            ClickableSettingsButton("Для разработчика"){
+                goToScreen(Terminal::class.java)
+            }.getContent()()
         }
     }
 }
@@ -355,6 +362,10 @@ fun toggleBooleanSettingsPreference(name: String) {
 //        settingsPreferences
 //            .getBoolean(name, false).toString() + ": " + name
 //    )
+}
+
+fun debugModeOn(){
+
 }
 
 

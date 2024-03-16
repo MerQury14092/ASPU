@@ -155,6 +155,10 @@ fun showSimpleUpdatableModalWindow(
     show(showed, dialogContent)
 }
 
+fun goToScreen(activityClass: Class<*>){
+    appContext!!.startActivity(Intent(appContext!!, activityClass))
+}
+
 @Composable
 fun SwipeableBox(
     onSwipeLeft: () -> Unit = {},

@@ -153,7 +153,7 @@ class ClickableSettingsButton(text: String, val onClick: () -> Unit) : SettingsB
 }
 
 @Composable
-fun SettingsChapter(title: String, buttons: List<SettingsButton>) {
+fun SettingsChapter(title: String, buttons: List<SettingsButton?>) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -168,7 +168,8 @@ fun SettingsChapter(title: String, buttons: List<SettingsButton>) {
             ).value
         )
         buttons.forEach {
-            it.getContent()()
+            if(it != null)
+                it.getContent()()
         }
         Spacer(modifier = Modifier.padding(top = 10.dp))
         Divider(
