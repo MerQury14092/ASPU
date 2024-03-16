@@ -29,7 +29,6 @@ import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.services.cache
 import com.merqury.aspu.services.sendToDevEmail
 import com.merqury.aspu.ui.TitleHeader
-import com.merqury.aspu.ui.makeToast
 import com.merqury.aspu.ui.navBarUpdate
 import com.merqury.aspu.ui.navfragments.news.newsLoaded
 import com.merqury.aspu.ui.navfragments.news.showFacultySelectModalWindow
@@ -91,8 +90,14 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                             else -> "настройки"
                         }
                     }" to { selectInitialRoute() },
-                    "Использовать встроенный браузер" to {
+                    "${
+                        if (settingsPreferences.getBoolean("use_included_browser", true))
+                            "Не использовать"
+                        else
+                            "Использовать"
+                    } встроенный браузер" to {
                         toggleBooleanSettingsPreference("use_included_browser")
+                        reloadSettingsScreen()
                     }
                 )
             )
@@ -264,7 +269,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                 textAlign = TextAlign.Left
             )
             Spacer(modifier = Modifier.height(5.dp))
-            if(appVersion!!.contains("alpha")){
+            if (appVersion!!.contains("alpha")) {
                 Text(
                     "Приложение находится на этапе активной разработки и тестирования, в связи с этим в нём могут быть баги и ошибки",
                     color = animateColorAsState(
@@ -319,7 +324,7 @@ fun toggleTheme() {
     reloadSettingsScreen()
 }
 
-fun toggleBooleanSettingsPreference(name: String){
+fun toggleBooleanSettingsPreference(name: String) {
     settingsPreferences
         .edit()
         .putBoolean(
@@ -328,8 +333,10 @@ fun toggleBooleanSettingsPreference(name: String){
                 .getBoolean(name, false)
         )
         .apply()
-    appContext!!.makeToast(settingsPreferences
-        .getBoolean(name, false).toString()+": "+name)
+//    appContext!!.makeToast(
+//        settingsPreferences
+//            .getBoolean(name, false).toString() + ": " + name
+//    )
 }
 
 

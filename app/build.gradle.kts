@@ -47,6 +47,7 @@ android {
 }
 
 dependencies {
+    implementation("org.postgresql:postgresql:42.2.5")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation("com.android.volley:volley:1.2.1")
     implementation("androidx.compose.material:material")

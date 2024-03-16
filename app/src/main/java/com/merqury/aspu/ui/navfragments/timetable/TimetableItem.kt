@@ -59,7 +59,9 @@ fun TimetableItem(discipline: Discipline) {
                 )
                 Text(
                     discipline.name,
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp),
                     textAlign = TextAlign.Center,
                     fontSize = 20.sp,
                     fontStyle = FontStyle.Italic,
@@ -72,21 +74,34 @@ fun TimetableItem(discipline: Discipline) {
                 Row (
                     modifier = Modifier.padding(bottom = 10.dp)
                 ) {
-                    if (selectedOwner.value.lowercase() != "classroom")
-                        Row {
-                            Text(
-                                "Аудитория: ",
-                                color = if (settingsPreferences.getBoolean(
-                                        "color_timetable",
-                                        true
-                                    )
-                                ) Color.Black else theme.value[SurfaceTheme.text]!!,
-                                modifier = Modifier.padding(start = 10.dp)
-                            )
+                    if (selectedOwner.value.lowercase() != "classroom") {
+                        if(!discipline.distant){
+                            Row {
+                                Text(
+                                    "Аудитория: ",
+                                    color = if (settingsPreferences.getBoolean(
+                                            "color_timetable",
+                                            true
+                                        )
+                                    ) Color.Black else theme.value[SurfaceTheme.text]!!,
+                                    modifier = Modifier.padding(start = 10.dp)
+                                )
 
+                                Text(
+                                    text = discipline.audienceID,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (settingsPreferences.getBoolean(
+                                            "color_timetable",
+                                            true
+                                        )
+                                    ) Color.Black else theme.value[SurfaceTheme.enable]!!
+                                )
+                            }
+                        } else {
                             Text(
-                                text = discipline.audienceID,
+                                text = "Дистанционно",
                                 fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(start = 10.dp),
                                 color = if (settingsPreferences.getBoolean(
                                         "color_timetable",
                                         true
@@ -94,6 +109,7 @@ fun TimetableItem(discipline: Discipline) {
                                 ) Color.Black else theme.value[SurfaceTheme.enable]!!
                             )
                         }
+                    }
                     else
                         if (selectedOwner.value.lowercase() != "group")
                             Text(
@@ -114,7 +130,9 @@ fun TimetableItem(discipline: Discipline) {
                                     true
                                 )
                             ) Color.Black else theme.value[SurfaceTheme.text]!!,
-                            modifier = Modifier.fillMaxWidth().padding(end = 10.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(end = 10.dp),
                             textAlign = TextAlign.End,
                         )
                     if (selectedOwner.value.lowercase() == "teacher")
@@ -125,7 +143,9 @@ fun TimetableItem(discipline: Discipline) {
                                     true
                                 )
                             ) Color.Black else theme.value[SurfaceTheme.text]!!,
-                            modifier = Modifier.fillMaxWidth().padding(end = 10.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(end = 10.dp),
                             textAlign = TextAlign.End,
 
                         )
@@ -181,7 +201,7 @@ fun TimetableItem(discipline: Discipline) {
                             )
                     }
                 }
-                if (discipline.distant) {
+                if (discipline.distant && selectedOwner.value.lowercase() == "classroom") {
                     Divider(color = theme.value[SurfaceTheme.divider]!!)
                     Text(
                         text = "ДИСТАНЦИОННО",

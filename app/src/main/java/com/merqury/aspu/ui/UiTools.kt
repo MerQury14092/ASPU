@@ -292,8 +292,12 @@ fun openInBrowser(url: String, scheme: String) {
     } catch (e: ActivityNotFoundException) {
         appContext!!.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://$url")))
     }
+    aspuButtonLoading.value = false
 }
 
+fun MutableState<Boolean>.toggle(){
+    value = !value
+}
 @Composable
 fun TitleHeader(title: String) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

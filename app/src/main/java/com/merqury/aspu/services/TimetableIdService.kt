@@ -23,7 +23,11 @@ fun getSearchResults(
         url,
         {
             async {
-                searchResults.value = SearchContent.fromJson(it)
+                val res = SearchContent.fromJson(it)
+                res.forEach {
+                    it.searchContent = it.searchContent.split(",")[0]
+                }
+                searchResults.value = res
             }
             success.value = true
         },

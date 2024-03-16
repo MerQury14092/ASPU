@@ -40,15 +40,15 @@ val darkTheme = mapOf(
     SurfaceTheme.button to Color(0xff2b2b2b)
 )
 
-var theme = mutableStateOf(darkTheme)
-/*var theme = mutableStateOf(
+//var theme = mutableStateOf(darkTheme)
+var theme = mutableStateOf(
     if (settingsPreferences.getString("theme",
             if(appContext!!.isDarkThemeOn())
                 "dark"
             else
                 "light"
         ) == "dark") darkTheme else lightTheme
-)*/
+)
 
 fun updateTheme(){
     theme.value =
