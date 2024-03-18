@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import com.android.volley.Request
+import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.apiDomain
 import com.merqury.aspu.requestQueue
@@ -13,40 +14,49 @@ import com.merqury.aspu.ui.navfragments.timetable.DTO.TimetableDay
 import com.merqury.aspu.ui.navfragments.timetable.selectedDate
 import com.merqury.aspu.ui.navfragments.timetable.selectedId
 import com.merqury.aspu.ui.openInBrowser
+import com.merqury.aspu.ui.printlog
 import com.merqury.aspu.ui.showWebPage
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 
-
-fun getTimetableByDate(
+fun getTimetableByDateRange(
     id: String,
     owner: String,
-    date: String,
-    result: MutableState<TimetableDay>,
-    isLoaded: MutableState<Boolean>,
-    success: MutableState<Boolean>,
-    responseText: MutableState<String>
+    startDate: String,
+    endDate: String,
+    onLoad: (result: List<TimetableDay>) -> Unit,
+    onError: (e: VolleyError) -> Unit
 ) {
-    oldGetTimetableByDate(id, owner, date, result, isLoaded, success, responseText)
-    forEachDayInWeekByDate(selectedDate.value) {
-        oldGetTimetableByDate(
-            id,
-            owner,
-            it,
-            mutableStateOf(TimetableDay("", "", "", listOf())),
-            mutableStateOf(false),
-            mutableStateOf(false),
-            mutableStateOf("")
-        )
-    }
+    val url = "https://agpu.merqury.fun/api/timetable/days?" +
+            "id=$id" +
+            "&owner=$owner" +
+            "&startDate=$startDate" +
+            "&endDate=$endDate"
+    val request = StringRequest(
+        Request.Method.GET,
+        url,
+        {
+            async {
+                val response = JSONArray(EncodingConverter.translateISO8859_1toUTF_8(it))
+                val timetableDays = ArrayList<TimetableDay>()
+                for(i in 0..<response.length()){
+                    timetableDays.add(TimetableDay.fromJson(response.getJSONObject(i).toString()))
+                }
+                onLoad(timetableDays)
+            }
+        },
+        onError
+    )
+    requestQueue!!.add(request)
 }
 
-fun oldGetTimetableByDate(
+fun getTimetableByDate(
     id: String,
     owner: String,
     date: String,
