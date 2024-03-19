@@ -20,7 +20,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
@@ -49,12 +49,26 @@ fun NewsItem(title: String, date: String, imageUrl: String, id: Int) {
         )
     ) {
         Column(Modifier.fillMaxWidth()) {
-            AsyncImage(
+            SubcomposeAsyncImage(
                 model = imageUrl,
                 contentDescription = "image url",
-                placeholder = painterResource(
-                    id = R.drawable.news_image_placeholder
-                ),
+                loading = {
+                    Image(
+                        contentDescription = "image url",
+                        painter = painterResource(
+                            id = R.drawable.news_image_placeholder
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .placeholder(
+                                visible = true,
+                                color = theme.value[SurfaceTheme.placeholder_primary]!!,
+                                highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                                shape = RoundedCornerShape(15.dp)
+                            ),
+                        contentScale = ContentScale.Crop
+                    )
+                },
                 modifier = Modifier.fillMaxWidth(),
                 contentScale = ContentScale.Crop
             )
