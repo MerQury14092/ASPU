@@ -27,6 +27,21 @@ fun forEachDayInWeekByDate(date: String, runnable: (day: String) -> Unit){
     runnable(nowDate.format(localFormatter))
 }
 
+fun getStartDayOfWeekByDate(date: String): String {
+    val localFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+    var nowDate = LocalDate.parse(date, localFormatter)
+    while (nowDate.dayOfWeek.value != 1)
+        nowDate = nowDate.minusDays(1)
+    return nowDate.format(localFormatter)
+}
+fun getEndDayOfWeekByDate(date: String): String {
+    val localFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+    var nowDate = LocalDate.parse(date, localFormatter)
+    while (nowDate.dayOfWeek.value < 7)
+        nowDate = nowDate.plusDays(1)
+    return nowDate.format(localFormatter)
+}
+
 fun timestampNow(): String{
     return LocalDateTime.now().format(formatter)
 }

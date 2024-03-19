@@ -34,6 +34,10 @@ data class TimetableDay (
             }
             return res
         }
+
+        fun TimetableDay.toJson(): String {
+            return mapper.writeValueAsString(this)
+        }
     }
 }
 

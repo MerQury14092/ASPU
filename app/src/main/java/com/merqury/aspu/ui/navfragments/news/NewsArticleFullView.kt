@@ -6,16 +6,19 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +33,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.placeholder
+import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.services.getNewsArticle
 import com.merqury.aspu.ui.ModalWindow
 import com.merqury.aspu.ui.navfragments.timetable.prettyDate
@@ -70,18 +76,23 @@ fun ArticleView() {
             Box(
                 Modifier
                     .fillMaxSize()
-                    .background(color = theme.value[SurfaceTheme.background]!!), contentAlignment = Alignment.Center)
+                    .background(color = theme.value[SurfaceTheme.background]!!),
+                contentAlignment = Alignment.Center
+            )
             {
-                CircularProgressIndicator(color = theme.value[SurfaceTheme.text]!!)
+                ArticleViewContentLoadingPlaceholder()
             }
         } else {
             if (newsArticleLoadSuccess.value)
                 ArticleViewContent(articleJson.value)
             else
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = theme.value[SurfaceTheme.background]!!), contentAlignment = Alignment.Center) {
-                    androidx.compose.material.Text(text = "Ошибка загрузки статьи!")
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(color = theme.value[SurfaceTheme.background]!!),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "Ошибка загрузки статьи!", color = theme.value[SurfaceTheme.text]!!)
                 }
         }
     }
@@ -90,9 +101,11 @@ fun ArticleView() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ArticleViewContent(articleJson: JSONObject) {
-    Box(modifier = Modifier
-        .padding(15.dp)
-        .background(color = theme.value[SurfaceTheme.background]!!)) {
+    Box(
+        modifier = Modifier
+            .padding(15.dp)
+            .background(color = theme.value[SurfaceTheme.background]!!)
+    ) {
         Divider(color = theme.value[SurfaceTheme.divider]!!)
         Column(
             Modifier.verticalScroll(rememberScrollState())
@@ -173,6 +186,78 @@ private fun ArticleViewContent(articleJson: JSONObject) {
                             }
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ArticleViewContentLoadingPlaceholder() {
+    Box(
+        modifier = Modifier
+            .padding(15.dp)
+            .background(color = theme.value[SurfaceTheme.background]!!)
+    ) {
+        Divider(color = theme.value[SurfaceTheme.divider]!!)
+        Column(
+            Modifier.verticalScroll(rememberScrollState())
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                Text(
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .placeholder(
+                            visible = true,
+                            color = theme.value[SurfaceTheme.placeholder_primary]!!,
+                            highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                            shape = RoundedCornerShape(15.dp)
+                        ),
+                    textAlign = TextAlign.Center,
+                    text = "Это очень крутой заголовок",
+                    fontSize = 25.sp,
+                    fontStyle = FontStyle.Italic,
+                    color = theme.value[SurfaceTheme.text]!!
+                )
+            }
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.End
+            ) {
+                Text(
+                    text = "Это дата",
+                    modifier = Modifier
+                        .padding(bottom = 10.dp)
+                        .placeholder(
+                            visible = true,
+                            color = theme.value[SurfaceTheme.placeholder_primary]!!,
+                            highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                            shape = RoundedCornerShape(15.dp)
+                        ),
+                    textAlign = TextAlign.End,
+                    color = theme.value[SurfaceTheme.text]!!
+                )
+            }
+            Divider(color = theme.value[SurfaceTheme.divider]!!)
+            Spacer(Modifier.size(10.dp))
+            (1..50).forEach { _ ->
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(1.dp)
+                        .placeholder(
+                            visible = true,
+                            color = theme.value[SurfaceTheme.placeholder_primary]!!,
+                            highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                            shape = RoundedCornerShape(15.dp)
+                        ),
+                    textAlign = TextAlign.Left,
+                    fontSize = 15.sp,
+                    text = "Очень крутое описание",
+                    color = theme.value[SurfaceTheme.text]!!
+                )
             }
         }
     }

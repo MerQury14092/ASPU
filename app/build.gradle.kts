@@ -11,8 +11,8 @@ android {
         applicationId = "com.merqury.aspu"
         minSdk = 28
         targetSdk = 34
-        versionCode = 13
-        versionName = "1.1"
+        versionCode = 14
+        versionName = "1.11"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -50,6 +50,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.2.5")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation("com.android.volley:volley:1.2.1")
+    implementation("com.google.accompanist:accompanist-placeholder:0.35.0-alpha")
     implementation("androidx.compose.material:material")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose")
     implementation("net.engawapg.lib:zoomable:1.6.0")

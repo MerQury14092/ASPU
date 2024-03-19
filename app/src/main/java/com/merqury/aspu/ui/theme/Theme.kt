@@ -18,7 +18,9 @@ enum class SurfaceTheme {
     disable,
     enable,
     text,
-    button
+    button,
+    placeholder_primary,
+    placeholder_secondary,
 }
 
 const val themeChangeDuration = 300
@@ -26,6 +28,8 @@ const val themeChangeDuration = 300
 val lightTheme = mapOf(
     SurfaceTheme.background to Color.White,
     SurfaceTheme.foreground to Color(0xffedeef0),
+    SurfaceTheme.placeholder_primary to Color(0xFFD4D6D8),
+    SurfaceTheme.placeholder_secondary to Color(0xFFBCBEC0),
     SurfaceTheme.divider to Color(0xffdee1e6),
     SurfaceTheme.disable to Color(0xff656F7E),
     SurfaceTheme.enable to Color.Black,
@@ -36,6 +40,8 @@ val lightTheme = mapOf(
 val darkTheme = mapOf(
     SurfaceTheme.background to Color(0xff141414),
     SurfaceTheme.foreground to Color(0xff222222),
+    SurfaceTheme.placeholder_primary to Color(0xFF252525),
+    SurfaceTheme.placeholder_secondary to Color(0xFF302F2F),
     SurfaceTheme.divider to Color(0xff1f1f1f),
     SurfaceTheme.disable to Color(0xff939393),
     SurfaceTheme.enable to Color.White,

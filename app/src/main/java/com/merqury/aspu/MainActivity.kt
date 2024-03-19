@@ -30,12 +30,14 @@ import com.android.volley.RequestQueue
 import com.android.volley.toolbox.Volley
 import com.merqury.aspu.services.getApiDomain
 import com.merqury.aspu.services.getLastPublishedVersion
+import com.merqury.aspu.services.getTimetableByDateRange
 import com.merqury.aspu.ui.MainScreen
 import com.merqury.aspu.ui.navfragments.settings.reloadSettingsScreen
 import com.merqury.aspu.ui.navfragments.settings.selectUser
 import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.navfragments.timetable.showSelectIdModalWindow
+import com.merqury.aspu.ui.printlog
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.theme
@@ -55,6 +57,7 @@ var apiDomain = "agpu.merqury.fun"
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         getApiDomain {
             if(it != apiDomain)
                 apiDomain = it
