@@ -13,7 +13,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Card
@@ -83,6 +82,31 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
                     timetableLoadSuccess,
                     timetableLoadStatusText
                 )
+                SwipeableBox(
+                    onSwipeLeft = {
+                        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+                        var currentDate = LocalDate.parse(selectedDate.value, formatter)
+                        currentDate = currentDate.plusDays(-1)
+                        selectedDate.value = currentDate.format(formatter)
+                        timetableLoaded.value = false
+                    },
+                    onSwipeRight = {
+                        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+                        var currentDate = LocalDate.parse(selectedDate.value, formatter)
+                        currentDate = currentDate.plusDays(1)
+                        selectedDate.value = currentDate.format(formatter)
+                        timetableLoaded.value = false
+                    },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(color = theme.value[SurfaceTheme.background]!!)
+                ) {
+                    Column {
+                        TimetableItemLoadingPlaceholder()
+                        TimetableItemLoadingPlaceholder()
+                        TimetableItemLoadingPlaceholder()
+                    }
+                }
             } else {
                 if (timetableLoadSuccess.value)
                     SwipeableBox(
@@ -151,13 +175,6 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
                         )
                     }
             }
-            PullRefreshIndicator(
-                refreshing = !timetableLoaded.value,
-                state = pullRefreshState,
-                modifier = Modifier.align(Alignment.TopCenter),
-                backgroundColor = theme.value[SurfaceTheme.foreground]!!,
-                contentColor = theme.value[SurfaceTheme.text]!!
-            )
         }
     }
 }

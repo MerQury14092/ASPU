@@ -1,11 +1,13 @@
 package com.merqury.aspu.ui.navfragments.timetable
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -19,6 +21,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.placeholder
+import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.enums.TimetableDisciplineType
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.navfragments.timetable.DTO.Discipline
@@ -34,8 +39,7 @@ fun TimetableItem(discipline: Discipline) {
             .padding(horizontal = 4.dp, vertical = 2.dp)
             .clickable {
                 showDisciplineDetails(discipline)
-            }
-        ,
+            },
         colors = CardDefaults.cardColors(
             containerColor =
             if (settingsPreferences.getBoolean("color_timetable", true))
@@ -71,11 +75,11 @@ fun TimetableItem(discipline: Discipline) {
                         )
                     ) Color.Black else theme.value[SurfaceTheme.text]!!
                 )
-                Row (
+                Row(
                     modifier = Modifier.padding(bottom = 10.dp)
                 ) {
                     if (selectedOwner.value.lowercase() != "classroom") {
-                        if(!discipline.distant){
+                        if (!discipline.distant) {
                             Row {
                                 Text(
                                     "Аудитория: ",
@@ -109,8 +113,7 @@ fun TimetableItem(discipline: Discipline) {
                                 ) Color.Black else theme.value[SurfaceTheme.enable]!!
                             )
                         }
-                    }
-                    else
+                    } else
                         if (selectedOwner.value.lowercase() != "group")
                             Text(
                                 multiplyGroupFilter(discipline.groupName),
@@ -148,7 +151,7 @@ fun TimetableItem(discipline: Discipline) {
                                 .padding(end = 10.dp),
                             textAlign = TextAlign.End,
 
-                        )
+                            )
                 }
                 if (!settingsPreferences.getBoolean("filtration_on", true) ||
                     (settingsPreferences.getInt("selected_subgroup", 0) == 0
@@ -197,7 +200,7 @@ fun TimetableItem(discipline: Discipline) {
                                 ) Color.Black else theme.value[SurfaceTheme.text]!!,
                                 modifier = Modifier.fillMaxWidth(),
                                 textAlign = TextAlign.Center,
-                                fontStyle =  FontStyle.Italic
+                                fontStyle = FontStyle.Italic
                             )
                     }
                 }
@@ -219,8 +222,159 @@ fun TimetableItem(discipline: Discipline) {
     }
 }
 
+@Composable
+fun TimetableItemLoadingPlaceholder() {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp, vertical = 2.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = theme.value[SurfaceTheme.foreground]!!
+
+        )
+    ) {
+        Box(modifier = Modifier.padding(5.dp)) {
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    Text(
+                        "18:00-19:30",
+                        modifier = Modifier
+                            .placeholder(
+                                visible = true,
+                                color = theme.value[SurfaceTheme.placeholder_primary]!!,
+                                highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                                shape = RoundedCornerShape(15.dp)
+                            ),
+                        textAlign = TextAlign.Center,
+                        color = if (settingsPreferences.getBoolean(
+                                "color_timetable",
+                                true
+                            )
+                        ) Color.Black else theme.value[SurfaceTheme.text]!!
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    Text(
+                        "Разработка web-приложений",
+                        modifier = Modifier
+                            .padding(bottom = 10.dp, top = 5.dp)
+                            .placeholder(
+                                visible = true,
+                                color = theme.value[SurfaceTheme.placeholder_primary]!!,
+                                highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                                shape = RoundedCornerShape(15.dp)
+                            ),
+                        textAlign = TextAlign.Center,
+                        fontSize = 18.sp,
+                        fontStyle = FontStyle.Italic,
+                        color = if (settingsPreferences.getBoolean(
+                                "color_timetable",
+                                true
+                            )
+                        ) Color.Black else theme.value[SurfaceTheme.text]!!
+                    )
+                }
+                Row(
+                    modifier = Modifier.padding(bottom = 10.dp)
+                ) {
+                    Row {
+                        Text(
+                            "Аудитория: 3",
+                            modifier = Modifier
+                                .padding(start = 10.dp)
+                                .placeholder(
+                                    visible = true,
+                                    color = theme.value[SurfaceTheme.placeholder_primary]!!,
+                                    highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                                    shape = RoundedCornerShape(15.dp)
+                                )
+                        )
+                    }
+                }
+                if (!settingsPreferences.getBoolean("filtration_on", true) ||
+                    (settingsPreferences.getInt("selected_subgroup", 0) == 0
+                            || settingsPreferences.getString(
+                        "timetable_id",
+                        "ВМ-ИВТ-2-1"
+                    ) != selectedId.value)
+                ) {
+                    Text(
+                        "Place 4",
+                        color = if (settingsPreferences.getBoolean(
+                                "color_timetable",
+                                true
+                            )
+                        ) Color.Black else theme.value[SurfaceTheme.text]!!,
+                        modifier = Modifier
+                            .padding(start = 10.dp)
+                            .placeholder(
+                                visible = true,
+                                color = theme.value[SurfaceTheme.placeholder_primary]!!,
+                                highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                                shape = RoundedCornerShape(15.dp)
+                            )
+                    )
+                }
+                Box {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.BottomEnd
+                    ) {
+                        Text(
+                            "1",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (settingsPreferences.getBoolean(
+                                    "color_timetable",
+                                    true
+                                )
+                            ) Color.Black else theme.value[SurfaceTheme.text]!!,
+                            modifier = Modifier.placeholder(
+                                visible = true,
+                                color = theme.value[SurfaceTheme.placeholder_primary]!!,
+                                highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                                shape = RoundedCornerShape(15.dp)
+                            )
+
+                        )
+                    }
+                    Column {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceAround
+                        ) {
+                            Text(
+                                "Лаб. работа",
+                                color = if (settingsPreferences.getBoolean(
+                                        "color_timetable",
+                                        true
+                                    )
+                                ) Color.Black else theme.value[SurfaceTheme.text]!!,
+                                modifier = Modifier.placeholder(
+                                    visible = true,
+                                    color = theme.value[SurfaceTheme.placeholder_primary]!!,
+                                    highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                                    shape = RoundedCornerShape(15.dp)
+                                ),
+                                textAlign = TextAlign.Center,
+                                fontStyle = FontStyle.Italic
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 private fun multiplyGroupFilter(group: String): String {
-    if(group.split(",").size > 1)
+    if (group.split(",").size > 1)
         return "Несколько групп"
     return group
 }
