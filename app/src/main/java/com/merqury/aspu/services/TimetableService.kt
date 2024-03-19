@@ -2,19 +2,17 @@ package com.merqury.aspu.services
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import com.android.volley.Request
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
-import com.merqury.aspu.apiDomain
 import com.merqury.aspu.requestQueue
 import com.merqury.aspu.ui.async
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.navfragments.timetable.DTO.TimetableDay
+import com.merqury.aspu.ui.navfragments.timetable.DTO.TimetableDay.Companion.toJson
 import com.merqury.aspu.ui.navfragments.timetable.selectedDate
 import com.merqury.aspu.ui.navfragments.timetable.selectedId
 import com.merqury.aspu.ui.openInBrowser
-import com.merqury.aspu.ui.printlog
 import com.merqury.aspu.ui.showWebPage
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -83,23 +81,28 @@ fun getTimetableByDate(
             return
         }
     }
-    isLoaded.value = false
-    val url = "https://$apiDomain/api/timetable/day?id=$id&owner=$owner&date=$date"
-    val request = StringRequest(
-        Request.Method.GET,
-        url,
-        { response ->
-            val convertedResponse = EncodingConverter.translateISO8859_1toUTF_8(response)
-            result.value = TimetableDay.fromJson(convertedResponse)
-            isLoaded.value = true
-            success.value = true
-            cache.edit().putString(
-                "$id $date",
-                JSONObject().apply {
-                    put("created", timestampNow())
-                    put("value", convertedResponse)
-                }.toString()
-            ).apply()
+    val startWeekDate = getStartDayOfWeekByDate(selectedDate.value)
+    val endWeekDate = getEndDayOfWeekByDate(selectedDate.value)
+    getTimetableByDateRange(
+        id,
+        owner,
+        startWeekDate,
+        endWeekDate,
+        { ttList ->
+            ttList.forEach {
+                if(it.date == selectedDate.value) {
+                    result.value = it
+                    isLoaded.value = true
+                    success.value = true
+                }
+                cache.edit().putString(
+                    "$id ${it.date}",
+                    JSONObject().apply {
+                        put("created", timestampNow())
+                        put("value", it.toJson())
+                    }.toString()
+                ).apply()
+            }
         },
         {
             success.value = false
@@ -108,7 +111,6 @@ fun getTimetableByDate(
             handleVolleyError(it, responseText)
         }
     )
-    requestQueue!!.add(request)
 }
 
 @OptIn(DelicateCoroutinesApi::class)
