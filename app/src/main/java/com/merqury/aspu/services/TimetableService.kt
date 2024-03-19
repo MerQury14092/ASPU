@@ -81,36 +81,40 @@ fun getTimetableByDate(
             return
         }
     }
-    val startWeekDate = getStartDayOfWeekByDate(selectedDate.value)
-    val endWeekDate = getEndDayOfWeekByDate(selectedDate.value)
-    getTimetableByDateRange(
-        id,
-        owner,
-        startWeekDate,
-        endWeekDate,
-        { ttList ->
-            ttList.forEach {
-                if(it.date == selectedDate.value) {
-                    result.value = it
-                    isLoaded.value = true
-                    success.value = true
+    async {
+        Thread.sleep(5000)
+
+        val startWeekDate = getStartDayOfWeekByDate(selectedDate.value)
+        val endWeekDate = getEndDayOfWeekByDate(selectedDate.value)
+        getTimetableByDateRange(
+            id,
+            owner,
+            startWeekDate,
+            endWeekDate,
+            { ttList ->
+                ttList.forEach {
+                    if(it.date == selectedDate.value) {
+                        result.value = it
+                        isLoaded.value = true
+                        success.value = true
+                    }
+                    cache.edit().putString(
+                        "$id ${it.date}",
+                        JSONObject().apply {
+                            put("created", timestampNow())
+                            put("value", it.toJson())
+                        }.toString()
+                    ).apply()
                 }
-                cache.edit().putString(
-                    "$id ${it.date}",
-                    JSONObject().apply {
-                        put("created", timestampNow())
-                        put("value", it.toJson())
-                    }.toString()
-                ).apply()
+            },
+            {
+                success.value = false
+                isLoaded.value = true
+                Log.d("network-error", "ERROR")
+                handleVolleyError(it, responseText)
             }
-        },
-        {
-            success.value = false
-            isLoaded.value = true
-            Log.d("network-error", "ERROR")
-            handleVolleyError(it, responseText)
-        }
-    )
+        )
+    }
 }
 
 @OptIn(DelicateCoroutinesApi::class)
