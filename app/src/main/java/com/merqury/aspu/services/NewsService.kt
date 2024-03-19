@@ -25,10 +25,10 @@ fun getNews(
     responseText: MutableState<String>
 ) {
     val timeCache = settingsPreferences.getLong("timeCache", TimeUnit.HOURS.toSeconds(3))
-    if(timeCache != 0L && cache.getString("${faculty.name} $pageNumber", "") != ""){
+    if (timeCache != 0L && cache.getString("${faculty.name} $pageNumber", "") != "") {
         val cacheNewsPage = cache.getString("${faculty.name} $pageNumber", "")
             ?.let { JSONObject(it) }
-        if(timestampDifference(timestampNow(), cacheNewsPage!!.getString("created")) < timeCache){
+        if (timestampDifference(timestampNow(), cacheNewsPage!!.getString("created")) < timeCache) {
             async {
                 Thread.sleep(100)
                 newsResponse.value = cacheNewsPage.getJSONObject("value")
@@ -96,6 +96,7 @@ fun getNewsArticle(
     )
     requestQueue!!.add(request)
 }
+
 fun urlForCurrentFaculty(): String {
     return when (selectedFaculty.value.name) {
         "agpu" -> "agpu.net/news.php?PAGEN_1=${currentPage.value}"

@@ -10,7 +10,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
@@ -72,7 +71,8 @@ fun NewsContent(
             newsLoaded.value = false
         }
     )
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize()
+        .background(theme.value[SurfaceTheme.background]!!)) {
         if (!newsLoaded.value) {
             getNews(
                 selectedFaculty.value,
@@ -83,6 +83,28 @@ fun NewsContent(
                 newsLoadSuccess,
                 newsLoadStatusText
             )
+            SwipeableBox(
+                onSwipeRight = {
+                    currentPage.intValue++
+                    reloadNews()
+                },
+                onSwipeLeft = {
+                    currentPage.intValue--
+                    reloadNews()
+                },
+                swipeableRight = currentPage.intValue < countPages.intValue,
+                swipeableLeft = currentPage.intValue > 1
+            ) {
+                Column(
+                    Modifier
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    NewsItemLoadingPlaceholder()
+                    NewsItemLoadingPlaceholder()
+                    NewsItemLoadingPlaceholder()
+                    NewsItemLoadingPlaceholder()
+                }
+            }
         }
         Box(
             modifier = Modifier
@@ -133,13 +155,6 @@ fun NewsContent(
                         }
                     }
             }
-            PullRefreshIndicator(
-                refreshing = !newsLoaded.value,
-                state = pullRefreshState,
-                modifier = Modifier.align(Alignment.TopCenter),
-                backgroundColor = theme.value[SurfaceTheme.foreground]!!,
-                contentColor = theme.value[SurfaceTheme.text]!!
-            )
         }
     }
 }
