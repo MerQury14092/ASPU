@@ -50,14 +50,20 @@ val darkTheme = mapOf(
 )
 
 //var theme = mutableStateOf(darkTheme)
-var theme = mutableStateOf(
-    if (settingsPreferences.getString("theme",
-            if(appContext!!.isDarkThemeOn())
+private var theme = mutableStateOf(
+    /*if (settingsPreferences.getString("theme",
+            if(appContext?.isDarkThemeOn() != false)
                 "dark"
             else
                 "light"
-        ) == "dark") darkTheme else lightTheme
+        ) == "dark")*/ darkTheme /*else lightTheme*/
 )
+
+val SurfaceTheme.color: Color
+    @Composable get() = theme.value[this]!!.animatedColorOnThemeChange()
+
+val SurfaceTheme.colorWithoutAnim
+    get() = theme.value[this]!!
 
 fun updateTheme(){
     theme.value =
@@ -75,7 +81,7 @@ fun Context.isDarkThemeOn(): Boolean {
 }
 
 @Composable
-fun Color.animatedColorOnThemeChange(): Color {
+private fun Color.animatedColorOnThemeChange(): Color {
     return animateColorAsState(
         targetValue = this,
         animationSpec = tween(durationMillis = themeChangeDuration),

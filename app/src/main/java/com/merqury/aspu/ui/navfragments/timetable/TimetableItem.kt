@@ -28,7 +28,7 @@ import com.merqury.aspu.enums.TimetableDisciplineType
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.navfragments.timetable.DTO.Discipline
 import com.merqury.aspu.ui.theme.SurfaceTheme
-import com.merqury.aspu.ui.theme.theme
+import com.merqury.aspu.ui.theme.color
 
 @Composable
 fun TimetableItem(discipline: Discipline) {
@@ -45,7 +45,7 @@ fun TimetableItem(discipline: Discipline) {
             if (settingsPreferences.getBoolean("color_timetable", true))
                 Color(type.colorInt)
             else
-                theme.value[SurfaceTheme.foreground]!!
+                SurfaceTheme.foreground.color
 
         )
     ) {
@@ -59,7 +59,7 @@ fun TimetableItem(discipline: Discipline) {
                             "color_timetable",
                             true
                         )
-                    ) Color.Black else theme.value[SurfaceTheme.text]!!
+                    ) Color.Black else SurfaceTheme.text.color
                 )
                 Text(
                     discipline.name,
@@ -73,7 +73,7 @@ fun TimetableItem(discipline: Discipline) {
                             "color_timetable",
                             true
                         )
-                    ) Color.Black else theme.value[SurfaceTheme.text]!!
+                    ) Color.Black else SurfaceTheme.text.color
                 )
                 Row(
                     modifier = Modifier.padding(bottom = 10.dp)
@@ -87,7 +87,7 @@ fun TimetableItem(discipline: Discipline) {
                                             "color_timetable",
                                             true
                                         )
-                                    ) Color.Black else theme.value[SurfaceTheme.text]!!,
+                                    ) Color.Black else SurfaceTheme.text.color,
                                     modifier = Modifier.padding(start = 10.dp)
                                 )
 
@@ -98,7 +98,7 @@ fun TimetableItem(discipline: Discipline) {
                                             "color_timetable",
                                             true
                                         )
-                                    ) Color.Black else theme.value[SurfaceTheme.enable]!!
+                                    ) Color.Black else SurfaceTheme.enable.color
                                 )
                             }
                         } else {
@@ -110,7 +110,7 @@ fun TimetableItem(discipline: Discipline) {
                                         "color_timetable",
                                         true
                                     )
-                                ) Color.Black else theme.value[SurfaceTheme.enable]!!
+                                ) Color.Black else SurfaceTheme.enable.color
                             )
                         }
                     } else
@@ -121,7 +121,7 @@ fun TimetableItem(discipline: Discipline) {
                                         "color_timetable",
                                         true
                                     )
-                                ) Color.Black else theme.value[SurfaceTheme.text]!!,
+                                ) Color.Black else SurfaceTheme.text.color,
                                 textAlign = TextAlign.Start,
                                 modifier = Modifier.padding(start = 10.dp)
                             )
@@ -132,7 +132,7 @@ fun TimetableItem(discipline: Discipline) {
                                     "color_timetable",
                                     true
                                 )
-                            ) Color.Black else theme.value[SurfaceTheme.text]!!,
+                            ) Color.Black else SurfaceTheme.text.color,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(end = 10.dp),
@@ -145,7 +145,7 @@ fun TimetableItem(discipline: Discipline) {
                                     "color_timetable",
                                     true
                                 )
-                            ) Color.Black else theme.value[SurfaceTheme.text]!!,
+                            ) Color.Black else SurfaceTheme.text.color,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(end = 10.dp),
@@ -167,7 +167,7 @@ fun TimetableItem(discipline: Discipline) {
                                     "color_timetable",
                                     true
                                 )
-                            ) Color.Black else theme.value[SurfaceTheme.text]!!,
+                            ) Color.Black else SurfaceTheme.text.color,
                             modifier = Modifier.padding(start = 10.dp)
                         )
                 }
@@ -184,7 +184,7 @@ fun TimetableItem(discipline: Discipline) {
                                     "color_timetable",
                                     true
                                 )
-                            ) Color.Black else theme.value[SurfaceTheme.text]!!
+                            ) Color.Black else SurfaceTheme.text.color
 
                         )
                     }
@@ -197,7 +197,7 @@ fun TimetableItem(discipline: Discipline) {
                                         "color_timetable",
                                         true
                                     )
-                                ) Color.Black else theme.value[SurfaceTheme.text]!!,
+                                ) Color.Black else SurfaceTheme.text.color,
                                 modifier = Modifier.fillMaxWidth(),
                                 textAlign = TextAlign.Center,
                                 fontStyle = FontStyle.Italic
@@ -205,7 +205,7 @@ fun TimetableItem(discipline: Discipline) {
                     }
                 }
                 if (discipline.distant && selectedOwner.value.lowercase() == "classroom") {
-                    Divider(color = theme.value[SurfaceTheme.divider]!!)
+                    Divider(color = SurfaceTheme.divider.color)
                     Text(
                         text = "ДИСТАНЦИОННО",
                         modifier = Modifier.fillMaxWidth(),
@@ -214,7 +214,7 @@ fun TimetableItem(discipline: Discipline) {
                                 "color_timetable",
                                 true
                             )
-                        ) Color.Black else theme.value[SurfaceTheme.text]!!
+                        ) Color.Black else SurfaceTheme.text.color
                     )
                 }
             }
@@ -229,7 +229,7 @@ fun TimetableItemLoadingPlaceholder() {
             .fillMaxWidth()
             .padding(horizontal = 4.dp, vertical = 2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = theme.value[SurfaceTheme.foreground]!!
+            containerColor = SurfaceTheme.foreground.color
 
         )
     ) {
@@ -244,8 +244,8 @@ fun TimetableItemLoadingPlaceholder() {
                         modifier = Modifier
                             .placeholder(
                                 visible = true,
-                                color = theme.value[SurfaceTheme.placeholder_primary]!!,
-                                highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                                color = SurfaceTheme.placeholder_primary.color,
+                                highlight = PlaceholderHighlight.shimmer(SurfaceTheme.placeholder_secondary.color),
                                 shape = RoundedCornerShape(15.dp)
                             ),
                         textAlign = TextAlign.Center,
@@ -253,7 +253,7 @@ fun TimetableItemLoadingPlaceholder() {
                                 "color_timetable",
                                 true
                             )
-                        ) Color.Black else theme.value[SurfaceTheme.text]!!
+                        ) Color.Black else SurfaceTheme.text.color
                     )
                 }
                 Row(
@@ -266,8 +266,8 @@ fun TimetableItemLoadingPlaceholder() {
                             .padding(bottom = 10.dp, top = 5.dp)
                             .placeholder(
                                 visible = true,
-                                color = theme.value[SurfaceTheme.placeholder_primary]!!,
-                                highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                                color = SurfaceTheme.placeholder_primary.color,
+                                highlight = PlaceholderHighlight.shimmer(SurfaceTheme.placeholder_secondary.color),
                                 shape = RoundedCornerShape(15.dp)
                             ),
                         textAlign = TextAlign.Center,
@@ -277,7 +277,7 @@ fun TimetableItemLoadingPlaceholder() {
                                 "color_timetable",
                                 true
                             )
-                        ) Color.Black else theme.value[SurfaceTheme.text]!!
+                        ) Color.Black else SurfaceTheme.text.color
                     )
                 }
                 Row(
@@ -290,8 +290,8 @@ fun TimetableItemLoadingPlaceholder() {
                                 .padding(start = 10.dp)
                                 .placeholder(
                                     visible = true,
-                                    color = theme.value[SurfaceTheme.placeholder_primary]!!,
-                                    highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                                    color = SurfaceTheme.placeholder_primary.color,
+                                    highlight = PlaceholderHighlight.shimmer(SurfaceTheme.placeholder_secondary.color),
                                     shape = RoundedCornerShape(15.dp)
                                 )
                         )
@@ -310,13 +310,13 @@ fun TimetableItemLoadingPlaceholder() {
                                 "color_timetable",
                                 true
                             )
-                        ) Color.Black else theme.value[SurfaceTheme.text]!!,
+                        ) Color.Black else SurfaceTheme.text.color,
                         modifier = Modifier
                             .padding(start = 10.dp)
                             .placeholder(
                                 visible = true,
-                                color = theme.value[SurfaceTheme.placeholder_primary]!!,
-                                highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                                color = SurfaceTheme.placeholder_primary.color,
+                                highlight = PlaceholderHighlight.shimmer(SurfaceTheme.placeholder_secondary.color),
                                 shape = RoundedCornerShape(15.dp)
                             )
                     )
@@ -334,11 +334,11 @@ fun TimetableItemLoadingPlaceholder() {
                                     "color_timetable",
                                     true
                                 )
-                            ) Color.Black else theme.value[SurfaceTheme.text]!!,
+                            ) Color.Black else SurfaceTheme.text.color,
                             modifier = Modifier.placeholder(
                                 visible = true,
-                                color = theme.value[SurfaceTheme.placeholder_primary]!!,
-                                highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                                color = SurfaceTheme.placeholder_primary.color,
+                                highlight = PlaceholderHighlight.shimmer(SurfaceTheme.placeholder_secondary.color),
                                 shape = RoundedCornerShape(15.dp)
                             )
 
@@ -355,11 +355,11 @@ fun TimetableItemLoadingPlaceholder() {
                                         "color_timetable",
                                         true
                                     )
-                                ) Color.Black else theme.value[SurfaceTheme.text]!!,
+                                ) Color.Black else SurfaceTheme.text.color,
                                 modifier = Modifier.placeholder(
                                     visible = true,
-                                    color = theme.value[SurfaceTheme.placeholder_primary]!!,
-                                    highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                                    color = SurfaceTheme.placeholder_primary.color,
+                                    highlight = PlaceholderHighlight.shimmer(SurfaceTheme.placeholder_secondary.color),
                                     shape = RoundedCornerShape(15.dp)
                                 ),
                                 textAlign = TextAlign.Center,

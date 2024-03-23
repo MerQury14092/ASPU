@@ -30,7 +30,7 @@ fun getNews(
             ?.let { JSONObject(it) }
         if (timestampDifference(timestampNow(), cacheNewsPage!!.getString("created")) < timeCache) {
             async {
-                Thread.sleep(100)
+                Thread.sleep(500)
                 newsResponse.value = cacheNewsPage.getJSONObject("value")
                 countPages.intValue = cacheNewsPage.getJSONObject("value").getInt("countPages")
                 success.value = true

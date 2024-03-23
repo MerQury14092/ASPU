@@ -26,11 +26,12 @@ import com.merqury.aspu.ui.navfragments.timetable.DTO.Discipline
 import com.merqury.aspu.ui.navfragments.timetable.DTO.getCorpsByAudience
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
-import com.merqury.aspu.ui.theme.theme
+import com.merqury.aspu.ui.theme.color
+import com.merqury.aspu.ui.theme.colorWithoutAnim
 
 fun showDisciplineDetails(discipline: Discipline) {
     showSimpleModalWindow(
-        containerColor = theme.value[SurfaceTheme.background]!!
+        containerColor = SurfaceTheme.background.colorWithoutAnim
     ) {
         DisciplineDetails(discipline = discipline)
     }
@@ -44,7 +45,7 @@ private fun DisciplineDetails(discipline: Discipline) {
             text = text,
             modifier = Modifier.fillMaxWidth(),
             textAlign = textAlign,
-            color = theme.value[SurfaceTheme.text]!!
+            color = SurfaceTheme.text.color
         )
     }
 
@@ -52,7 +53,7 @@ private fun DisciplineDetails(discipline: Discipline) {
     fun ThemeDivider() {
         Divider(
             modifier = Modifier.padding(vertical = 10.dp),
-            color = theme.value[SurfaceTheme.divider]!!
+            color = SurfaceTheme.divider.color
         )
     }
 
@@ -81,12 +82,12 @@ private fun DisciplineDetails(discipline: Discipline) {
                             "Спортзал"
                         else
                             "Аудитория: ${discipline.audienceID}",
-                        color = theme.value[SurfaceTheme.text]!!
+                        color = SurfaceTheme.text.color
                     )
                     if (corps.name != "НЕИЗВЕСТНО")
                         Text(
                             corps.name,
-                            color = theme.value[SurfaceTheme.text]!!
+                            color = SurfaceTheme.text.color
                         )
                 }
                 if (corps.name != "НЕИЗВЕСТНО")
@@ -99,7 +100,7 @@ private fun DisciplineDetails(discipline: Discipline) {
                             .clickable {
                                 openMapWithMarker(corps.lat, corps.lon, corps.name)
                             },
-                        colorFilter = ColorFilter.tint(theme.value[SurfaceTheme.text]!!)
+                        colorFilter = ColorFilter.tint(SurfaceTheme.text.color)
                     )
             }
 

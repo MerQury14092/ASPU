@@ -41,7 +41,7 @@ import com.merqury.aspu.services.FileOpener
 import com.merqury.aspu.ui.aspuButtonLoading
 import com.merqury.aspu.ui.navfragments.other.ObservableString
 import com.merqury.aspu.ui.openInBrowser
-import com.merqury.aspu.ui.theme.SurfaceTheme
+import com.merqury.aspu.ui.theme.color
 import java.util.Stack
 
 class WebViewActivity : ComponentActivity() {
@@ -68,7 +68,7 @@ class WebViewActivity : ComponentActivity() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight(.06f)
-                        .background(com.merqury.aspu.ui.theme.theme.value[SurfaceTheme.foreground]!!)
+                        .background(com.merqury.aspu.ui.theme.SurfaceTheme.foreground.color)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -79,13 +79,13 @@ class WebViewActivity : ComponentActivity() {
                                 finish()
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = com.merqury.aspu.ui.theme.theme.value[SurfaceTheme.button]!!
+                                containerColor = com.merqury.aspu.ui.theme.SurfaceTheme.button.color
                             )
                         ) {
                             Image(
                                 painter = painterResource(id = R.drawable.back),
                                 contentDescription = null,
-                                colorFilter = ColorFilter.tint(com.merqury.aspu.ui.theme.theme.value[SurfaceTheme.text]!!),
+                                colorFilter = ColorFilter.tint(com.merqury.aspu.ui.theme.SurfaceTheme.text.color),
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -96,23 +96,23 @@ class WebViewActivity : ComponentActivity() {
                                 openInBrowser(urlParts[1], urlParts[0])
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = com.merqury.aspu.ui.theme.theme.value[SurfaceTheme.button]!!
+                                containerColor = com.merqury.aspu.ui.theme.SurfaceTheme.button.color
                             )
                         ) {
                             Text(
                                 text = "Открыть в браузере",
-                                color = com.merqury.aspu.ui.theme.theme.value[SurfaceTheme.text]!!
+                                color = com.merqury.aspu.ui.theme.SurfaceTheme.text.color
                             )
                             Image(
                                 painter = painterResource(id = R.drawable.browser),
                                 contentDescription = null,
-                                colorFilter = ColorFilter.tint(com.merqury.aspu.ui.theme.theme.value[SurfaceTheme.text]!!),
+                                colorFilter = ColorFilter.tint(com.merqury.aspu.ui.theme.SurfaceTheme.text.color),
                                 modifier = Modifier.size(20.dp)
                             )
                         }
                     }
                 }
-                HorizontalDivider(color = com.merqury.aspu.ui.theme.theme.value[SurfaceTheme.divider]!!)
+                HorizontalDivider(color = com.merqury.aspu.ui.theme.SurfaceTheme.divider.color)
                 Box(
                     modifier = Modifier
                         .fillMaxSize(),
@@ -183,8 +183,8 @@ class WebViewActivity : ComponentActivity() {
                                         state = rememberPullRefreshState(
                                             refreshing = loading.value,
                                             onRefresh = {}),
-                                        backgroundColor = com.merqury.aspu.ui.theme.theme.value[SurfaceTheme.foreground]!!,
-                                        contentColor = com.merqury.aspu.ui.theme.theme.value[SurfaceTheme.text]!!
+                                        backgroundColor = com.merqury.aspu.ui.theme.SurfaceTheme.foreground.color,
+                                        contentColor = com.merqury.aspu.ui.theme.SurfaceTheme.text.color
                                     )
                                 }
                             }

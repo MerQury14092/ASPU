@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -49,8 +48,9 @@ import com.merqury.aspu.close
 import com.merqury.aspu.show
 import com.merqury.aspu.ui.other.WebViewActivity
 import com.merqury.aspu.ui.theme.SurfaceTheme
-import com.merqury.aspu.ui.theme.theme
-import com.merqury.aspu.ui.theme.themeChangeDuration
+import com.merqury.aspu.ui.theme.color
+import com.merqury.aspu.ui.theme.colorWithoutAnim
+import kotlin.time.Duration
 
 
 @Composable
@@ -222,6 +222,13 @@ fun async(runnable: () -> Unit){
     Thread {runnable()}.start()
 }
 
+fun after(duration: Duration, runnable: () -> Unit){
+    async {
+        Thread.sleep(duration.inWholeMilliseconds)
+        runnable()
+    }
+}
+
 fun showSelectListDialog(
     buttons: Map<String, () -> Unit>,
     sortedByAlphabet: Boolean = false
@@ -237,7 +244,7 @@ fun showSelectListDialog(
     sortedByAlphabet: Boolean = false
 ) {
     showSimpleModalWindow(
-        containerColor = theme.value[SurfaceTheme.background]!!
+        containerColor = SurfaceTheme.background.colorWithoutAnim
     ) {
         Box(
             modifier = Modifier
@@ -253,7 +260,7 @@ fun showSelectListDialog(
                 entries.forEach {
                     Card(
                         colors = CardDefaults.cardColors(
-                            containerColor = theme.value[SurfaceTheme.foreground]!!
+                            containerColor = SurfaceTheme.foreground.color
                         ),
                         modifier = Modifier.padding(10.dp)
                     ) {
@@ -270,7 +277,7 @@ fun showSelectListDialog(
                             Text(
                                 text = it.key,
                                 fontSize = 20.sp,
-                                color = theme.value[SurfaceTheme.text]!!
+                                color = SurfaceTheme.text.color
                             )
                         }
                     }
@@ -307,11 +314,7 @@ fun TitleHeader(title: String) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text(
             text = title,
-            color = animateColorAsState(
-                targetValue = theme.value[SurfaceTheme.text]!!,
-                animationSpec = tween(durationMillis = themeChangeDuration),
-                label = ""
-            ).value,
+            color = SurfaceTheme.text.color,
             fontSize = 24.sp,
             fontStyle = FontStyle.Italic
         )

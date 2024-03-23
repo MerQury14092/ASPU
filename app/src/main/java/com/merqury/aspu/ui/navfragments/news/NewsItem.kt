@@ -27,7 +27,7 @@ import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.R
 import com.merqury.aspu.ui.navfragments.timetable.prettyDate
 import com.merqury.aspu.ui.theme.SurfaceTheme
-import com.merqury.aspu.ui.theme.theme
+import com.merqury.aspu.ui.theme.color
 
 @Composable
 fun NewsItem(title: String, date: String, imageUrl: String, id: Int) {
@@ -45,7 +45,7 @@ fun NewsItem(title: String, date: String, imageUrl: String, id: Int) {
                 showArticleView.value = true
             },
         colors = CardDefaults.cardColors(
-            containerColor = theme.value[SurfaceTheme.foreground]!!
+            containerColor = SurfaceTheme.foreground.color
         )
     ) {
         Column(Modifier.fillMaxWidth()) {
@@ -62,8 +62,8 @@ fun NewsItem(title: String, date: String, imageUrl: String, id: Int) {
                             .fillMaxWidth()
                             .placeholder(
                                 visible = true,
-                                color = theme.value[SurfaceTheme.placeholder_primary]!!,
-                                highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                                color = SurfaceTheme.placeholder_primary.color,
+                                highlight = PlaceholderHighlight.shimmer(SurfaceTheme.placeholder_secondary.color),
                                 shape = RoundedCornerShape(15.dp)
                             ),
                         contentScale = ContentScale.Crop
@@ -82,14 +82,14 @@ fun NewsItem(title: String, date: String, imageUrl: String, id: Int) {
                 textAlign = TextAlign.Center,
                 fontSize = 20.sp,
                 fontStyle = FontStyle.Italic,
-                color = theme.value[SurfaceTheme.text]!!
+                color = SurfaceTheme.text.color
             )
             Text(
                 prettyDate(date),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(end = 10.dp, bottom = 5.dp), textAlign = TextAlign.End,
-                color = theme.value[SurfaceTheme.text]!!
+                color = SurfaceTheme.text.color
             )
         }
     }
@@ -107,7 +107,7 @@ fun NewsItemLoadingPlaceholder() {
 //                shape = RoundedCornerShape(15.dp)
 //            )
         , colors = CardDefaults.cardColors(
-            containerColor = theme.value[SurfaceTheme.foreground]!!
+            containerColor = SurfaceTheme.foreground.color
         )
     ) {
         Column(Modifier.fillMaxWidth()) {
@@ -121,8 +121,8 @@ fun NewsItemLoadingPlaceholder() {
                     .padding(10.dp)
                     .placeholder(
                         visible = true,
-                        color = theme.value[SurfaceTheme.placeholder_primary]!!,
-                        highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                        color = SurfaceTheme.placeholder_primary.color,
+                        highlight = PlaceholderHighlight.shimmer(SurfaceTheme.placeholder_secondary.color),
                         shape = RoundedCornerShape(15.dp)
                     ),
                 contentScale = ContentScale.Crop
@@ -140,14 +140,14 @@ fun NewsItemLoadingPlaceholder() {
                         )
                         .placeholder(
                             visible = true,
-                            color = theme.value[SurfaceTheme.placeholder_primary]!!,
-                            highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                            color = SurfaceTheme.placeholder_primary.color,
+                            highlight = PlaceholderHighlight.shimmer(SurfaceTheme.placeholder_secondary.color),
                             shape = RoundedCornerShape(15.dp)
                         ),
                     textAlign = TextAlign.Center,
                     fontSize = 20.sp,
                     fontStyle = FontStyle.Italic,
-                    color = theme.value[SurfaceTheme.text]!!
+                    color = SurfaceTheme.text.color
                 )
             }
             Column(
@@ -160,12 +160,12 @@ fun NewsItemLoadingPlaceholder() {
                         .padding(bottom = 10.dp)
                         .placeholder(
                             visible = true,
-                            color = theme.value[SurfaceTheme.placeholder_primary]!!,
-                            highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                            color = SurfaceTheme.placeholder_primary.color,
+                            highlight = PlaceholderHighlight.shimmer(SurfaceTheme.placeholder_secondary.color),
                             shape = RoundedCornerShape(15.dp)
                         )
                         .padding(end = 10.dp, bottom = 5.dp), textAlign = TextAlign.End,
-                    color = theme.value[SurfaceTheme.text]!!
+                    color = SurfaceTheme.text.color
                 )
             }
         }

@@ -2,8 +2,6 @@ package com.merqury.aspu.ui.navfragments.settings
 
 import android.content.Context
 import android.widget.Toast
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -38,9 +36,8 @@ import com.merqury.aspu.ui.navfragments.timetable.timetableLoaded
 import com.merqury.aspu.ui.other.Terminal
 import com.merqury.aspu.ui.showSelectListDialog
 import com.merqury.aspu.ui.theme.SurfaceTheme
+import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.theme.isDarkThemeOn
-import com.merqury.aspu.ui.theme.theme
-import com.merqury.aspu.ui.theme.themeChangeDuration
 import com.merqury.aspu.ui.theme.updateTheme
 import java.util.concurrent.TimeUnit
 
@@ -61,13 +58,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                animateColorAsState(
-                    targetValue = theme.value[SurfaceTheme.background]!!,
-                    animationSpec = tween(durationMillis = themeChangeDuration),
-                    label = ""
-                ).value
-            )
+            .background(SurfaceTheme.background.color)
     ) {
         Column(
             modifier = Modifier
@@ -272,22 +263,14 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                 )
             )
             Text(
-                "О приложении", color = animateColorAsState(
-                    targetValue = theme.value[SurfaceTheme.text]!!,
-                    animationSpec = tween(durationMillis = themeChangeDuration),
-                    label = ""
-                ).value,
+                "О приложении", color = SurfaceTheme.text.color,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(5.dp))
             Text(
                 "Версия приложения: $appVersion",
-                color = animateColorAsState(
-                    targetValue = theme.value[SurfaceTheme.text]!!,
-                    animationSpec = tween(durationMillis = themeChangeDuration),
-                    label = ""
-                ).value,
+                color = SurfaceTheme.text.color,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Left
             )
@@ -295,11 +278,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
             if (appVersion!!.contains("alpha")) {
                 Text(
                     "Приложение находится на этапе активной разработки и тестирования, в связи с этим в нём могут быть баги и ошибки",
-                    color = animateColorAsState(
-                        targetValue = theme.value[SurfaceTheme.text]!!,
-                        animationSpec = tween(durationMillis = themeChangeDuration),
-                        label = ""
-                    ).value,
+                    color = SurfaceTheme.text.color,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Left
                 )
@@ -307,11 +286,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
             }
             Text(
                 "Если встретились с ошибкой, сообщите разработчику",
-                color = animateColorAsState(
-                    targetValue = theme.value[SurfaceTheme.text]!!,
-                    animationSpec = tween(durationMillis = themeChangeDuration),
-                    label = ""
-                ).value,
+                color = SurfaceTheme.text.color,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Left
             )

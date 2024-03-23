@@ -32,7 +32,7 @@ import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.openInBrowser
 import com.merqury.aspu.ui.showWebPage
 import com.merqury.aspu.ui.theme.SurfaceTheme
-import com.merqury.aspu.ui.theme.theme
+import com.merqury.aspu.ui.theme.color
 
 @Preview
 @Composable
@@ -59,18 +59,18 @@ fun OtherScreenContent() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(theme.value[SurfaceTheme.background]!!)
+            .background(SurfaceTheme.background.color)
     ) {
         Column(
             Modifier.verticalScroll(rememberScrollState())
         ) {
             Text(
                 text = "Нажмите на кнопку «АГПУ», чтоб посетить мобильную версию сайта",
-                color = theme.value[SurfaceTheme.text]!!,
+                color = SurfaceTheme.text.color,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
-            Divider(color = theme.value[SurfaceTheme.divider]!!)
+            Divider(color = SurfaceTheme.divider.color)
             data class Entry(
                 val name: String,
                 val icon: Int,
@@ -197,7 +197,7 @@ fun HyperReferenceButton(
                     openInBrowser(url, scheme)
             },
         colors = CardDefaults.cardColors(
-            containerColor = theme.value[SurfaceTheme.foreground]!!
+            containerColor = SurfaceTheme.foreground.color
         )
     ) {
         Box(modifier = Modifier.padding(10.dp)) {
@@ -209,12 +209,12 @@ fun HyperReferenceButton(
                         painter = painterResource(id = icon),
                         contentDescription = null,
                         modifier = Modifier.size(20.dp),
-                        colorFilter = ColorFilter.tint(theme.value[SurfaceTheme.text]!!)
+                        colorFilter = ColorFilter.tint(SurfaceTheme.text.color)
                     )
                 Text(
                     text = name,
                     fontSize = 16.sp,
-                    color = theme.value[SurfaceTheme.text]!!,
+                    color = SurfaceTheme.text.color,
                     modifier = Modifier.padding(start = 10.dp)
                 )
             }

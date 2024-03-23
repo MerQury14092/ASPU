@@ -30,17 +30,15 @@ import com.android.volley.RequestQueue
 import com.android.volley.toolbox.Volley
 import com.merqury.aspu.services.getApiDomain
 import com.merqury.aspu.services.getLastPublishedVersion
-import com.merqury.aspu.services.getTimetableByDateRange
 import com.merqury.aspu.ui.MainScreen
 import com.merqury.aspu.ui.navfragments.settings.reloadSettingsScreen
 import com.merqury.aspu.ui.navfragments.settings.selectUser
 import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.navfragments.timetable.showSelectIdModalWindow
-import com.merqury.aspu.ui.printlog
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
-import com.merqury.aspu.ui.theme.theme
+import com.merqury.aspu.ui.theme.color
 
 
 @SuppressLint("StaticFieldLeak")
@@ -93,45 +91,45 @@ fun storeAppVersionBigger(): Boolean {
 @Composable
 private fun NewVersionNotification() {
     showSimpleModalWindow(
-        containerColor = theme.value[SurfaceTheme.background]!!
+        containerColor = SurfaceTheme.background.color
     ) {
         Box(modifier = Modifier.padding(10.dp)) {
             Column {
                 Text(
                     text = "В RUSTORE вышла новая версия! Скорее обновите!",
-                    color = theme.value[SurfaceTheme.text]!!,
+                    color = SurfaceTheme.text.color,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.size(10.dp))
-                Divider(color = theme.value[SurfaceTheme.divider]!!)
+                Divider(color = SurfaceTheme.divider.color)
                 Spacer(modifier = Modifier.size(10.dp))
-                Text(text = "Ваша версия: $appVersion", color = theme.value[SurfaceTheme.text]!!)
+                Text(text = "Ваша версия: $appVersion", color = SurfaceTheme.text.color)
                 Spacer(modifier = Modifier.size(10.dp))
                 Text(
                     text = "Новая версия: ${storeAppVersion.value}",
-                    color = theme.value[SurfaceTheme.text]!!
+                    color = SurfaceTheme.text.color
                 )
                 Spacer(modifier = Modifier.size(10.dp))
                 Text(
                     text = "Что нового:",
-                    color = theme.value[SurfaceTheme.text]!!,
+                    color = SurfaceTheme.text.color,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.size(10.dp))
-                Text(text = storeAppReleaseNotes.value, color = theme.value[SurfaceTheme.text]!!)
+                Text(text = storeAppReleaseNotes.value, color = SurfaceTheme.text.color)
                 Spacer(modifier = Modifier.size(10.dp))
-                Divider(color = theme.value[SurfaceTheme.divider]!!)
+                Divider(color = SurfaceTheme.divider.color)
                 Spacer(modifier = Modifier.size(10.dp))
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.BottomEnd) {
                     Button(
                         onClick = { it.value = false }, colors = ButtonDefaults.buttonColors(
-                            containerColor = theme.value[SurfaceTheme.button]!!
+                            containerColor = SurfaceTheme.button.color
                         )
                     ) {
-                        Text(text = "Хорошо", color = theme.value[SurfaceTheme.text]!!)
+                        Text(text = "Хорошо", color = SurfaceTheme.text.color)
                     }
                 }
             }
@@ -139,7 +137,7 @@ private fun NewVersionNotification() {
     }
 }
 
-private val contentList = mutableStateListOf<@Composable () -> Unit>()
+val contentList = mutableStateListOf<@Composable () -> Unit>()
 fun show(
     visibility: MutableState<Boolean>,
     content: @Composable () -> Unit

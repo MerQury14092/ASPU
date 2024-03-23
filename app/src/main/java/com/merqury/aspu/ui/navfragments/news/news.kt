@@ -25,7 +25,7 @@ import com.merqury.aspu.ui.SwipeableBox
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.theme.SurfaceTheme
-import com.merqury.aspu.ui.theme.theme
+import com.merqury.aspu.ui.theme.color
 import org.json.JSONObject
 
 var newsLoaded = mutableStateOf(false)
@@ -72,7 +72,7 @@ fun NewsContent(
         }
     )
     Column(modifier = Modifier.fillMaxSize()
-        .background(theme.value[SurfaceTheme.background]!!)) {
+        .background(SurfaceTheme.background.color)) {
         if (!newsLoaded.value) {
             getNews(
                 selectedFaculty.value,
@@ -109,7 +109,7 @@ fun NewsContent(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = theme.value[SurfaceTheme.background]!!)
+                .background(color = SurfaceTheme.foreground.color)
         ) {
             if (newsLoaded.value) {
                 if (!newsLoadSuccess.value)
@@ -117,13 +117,13 @@ fun NewsContent(
                         modifier = Modifier
                             .pullRefresh(pullRefreshState)
                             .fillMaxSize()
-                            .background(theme.value[SurfaceTheme.background]!!)
+                            .background(SurfaceTheme.background.color)
                             .verticalScroll(rememberScrollState()),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = newsLoadStatusText.value,
-                            color = theme.value[SurfaceTheme.text]!!,
+                            color = SurfaceTheme.text.color,
                             textAlign = TextAlign.Center
                         )
                     }
@@ -141,7 +141,7 @@ fun NewsContent(
                         swipeableLeft = currentPage.intValue > 1
                     ) {
                         LazyColumn(
-                            modifier = Modifier.background(theme.value[SurfaceTheme.background]!!)
+                            modifier = Modifier.background(SurfaceTheme.background.color)
                         ) {
                             items(count = data.value.getJSONArray("articles").length()) {
                                 val article = data.value.getJSONArray("articles").getJSONObject(it)

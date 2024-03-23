@@ -22,7 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.ui.theme.SurfaceTheme
-import com.merqury.aspu.ui.theme.theme
+import com.merqury.aspu.ui.theme.color
 
 @Composable
 fun NewsHeader(
@@ -75,7 +75,7 @@ fun NewsHeader(
                         Text(
                             text = "${currentPage.intValue} из $countPages",
                             textAlign = TextAlign.Center,
-                            color = theme.value[SurfaceTheme.text]!!
+                            color = SurfaceTheme.text.color
                         )
                     }
                 }

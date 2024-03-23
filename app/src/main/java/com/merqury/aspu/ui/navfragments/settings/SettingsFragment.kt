@@ -1,7 +1,5 @@
 package com.merqury.aspu.ui.navfragments.settings
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,9 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.merqury.aspu.ui.navBarUpdate
 import com.merqury.aspu.ui.theme.SurfaceTheme
-import com.merqury.aspu.ui.theme.animatedColorOnThemeChange
-import com.merqury.aspu.ui.theme.theme
-import com.merqury.aspu.ui.theme.themeChangeDuration
+import com.merqury.aspu.ui.theme.color
 
 abstract class SettingsButton(var text: String) {
     abstract fun getContent(): @Composable () -> Unit;
@@ -38,11 +34,7 @@ class SwitchableSettingsPreferenceButton(text: String, private val settingsPrefe
                 .fillMaxWidth()
                 .padding(3.dp),
             colors = CardDefaults.cardColors(
-                containerColor = animateColorAsState(
-                    targetValue = theme.value[SurfaceTheme.foreground]!!,
-                    animationSpec = tween(durationMillis = themeChangeDuration),
-                    label = ""
-                ).value
+                containerColor = SurfaceTheme.foreground.color
             )
         ) {
             Box(contentAlignment = Alignment.CenterStart) {
@@ -50,11 +42,7 @@ class SwitchableSettingsPreferenceButton(text: String, private val settingsPrefe
                     Text(
                         text = text,
                         fontSize = 16.sp,
-                        color = animateColorAsState(
-                            targetValue = theme.value[SurfaceTheme.text]!!,
-                            animationSpec = tween(durationMillis = themeChangeDuration),
-                            label = ""
-                        ).value
+                        color = SurfaceTheme.text.color
                     )
                 }
                 Box(
@@ -72,12 +60,12 @@ class SwitchableSettingsPreferenceButton(text: String, private val settingsPrefe
                         },
                         modifier = Modifier.scale(.75f),
                         colors = SwitchDefaults.colors(
-                            checkedThumbColor = theme.value[SurfaceTheme.text]!!.animatedColorOnThemeChange(),
-                            checkedBorderColor = theme.value[SurfaceTheme.text]!!.animatedColorOnThemeChange(),
-                            checkedTrackColor = theme.value[SurfaceTheme.foreground]!!.animatedColorOnThemeChange(),
-                            uncheckedThumbColor = theme.value[SurfaceTheme.disable]!!.animatedColorOnThemeChange(),
-                            uncheckedBorderColor = theme.value[SurfaceTheme.text]!!.animatedColorOnThemeChange(),
-                            uncheckedTrackColor = theme.value[SurfaceTheme.foreground]!!.animatedColorOnThemeChange(),
+                            checkedThumbColor = SurfaceTheme.text.color,
+                            checkedBorderColor = SurfaceTheme.text.color,
+                            checkedTrackColor = SurfaceTheme.foreground.color,
+                            uncheckedThumbColor = SurfaceTheme.disable.color,
+                            uncheckedBorderColor = SurfaceTheme.text.color,
+                            uncheckedTrackColor = SurfaceTheme.foreground.color,
                         )
                     )
                 }
@@ -93,11 +81,7 @@ fun SettingsButton(onClick: () -> Unit, content: @Composable () -> Unit){
             .fillMaxWidth()
             .padding(3.dp),
         colors = CardDefaults.cardColors(
-            containerColor = animateColorAsState(
-                targetValue = theme.value[SurfaceTheme.foreground]!!,
-                animationSpec = tween(durationMillis = themeChangeDuration),
-                label = ""
-            ).value
+            containerColor = SurfaceTheme.foreground.color
         )
     ) {
         Card(
@@ -108,11 +92,7 @@ fun SettingsButton(onClick: () -> Unit, content: @Composable () -> Unit){
                     onClick()
                 },
             colors = CardDefaults.cardColors(
-                containerColor = animateColorAsState(
-                    targetValue = theme.value[SurfaceTheme.foreground]!!,
-                    animationSpec = tween(durationMillis = themeChangeDuration),
-                    label = ""
-                ).value
+                containerColor = SurfaceTheme.foreground.color
             )
         ) {
             content()
@@ -130,22 +110,14 @@ class ClickableSettingsButton(text: String, val onClick: () -> Unit) : SettingsB
                     onClick()
                 },
             colors = CardDefaults.cardColors(
-                containerColor = animateColorAsState(
-                    targetValue = theme.value[SurfaceTheme.foreground]!!,
-                    animationSpec = tween(durationMillis = themeChangeDuration),
-                    label = ""
-                ).value
+                containerColor = SurfaceTheme.foreground.color
             )
         ) {
             Box(modifier = Modifier.padding(10.dp)) {
                 Text(
                     text = text,
                     fontSize = 16.sp,
-                    color = animateColorAsState(
-                        targetValue = theme.value[SurfaceTheme.text]!!,
-                        animationSpec = tween(durationMillis = themeChangeDuration),
-                        label = ""
-                    ).value
+                    color = SurfaceTheme.text.color
                 )
             }
         }
@@ -161,11 +133,7 @@ fun SettingsChapter(title: String, buttons: List<SettingsButton?>) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            title, color = animateColorAsState(
-                targetValue = theme.value[SurfaceTheme.text]!!,
-                animationSpec = tween(durationMillis = themeChangeDuration),
-                label = ""
-            ).value
+            title, color = SurfaceTheme.text.color
         )
         buttons.forEach {
             if(it != null)
@@ -173,11 +141,7 @@ fun SettingsChapter(title: String, buttons: List<SettingsButton?>) {
         }
         Spacer(modifier = Modifier.padding(top = 10.dp))
         Divider(
-            color = animateColorAsState(
-                targetValue = theme.value[SurfaceTheme.divider]!!,
-                animationSpec = tween(durationMillis = themeChangeDuration),
-                label = ""
-            ).value
+            color = SurfaceTheme.divider.color
         )
     }
 }

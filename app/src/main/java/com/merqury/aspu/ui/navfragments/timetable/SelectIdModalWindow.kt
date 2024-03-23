@@ -40,7 +40,8 @@ import com.merqury.aspu.ui.navfragments.timetable.DTO.SearchContentElement
 import com.merqury.aspu.ui.showSelectListDialog
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
-import com.merqury.aspu.ui.theme.theme
+import com.merqury.aspu.ui.theme.color
+import com.merqury.aspu.ui.theme.colorWithoutAnim
 
 @SuppressLint("MutableCollectionMutableState")
 val facultiesList = mutableStateOf(FacultiesList(listOf()))
@@ -72,7 +73,7 @@ fun showSelectIdModalWindow(
     filteredBy: String = "any",
     onResultClick: (searchResult: SearchContentElement) -> Unit
 ) {
-    showSimpleModalWindow(containerColor = theme.value[SurfaceTheme.background]!!) {
+    showSimpleModalWindow(containerColor = SurfaceTheme.background.colorWithoutAnim) {
         val thisWindowVisibility = it
         Box(modifier = Modifier.padding(10.dp)) {
             Column {
@@ -97,16 +98,16 @@ fun showSelectIdModalWindow(
                     modifier = Modifier.padding(10.dp),
                     shape = RoundedCornerShape(50.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = theme.value[SurfaceTheme.foreground]!!
+                        containerColor = SurfaceTheme.foreground.color
                     )
                 ) {
                     TextField(
                         value = textFieldValue.value,
                         onValueChange = { textFieldValue.value = it },
                         colors = TextFieldDefaults.textFieldColors(
-                            textColor = theme.value[SurfaceTheme.text]!!,
-                            cursorColor = theme.value[SurfaceTheme.text]!!,
-                            placeholderColor = theme.value[SurfaceTheme.disable]!!,
+                            textColor = SurfaceTheme.text.color,
+                            cursorColor = SurfaceTheme.text.color,
+                            placeholderColor = SurfaceTheme.disable.color,
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
                             disabledIndicatorColor = Color.Transparent
@@ -117,19 +118,19 @@ fun showSelectIdModalWindow(
                                 contentDescription = null,
                                 contentScale = ContentScale.Fit,
                                 modifier = Modifier.size(35.dp),
-                                colorFilter = ColorFilter.tint(theme.value[SurfaceTheme.disable]!!)
+                                colorFilter = ColorFilter.tint(SurfaceTheme.disable.color)
                             )
                         },
                         placeholder = {
                             Text(
                                 text = "Введите наименование",
-                                color = theme.value[SurfaceTheme.disable]!!
+                                color = SurfaceTheme.disable.color
                             )
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
-                Divider(color = theme.value[SurfaceTheme.divider]!!)
+                Divider(color = SurfaceTheme.divider.color)
                 val buttonsMapState = remember {
                     mutableStateOf(mapOf("Загружается..." to {}))
                 }
@@ -156,7 +157,7 @@ fun showSelectIdModalWindow(
                                             )
                                         },
                                     colors = CardDefaults.cardColors(
-                                        containerColor = theme.value[SurfaceTheme.foreground]!!
+                                        containerColor = SurfaceTheme.foreground.color
                                     )
                                 ) {
                                     Row(
@@ -174,11 +175,11 @@ fun showSelectIdModalWindow(
                                                 contentDescription = null,
                                                 contentScale = ContentScale.Fit,
                                                 modifier = Modifier.size(25.dp),
-                                                colorFilter = ColorFilter.tint(theme.value[SurfaceTheme.text]!!)
+                                                colorFilter = ColorFilter.tint(SurfaceTheme.text.color)
                                             )
                                             Text(
                                                 "Выбрать из списка групп",
-                                                color = theme.value[SurfaceTheme.text]!!,
+                                                color = SurfaceTheme.text.color,
                                                 modifier = Modifier.padding(start = 10.dp)
                                             )
                                         }
@@ -194,7 +195,7 @@ fun showSelectIdModalWindow(
                                             showSelectDepartmentForTeacherWindow(it, onResultClick)
                                         },
                                     colors = CardDefaults.cardColors(
-                                        containerColor = theme.value[SurfaceTheme.foreground]!!
+                                        containerColor = SurfaceTheme.foreground.color
                                     )
                                 ) {
                                     Row(
@@ -212,11 +213,11 @@ fun showSelectIdModalWindow(
                                                 contentDescription = null,
                                                 contentScale = ContentScale.Fit,
                                                 modifier = Modifier.size(30.dp),
-                                                colorFilter = ColorFilter.tint(theme.value[SurfaceTheme.text]!!)
+                                                colorFilter = ColorFilter.tint(SurfaceTheme.text.color)
                                             )
                                             Text(
                                                 "Выбрать из списка учителей",
-                                                color = theme.value[SurfaceTheme.text]!!,
+                                                color = SurfaceTheme.text.color,
                                                 modifier = Modifier.padding(start = 10.dp)
                                             )
                                         }
@@ -232,7 +233,7 @@ fun showSelectIdModalWindow(
                                             showSelectCorpsForAudiencesWindow(it, onResultClick)
                                         },
                                     colors = CardDefaults.cardColors(
-                                        containerColor = theme.value[SurfaceTheme.foreground]!!
+                                        containerColor = SurfaceTheme.foreground.color
                                     )
                                 ) {
                                     Row(
@@ -250,11 +251,11 @@ fun showSelectIdModalWindow(
                                                 contentDescription = null,
                                                 contentScale = ContentScale.Fit,
                                                 modifier = Modifier.size(25.dp),
-                                                colorFilter = ColorFilter.tint(theme.value[SurfaceTheme.text]!!)
+                                                colorFilter = ColorFilter.tint(SurfaceTheme.text.color)
                                             )
                                             Text(
                                                 "Выбрать из списка аудиторий",
-                                                color = theme.value[SurfaceTheme.text]!!,
+                                                color = SurfaceTheme.text.color,
                                                 modifier = Modifier.padding(start = 10.dp)
                                             )
                                         }
@@ -288,7 +289,7 @@ fun showSelectIdModalWindow(
                                     it.value = false
                                 },
                             colors = CardDefaults.cardColors(
-                                containerColor = theme.value[SurfaceTheme.foreground]!!
+                                containerColor = SurfaceTheme.foreground.color
                             )
                         ) {
                             Row(
@@ -306,11 +307,11 @@ fun showSelectIdModalWindow(
                                         contentDescription = null,
                                         contentScale = ContentScale.Fit,
                                         modifier = Modifier.size(25.dp),
-                                        colorFilter = ColorFilter.tint(theme.value[SurfaceTheme.text]!!)
+                                        colorFilter = ColorFilter.tint(SurfaceTheme.text.color)
                                     )
                                     Text(
                                         "Вернуть ваше расписание",
-                                        color = theme.value[SurfaceTheme.text]!!,
+                                        color = SurfaceTheme.text.color,
                                         modifier = Modifier.padding(start = 10.dp)
                                     )
                                 }
@@ -330,7 +331,7 @@ fun showSelectIdModalWindow(
                                 thisWindowVisibility.value = false
                             },
                         colors = CardDefaults.cardColors(
-                            containerColor = theme.value[SurfaceTheme.foreground]!!
+                            containerColor = SurfaceTheme.foreground.color
                         )
                     ) {
                         Row(
@@ -340,7 +341,7 @@ fun showSelectIdModalWindow(
                             horizontalArrangement = Arrangement.SpaceAround,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(it.searchContent, color = theme.value[SurfaceTheme.text]!!)
+                            Text(it.searchContent, color = SurfaceTheme.text.color)
                         }
                     }
                 }

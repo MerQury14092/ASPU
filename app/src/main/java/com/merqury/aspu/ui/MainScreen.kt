@@ -1,7 +1,6 @@
 package com.merqury.aspu.ui
 
 import android.os.Vibrator
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -23,7 +22,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Divider
+import androidx.compose.material.Divider
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,11 +44,10 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getSystemService
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
-import com.merqury.aspu.services.showTimetableWebPageView
-import com.merqury.aspu.services.urlForCurrentFaculty
 import com.merqury.aspu.ui.navfragments.news.NewsScreen
 import com.merqury.aspu.ui.navfragments.news.newsLoaded
 import com.merqury.aspu.ui.navfragments.other.OtherScreen
+import com.merqury.aspu.ui.navfragments.profile.ProfileScreen
 import com.merqury.aspu.ui.navfragments.settings.SettingsScreen
 import com.merqury.aspu.ui.navfragments.settings.reloadSettingsScreen
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
@@ -55,15 +56,15 @@ import com.merqury.aspu.ui.navfragments.settings.toggleTheme
 import com.merqury.aspu.ui.navfragments.timetable.TimetableScreen
 import com.merqury.aspu.ui.navfragments.timetable.timetableLoaded
 import com.merqury.aspu.ui.theme.SurfaceTheme
-import com.merqury.aspu.ui.theme.theme
-import com.merqury.aspu.ui.theme.themeChangeDuration
+import com.merqury.aspu.ui.theme.color
 
 
 val topBarContent: MutableState<@Composable () -> Unit> = mutableStateOf({})
 val content: MutableState<@Composable () -> Unit> =
     mutableStateOf(getContentByRoute(settingsPreferences.getString("initial_route", "news")!!))
 val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
-    when (selected_page.value) {
+    toggleTheme()
+    /*when (selected_page.value) {
         "news" -> {
             aspuButtonLoading.value = true
             val inBrowser = settingsPreferences.getBoolean("use_included_browser", true)
@@ -87,7 +88,7 @@ val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
             else
                 openInBrowser("agpu.net", "http")
         }
-    }
+    }*/
 })
 val magicState = mutableIntStateOf(3)
 val onASPUButtonLongClick: MutableState<() -> Unit> = mutableStateOf({
@@ -122,7 +123,6 @@ val aspuButtonLoading = mutableStateOf(false)
 
 @Composable
 fun MainScreen() {
-
     Scaffold(
         topBar = {
             Column {
@@ -130,20 +130,9 @@ fun MainScreen() {
                     modifier = Modifier
                         .fillMaxHeight(.06f)
                         .fillMaxWidth()
-                        .background(
-                            animateColorAsState(
-                                targetValue = theme.value[SurfaceTheme.foreground]!!,
-                                animationSpec = tween(durationMillis = themeChangeDuration),
-                                label = ""
-                            ).value
-                        )
+                        .background(SurfaceTheme.foreground.color)
                 ) { topBarContent.value() }
-                Divider(
-                    color = animateColorAsState(
-                        targetValue = theme.value[SurfaceTheme.divider]!!,
-                        animationSpec = tween(durationMillis = themeChangeDuration),
-                        label = ""
-                    ).value,
+                Divider(color = SurfaceTheme.divider.color,
                     modifier = Modifier.height(2.dp)
                 )
             }
@@ -153,21 +142,11 @@ fun MainScreen() {
                 modifier = Modifier
                     .fillMaxHeight(.075f)
                     .fillMaxWidth()
-                    .background(
-                        animateColorAsState(
-                            targetValue = theme.value[SurfaceTheme.foreground]!!,
-                            animationSpec = tween(durationMillis = themeChangeDuration),
-                            label = ""
-                        ).value
-                    )
+                    .background(SurfaceTheme.foreground.color)
             ) {
                 Column {
                     Divider(
-                        color = animateColorAsState(
-                            targetValue = theme.value[SurfaceTheme.divider]!!,
-                            animationSpec = tween(durationMillis = themeChangeDuration),
-                            label = ""
-                        ).value,
+                        color = SurfaceTheme.divider.color,
                         modifier = Modifier.height(2.dp)
                     )
                     NavigationBar()
@@ -239,10 +218,16 @@ fun NavigationBar() {
             }, icon = R.drawable.other_icon,
             "other"
         )
-        NavBarItem(
+        /*NavBarItem(
             title = "Настройки",
             icon = R.drawable.settings_icon,
             "settings"
+        )*/
+        NavBarItem(
+            title = "Профиль",
+            icon = 0,
+            "account",
+            Icons.Outlined.AccountCircle
         )
     }
 }
@@ -251,7 +236,8 @@ fun NavigationBar() {
 fun NavBarItem(
     title: String,
     icon: Int,
-    route: String
+    route: String,
+    imageVector: ImageVector? = null
 ) {
     val selected = selected_page.value == route
     Box(
@@ -266,52 +252,67 @@ fun NavBarItem(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = icon),
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier
-                    .size(25.dp)
-                    .offset(
-                        y = animateDpAsState(
-                            targetValue = if (selected) -(5.dp) else 0.dp,
-                            animationSpec = tween(
-                                durationMillis = 100,
-                                easing = FastOutSlowInEasing
-                            ),
-                            label = ""
-                        ).value
-                    ),
-                colorFilter = ColorFilter.tint(
-                    animateColorAsState(
-                        targetValue = if (selected)
-                            theme.value[SurfaceTheme.enable]!!
-                        else
-                            theme.value[SurfaceTheme.disable]!!,
-                        animationSpec = tween(durationMillis = 100, easing = FastOutSlowInEasing),
-                        label = ""
-                    ).value
+            if(imageVector != null){
+                Image(
+                    imageVector,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .size(28.dp)
+                        .offset(
+                            y = animateDpAsState(
+                                targetValue = if (selected) -(5.dp) else 0.dp,
+                                animationSpec = tween(
+                                    durationMillis = 100,
+                                    easing = FastOutSlowInEasing
+                                ),
+                                label = ""
+                            ).value
+                        ),
+                    colorFilter = ColorFilter.tint(if (selected)
+                        SurfaceTheme.enable.color
+                    else
+                        SurfaceTheme.disable.color
+                    )
                 )
-            )
+            } else {
+                Image(
+                    painter = painterResource(id = icon),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .size(25.dp)
+                        .offset(
+                            y = animateDpAsState(
+                                targetValue = if (selected) -(5.dp) else 0.dp,
+                                animationSpec = tween(
+                                    durationMillis = 100,
+                                    easing = FastOutSlowInEasing
+                                ),
+                                label = ""
+                            ).value
+                        ),
+                    colorFilter = ColorFilter.tint(if (selected)
+                        SurfaceTheme.enable.color
+                    else
+                        SurfaceTheme.disable.color
+                    )
+                )
+            }
             forNavBarUpdate.value
             Text(
                 text = title,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
-                color =
-                animateColorAsState(
-                    targetValue = if (selected)
-                        theme.value[SurfaceTheme.enable]!!.copy(1f)
+                color = if (selected)
+                        SurfaceTheme.enable.color.copy(1f)
                     else
-                        theme.value[SurfaceTheme.disable]!!.copy(
+                        SurfaceTheme.disable.color.copy(
                             if (settingsPreferences.getBoolean("text_in_navbar", true))
                                 1f
                             else
                                 0f
-                        ),
-                    animationSpec = tween(durationMillis = 100, easing = FastOutSlowInEasing),
-                    label = ""
-                ).value,
+                        )
             )
         }
     }
@@ -322,10 +323,12 @@ fun getContentByRoute(route: String): @Composable () -> Unit {
     val timetable: @Composable () -> Unit = { TimetableScreen(topBarContent) }
     val settings: @Composable () -> Unit = { SettingsScreen(topBarContent) }
     val other: @Composable () -> Unit = { OtherScreen(topBarContent) }
+    val profile: @Composable () -> Unit = { ProfileScreen(topBarContent) }
     return when (route) {
         "news" -> news
         "timetable" -> timetable
         "other" -> other
+        "account" -> profile
         else -> settings
     }
 }

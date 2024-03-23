@@ -35,6 +35,11 @@
             android:exported="true"
             android:theme="@style/Theme.ASPU">
         </activity>
+        <activity
+            android:name=".ui.navfragments.settings.SettingsActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ASPU">
+        </activity>
     </application>
 
 </manifest>
