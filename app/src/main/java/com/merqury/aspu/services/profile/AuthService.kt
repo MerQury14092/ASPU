@@ -6,7 +6,7 @@ import com.merqury.aspu.ui.navfragments.profile.secretPreferences
 import com.merqury.aspu.ui.navfragments.profile.showEiosAuthModalWindow
 import org.json.JSONObject
 
-fun reauthorization(){
+fun reauthorization(onClosure: () -> Unit){
     if(
         !secretPreferences.contains("login") ||
         !secretPreferences.contains("password")
@@ -22,6 +22,7 @@ fun reauthorization(){
                     .putString("authToken", token)
                     .putInt("userId", id)
                     .apply()
+                onClosure()
             },
             {
                 showEiosAuthModalWindow(msg = "Bad credentials")

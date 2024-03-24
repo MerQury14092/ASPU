@@ -27,7 +27,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.merqury.aspu.R
+import com.merqury.aspu.appContext
 import com.merqury.aspu.ui.TitleHeader
+import com.merqury.aspu.ui.makeToast
+import com.merqury.aspu.ui.navfragments.profile.secretPreferences
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.openInBrowser
 import com.merqury.aspu.ui.showWebPage
@@ -169,6 +172,56 @@ fun OtherScreenContent() {
                     scheme = it.scheme,
                     inBrowser = it.inBrowser
                 )
+            }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(3.dp)
+                    .clickable {
+                        secretPreferences.edit().putString("authToken", "hello").apply()
+                        appContext!!.makeToast("Изменено!")
+                    },
+                colors = CardDefaults.cardColors(
+                    containerColor = SurfaceTheme.foreground.color
+                )
+            ) {
+                Box(modifier = Modifier.padding(10.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Изменить токен",
+                            fontSize = 16.sp,
+                            color = SurfaceTheme.text.color,
+                            modifier = Modifier.padding(start = 10.dp)
+                        )
+                    }
+                }
+            }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(3.dp)
+                    .clickable {
+                        secretPreferences.edit().remove("authToken").apply()
+                        appContext!!.makeToast("Забыто!")
+                    },
+                colors = CardDefaults.cardColors(
+                    containerColor = SurfaceTheme.foreground.color
+                )
+            ) {
+                Box(modifier = Modifier.padding(10.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Забыть данные",
+                            fontSize = 16.sp,
+                            color = SurfaceTheme.text.color,
+                            modifier = Modifier.padding(start = 10.dp)
+                        )
+                    }
+                }
             }
         }
     }

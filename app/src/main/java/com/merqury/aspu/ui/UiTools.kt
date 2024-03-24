@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -43,6 +44,9 @@ import coil.compose.rememberAsyncImagePainter
 import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import coil.size.Size
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.placeholder
+import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.appContext
 import com.merqury.aspu.close
 import com.merqury.aspu.show
@@ -155,7 +159,7 @@ fun showSimpleUpdatableModalWindow(
     show(showed, dialogContent)
 }
 
-fun goToScreen(activityClass: Class<*>){
+fun goToScreen(activityClass: Class<*>) {
     appContext!!.startActivity(Intent(appContext!!, activityClass))
 }
 
@@ -205,7 +209,8 @@ fun SwipeableBox(
                 modifier = Modifier.offset(
                     x = animateDpAsState(
                         targetValue = (summaryOffset.floatValue / 3).dp,
-                        animationSpec = tween(durationMillis =
+                        animationSpec = tween(
+                            durationMillis =
                             if (summaryOffset.floatValue == 0f) 250 else 50
                         ), label = ""
                     ).value
@@ -218,11 +223,11 @@ fun SwipeableBox(
 
 }
 
-fun async(runnable: () -> Unit){
-    Thread {runnable()}.start()
+fun async(runnable: () -> Unit) {
+    Thread { runnable() }.start()
 }
 
-fun after(duration: Duration, runnable: () -> Unit){
+fun after(duration: Duration, runnable: () -> Unit) {
     async {
         Thread.sleep(duration.inWholeMilliseconds)
         runnable()
@@ -306,9 +311,22 @@ fun openInBrowser(url: String, scheme: String) {
     aspuButtonLoading.value = false
 }
 
-fun MutableState<Boolean>.toggle(){
+fun MutableState<Boolean>.toggle() {
     value = !value
 }
+
+@Composable
+fun Modifier.placeholder(visible: Boolean = true): Modifier {
+    return then(
+        Modifier.placeholder(
+            visible = visible,
+            color = SurfaceTheme.placeholder_primary.color,
+            highlight = PlaceholderHighlight.shimmer(SurfaceTheme.placeholder_secondary.color),
+            shape = RoundedCornerShape(15.dp)
+        )
+    )
+}
+
 @Composable
 fun TitleHeader(title: String) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -321,6 +339,6 @@ fun TitleHeader(title: String) {
     }
 }
 
-fun Context.makeToast(text: String){
+fun Context.makeToast(text: String) {
     Toast.makeText(this, text, Toast.LENGTH_LONG).show()
 }

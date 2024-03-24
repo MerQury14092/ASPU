@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.databind.node.*
 import com.fasterxml.jackson.module.kotlin.*
 
-val mapper = jacksonObjectMapper().apply {
-    propertyNamingStrategy = PropertyNamingStrategy.LOWER_CAMEL_CASE
-    setSerializationInclusion(JsonInclude.Include.NON_NULL)
-}
+
 
 data class ProfileInfo (
     val data: Data? = null,
@@ -19,6 +16,10 @@ data class ProfileInfo (
     fun toJson() = mapper.writeValueAsString(this)
 
     companion object {
+        val mapper = jacksonObjectMapper().apply {
+            propertyNamingStrategy = PropertyNamingStrategy.LOWER_CAMEL_CASE
+            setSerializationInclusion(JsonInclude.Include.NON_NULL)
+        }
         fun fromJson(json: String) = mapper.readValue<ProfileInfo>(json)
     }
 }

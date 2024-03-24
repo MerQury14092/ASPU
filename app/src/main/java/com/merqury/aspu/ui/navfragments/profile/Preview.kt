@@ -2,6 +2,7 @@ package com.merqury.aspu.ui.navfragments.profile
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,9 +38,16 @@ import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.R
+import com.merqury.aspu.services.profile.getAvg
+import com.merqury.aspu.services.profile.getMarkStatsById
 import com.merqury.aspu.services.profile.models.Data
+import com.merqury.aspu.services.profile.models.MarkStat
+import com.merqury.aspu.ui.placeholder
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
+
+
+private var marksStat: MarkStat? by mutableStateOf(null)
 
 @Composable
 fun ProfileInfo(info: Data) {
@@ -45,6 +57,12 @@ fun ProfileInfo(info: Data) {
             .fillMaxSize()
     ) {
         info.apply {
+            if(marksStat == null) {
+                getMarkStatsById(studentID!!, onError = {
+                }) {
+                    marksStat = it
+                }
+            }
             Column(
                 Modifier.verticalScroll(rememberScrollState())
             ) {
@@ -155,8 +173,19 @@ fun ProfileInfo(info: Data) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
+                            var avg = "5"
+
+                            marksStat?.data?.markCountStatistic?.also {
+                                avg = getAvg(it)
+                            }
+
                             Text(text = "Средний балл:", color = SurfaceTheme.text.color)
-                            Text(text = "5", color = SurfaceTheme.text.color, fontSize = 24.sp)
+                            Text(
+                                text = avg,
+                                color = SurfaceTheme.text.color,
+                                fontSize = 24.sp,
+                                modifier = Modifier.placeholder(marksStat == null)
+                            )
                         }
                     }
                 }
@@ -168,8 +197,12 @@ fun ProfileInfo(info: Data) {
                     @Composable
                     fun MarkBox(
                         name: String,
-                        value: String
+                        value: String,
+                        count: Int
                     ) {
+                        var collapsing by remember {
+                            mutableStateOf(false)
+                        }
                         Box(
                             modifier = Modifier
                                 .background(
@@ -178,19 +211,56 @@ fun ProfileInfo(info: Data) {
                                 )
                                 .padding(10.dp)
                                 .width(70.dp)
+                                .clickable {
+                                    collapsing = !collapsing
+                                }
                         ) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(text = name, color = SurfaceTheme.text.color)
-                                Text(text = value, color = SurfaceTheme.text.color)
+                                Text(
+                                    text = value,
+                                    color = SurfaceTheme.text.color,
+                                    modifier = Modifier.placeholder(visible = marksStat == null)
+                                )
+                                if(collapsing)
+                                    Text(text = "$count оц.", color = SurfaceTheme.text.color)
                             }
                         }
                     }
-                    MarkBox(name = "Удовл.", value = "-")
-                    MarkBox(name = "Хор.", value = "-")
-                    MarkBox(name = "Отл.", value = "100%")
+
+                    var markAAvg = "100%"
+                    var markBAvg = "100%"
+                    var markCAvg = "100%"
+                    var markACount = 0
+                    var markBCount = 0
+                    var markCCount = 0
+                    marksStat?.also {
+                        markAAvg = "-"
+                        markBAvg = "-"
+                        markCAvg = "-"
+                    }
+                    marksStat?.data?.markCountStatistic?.onEach {
+                        when (it.markName) {
+                            "Удовл" -> {
+                                markCAvg = "${it.avg}%"
+                                markCCount = it.count.toInt()
+                            }
+                            "Хор" -> {
+                                markBAvg = "${it.avg}%"
+                                markBCount = it.count.toInt()
+                            }
+                            "Отл" -> {
+                                markAAvg = "${it.avg}%"
+                                markACount = it.count.toInt()
+                            }
+                        }
+                    }
+                    MarkBox(name = "Удовл", value = markCAvg, markCCount)
+                    MarkBox(name = "Хор", value = markBAvg, markBCount)
+                    MarkBox(name = "Отл", value = markAAvg, markACount)
                 }
                 Spacer(modifier = Modifier.size(30.dp))
                 Column {
@@ -427,8 +497,8 @@ fun ProfileInfoPlaceholder() {
                         }
                     }
                 }
-                MarkBox(name = "Удовл.", value = "-")
-                MarkBox(name = "Хор.", value = "-")
+                MarkBox(name = "Удовл.", value = "100%")
+                MarkBox(name = "Хор.", value = "100%")
                 MarkBox(name = "Отл.", value = "100%")
             }
             Spacer(modifier = Modifier.size(30.dp))

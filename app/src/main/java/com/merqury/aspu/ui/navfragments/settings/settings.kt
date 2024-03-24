@@ -37,6 +37,7 @@ import com.merqury.aspu.ui.other.Terminal
 import com.merqury.aspu.ui.showSelectListDialog
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
+import com.merqury.aspu.ui.theme.getThemeName
 import com.merqury.aspu.ui.theme.isDarkThemeOn
 import com.merqury.aspu.ui.theme.updateTheme
 import java.util.concurrent.TimeUnit
@@ -236,21 +237,13 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
             SettingsChapter(
                 title = "Настройки внешнего вида", buttons = listOf(
                     ClickableSettingsButton(
-                        "${
-                            if (settingsPreferences.getString(
-                                    "theme",
-                                    if (appContext!!.isDarkThemeOn())
-                                        "dark"
-                                    else
-                                        "light"
-                                ) == "dark"
-                            )
-                                "Тёмная"
-                            else
-                                "Светлая"
-                        } тема"
+                        "${getThemeName(settingsPreferences.getString("theme", "light")!!)} тема"
                     ) {
-                        toggleTheme()
+                        showSelectListDialog(mapOf(
+                            "Светлая тема" to { setTheme("light") },
+                            "Тёмная тема" to { setTheme("dark") },
+                            "Морская тема" to { setTheme("cyan") }
+                        ))
                     },
                     SwitchableSettingsPreferenceButton(
                         "Цветной фон ячеек в расписании",
@@ -326,6 +319,12 @@ fun toggleTheme() {
     reloadSettingsScreen()
 }
 
+fun setTheme(name: String) {
+    settingsPreferences.edit().putString("theme", name).apply()
+    updateTheme()
+    reloadSettingsScreen()
+}
+
 fun toggleBooleanSettingsPreference(name: String) {
     settingsPreferences
         .edit()
@@ -342,7 +341,7 @@ fun toggleBooleanSettingsPreference(name: String) {
 }
 
 fun getDefault(name: String): Boolean {
-    return when (name){
+    return when (name) {
         "use_included_browser" -> true
         "text_in_navbar" -> true
         "color_timetable" -> true

@@ -6,6 +6,7 @@ import com.android.volley.Request
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.requestQueue
+import com.merqury.aspu.ui.after
 import com.merqury.aspu.ui.async
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.navfragments.timetable.DTO.TimetableDay
@@ -22,6 +23,7 @@ import org.json.JSONObject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 fun getTimetableByDateRange(
     id: String,
@@ -81,36 +83,39 @@ fun getTimetableByDate(
             return
         }
     }
-    val startWeekDate = getStartDayOfWeekByDate(selectedDate.value)
-    val endWeekDate = getEndDayOfWeekByDate(selectedDate.value)
-    getTimetableByDateRange(
-        id,
-        owner,
-        startWeekDate,
-        endWeekDate,
-        { ttList ->
-            ttList.forEach {
-                if(it.date == selectedDate.value) {
-                    result.value = it
-                    isLoaded.value = true
-                    success.value = true
+    after(4.seconds){
+
+        val startWeekDate = getStartDayOfWeekByDate(selectedDate.value)
+        val endWeekDate = getEndDayOfWeekByDate(selectedDate.value)
+        getTimetableByDateRange(
+            id,
+            owner,
+            startWeekDate,
+            endWeekDate,
+            { ttList ->
+                ttList.forEach {
+                    if(it.date == selectedDate.value) {
+                        result.value = it
+                        isLoaded.value = true
+                        success.value = true
+                    }
+                    cache.edit().putString(
+                        "$id ${it.date}",
+                        JSONObject().apply {
+                            put("created", timestampNow())
+                            put("value", it.toJson())
+                        }.toString()
+                    ).apply()
                 }
-                cache.edit().putString(
-                    "$id ${it.date}",
-                    JSONObject().apply {
-                        put("created", timestampNow())
-                        put("value", it.toJson())
-                    }.toString()
-                ).apply()
+            },
+            {
+                success.value = false
+                isLoaded.value = true
+                Log.d("network-error", "ERROR")
+                handleVolleyError(it, responseText)
             }
-        },
-        {
-            success.value = false
-            isLoaded.value = true
-            Log.d("network-error", "ERROR")
-            handleVolleyError(it, responseText)
-        }
-    )
+        )
+    }
 }
 
 @OptIn(DelicateCoroutinesApi::class)

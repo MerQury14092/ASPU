@@ -7,6 +7,7 @@ import com.merqury.aspu.services.profile.models.ProfileInfo
 fun getProfileInfo(
     token: String,
     id: Int,
+    onClosure: () -> Unit = {},
     onResult: (info: ProfileInfo) -> Unit
 ){
     val url = "http://plany.agpu.net/api/UserInfo/Student?studentID=$id"
@@ -17,7 +18,7 @@ fun getProfileInfo(
             onResult(ProfileInfo.fromJson(it))
         },
         {
-            reauthorization()
+            reauthorization(onClosure)
         }
     ){
         override fun getHeaders(): MutableMap<String, String> {

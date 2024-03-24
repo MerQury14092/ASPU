@@ -86,7 +86,10 @@ fun ProfileScreen(header: MutableState<@Composable () -> Unit>) {
         if(secretPreferences.contains("authToken"))
             getProfileInfo(
                 secretPreferences.getString("authToken", null)!!,
-                secretPreferences.getInt("userId", 0)
+                secretPreferences.getInt("userId", 0),
+                onClosure = {
+                    forUpdate.toggle()
+                }
             ){
                 profileInfo = it
             }
