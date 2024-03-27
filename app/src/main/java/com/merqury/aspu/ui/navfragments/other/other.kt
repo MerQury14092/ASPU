@@ -71,60 +71,67 @@ fun OtherScreenContent() {
                 textAlign = TextAlign.Center
             )
             Divider(color = SurfaceTheme.divider.color)
-            data class Entry(
+            data class WebEntry(
                 val name: String,
                 val icon: Int,
                 val url: String,
                 val scheme: String = "http",
                 val inBrowser: Boolean = false
             )
-            listOf(
-                Entry(
+            data class ActionEntry(
+                val name: String,
+                val icon: Int,
+                val action: () -> Unit
+            )
+            listOf<Any>(
+                WebEntry(
                     "Сведения об образовательной организации",
                     R.drawable.info,
                     "www.agpu.net/sveden/index.php",
                 ),
-                Entry(
+                WebEntry(
                     "История вуза",
                     R.drawable.history,
                     "www.agpu.net/about/history.php"
                 ),
-                Entry(
+                WebEntry(
                     "Структура университета",
                     R.drawable.struct,
                     "www.agpu.net/struktura-vuza/index.php"
                 ),
-                Entry(
+                WebEntry(
                     "Институты/Факультеты и кафедры",
                     R.drawable.faculty,
                     "www.agpu.net/struktura-vuza/faculties-institutes/index.php"
                 ),
-                Entry(
+                WebEntry(
                     "Кампус и общежития",
                     R.drawable.campuses,
                     "www.agpu.net/studentu/obshchezhitiya/index.php"
                 ),
-                Entry(
+                WebEntry(
                     "Календарь мероприятий",
                     R.drawable.calendar,
                     "www.agpu.net/meropriyatiya/index.php"
                 ),
-                Entry(
+                WebEntry(
                     "Педагогический состав руководства",
                     R.drawable.pedagogs,
                     "www.agpu.net/sveden/employees/index.php"
                 ),
-                Entry(
+                WebEntry(
                     "Учебный план",
                     R.drawable.study_plan,
                     "plany.agpu.net/Plans/"
                 ),
-//                Entry(
-//                    "Аккаунт ЭИОС",
-//                    R.drawable.account,
-//                    "plany.agpu.net/WebApp/#/"
-//                ),
-                Entry(
+                /*ActionEntry(
+                    "Аккаунт ЭИОС",
+                    R.drawable.account
+                ) {
+                  routeTo("account")
+//                    appContext!!.startActivity(ProfileActivity::class.java)
+                },*/
+                WebEntry(
                     "Рабочие программы",
                     R.drawable.programs,
                     "plany.agpu.net/programmy/"
@@ -133,42 +140,51 @@ fun OtherScreenContent() {
 //                    R.drawable.book_alt,
 //                    "plany.agpu.net/programmy/"
 //                ),
-                Entry(
+                WebEntry(
                     "Часто задаваемые вопросы",
                     R.drawable.faq,
                     "www.agpu.net/contacts/FAQ.php"
                 ),
-                Entry(
+                WebEntry(
                     "Контакты",
                     R.drawable.contacts,
                     "www.agpu.net/contacts/index.php"
                 ),
-                Entry(
+                WebEntry(
                     "АГПУ во ВКонтакте",
                     R.drawable.vk,
                     "vk.com/agpu_official",
                     "vkontakte"
                 ),
-                Entry(
+                WebEntry(
                     "АГПУ в Телеграм",
                     R.drawable.telegram,
                     "t.me/agpu_official",
                     inBrowser = true
                 ),
-                Entry(
+                WebEntry(
                     "АГПУ в YouTube",
                     R.drawable.youtube,
                     "www.youtube.com/channel/UCknLhL11-3y4jS7U0S8vGcw?view_as=subscriber",
                     "vnd.youtube"
                 ),
             ).forEach {
-                HyperReferenceButton(
-                    name = it.name,
-                    icon = it.icon,
-                    url = it.url,
-                    scheme = it.scheme,
-                    inBrowser = it.inBrowser
-                )
+                if(it is WebEntry){
+                    ActionButton(
+                        name = it.name,
+                        icon = it.icon
+                    ) {
+                        if (!it.inBrowser)
+                            if (settingsPreferences.getBoolean("use_included_browser", false))
+                                showWebPage(it.url, it.scheme)
+                            else
+                                openInBrowser(it.url, it.scheme)
+                        else
+                            openInBrowser(it.url, it.scheme)
+                    }
+                } else if (it is ActionEntry){
+                    ActionButton(name = it.name, icon = it.icon, action = it.action)
+                }
             }
         }
     }
@@ -176,25 +192,17 @@ fun OtherScreenContent() {
 
 
 @Composable
-fun HyperReferenceButton(
+fun ActionButton(
     name: String,
     icon: Int,
-    url: String,
-    scheme: String,
-    inBrowser: Boolean
+    action: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(3.dp)
             .clickable {
-                if (!inBrowser)
-                    if (settingsPreferences.getBoolean("use_included_browser", false))
-                        showWebPage(url, scheme)
-                    else
-                        openInBrowser(url, scheme)
-                else
-                    openInBrowser(url, scheme)
+                action()
             },
         colors = CardDefaults.cardColors(
             containerColor = SurfaceTheme.foreground.color

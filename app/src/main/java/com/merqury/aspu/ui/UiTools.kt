@@ -295,6 +295,10 @@ fun showSelectListDialog(
     }
 }
 
+fun Context.startActivity(cls: Class<*>){
+    startActivity(Intent(this, cls))
+}
+
 @SuppressLint("SetJavaScriptEnabled")
 fun showWebPage(url: String, scheme: String) {
     if (scheme in listOf("http", "https")) {
