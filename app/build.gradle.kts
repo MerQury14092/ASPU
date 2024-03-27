@@ -8,10 +8,10 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.merqury.aspudev"
+        applicationId = "com.merqury.aspu"
         minSdk = 28
         targetSdk = 34
-        versionCode = 14
+        versionCode = 15
         versionName = "1.15"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
