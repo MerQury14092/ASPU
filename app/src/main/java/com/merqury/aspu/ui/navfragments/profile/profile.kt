@@ -1,7 +1,6 @@
 package com.merqury.aspu.ui.navfragments.profile
 
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -31,6 +30,7 @@ import com.merqury.aspu.services.profile.getProfileInfo
 import com.merqury.aspu.services.profile.models.ProfileInfo
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.navfragments.settings.SettingsActivity
+import com.merqury.aspu.ui.startActivity
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.toggle
 
@@ -59,7 +59,7 @@ fun ProfileScreen(header: MutableState<@Composable () -> Unit>) {
                 modifier = Modifier
                     .size(30.dp)
                     .clickable {
-                        appContext!!.startActivity(Intent(appContext!!, SettingsActivity::class.java))
+                        appContext!!.startActivity(SettingsActivity::class.java)
                     },
                 colorFilter = ColorFilter.tint(
                     com.merqury.aspu.ui.theme.SurfaceTheme.enable.color
