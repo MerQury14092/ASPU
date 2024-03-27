@@ -23,8 +23,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Divider
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,7 +33,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -44,6 +41,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getSystemService
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
+import com.merqury.aspu.services.timetable.showTimetableWebPageView
+import com.merqury.aspu.services.news.urlForCurrentFaculty
 import com.merqury.aspu.ui.navfragments.news.NewsScreen
 import com.merqury.aspu.ui.navfragments.news.newsLoaded
 import com.merqury.aspu.ui.navfragments.other.OtherScreen
@@ -63,8 +62,7 @@ val topBarContent: MutableState<@Composable () -> Unit> = mutableStateOf({})
 val content: MutableState<@Composable () -> Unit> =
     mutableStateOf(getContentByRoute(settingsPreferences.getString("initial_route", "news")!!))
 val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
-    toggleTheme()
-    /*when (selected_page.value) {
+    when (selected_page.value) {
         "news" -> {
             aspuButtonLoading.value = true
             val inBrowser = settingsPreferences.getBoolean("use_included_browser", true)
@@ -88,7 +86,7 @@ val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
             else
                 openInBrowser("agpu.net", "http")
         }
-    }*/
+    }
 })
 val magicState = mutableIntStateOf(3)
 val onASPUButtonLongClick: MutableState<() -> Unit> = mutableStateOf({
@@ -103,14 +101,14 @@ val onASPUButtonLongClick: MutableState<() -> Unit> = mutableStateOf({
 
         "settings" -> {
             val v = getSystemService(appContext!!, Vibrator::class.java)!!
-            if(magicState.intValue == 0 && !settingsPreferences.getBoolean("debug_mode", false)) {
+            if (magicState.intValue == 0 && !settingsPreferences.getBoolean("debug_mode", false)) {
                 toggleBooleanSettingsPreference("debug_mode")
                 printlog("Если хотите отключить это, пропишите debug off")
                 reloadSettingsScreen()
                 appContext!!.makeToast("DEBUG MODE ON")
                 v.vibrate(100)
             }
-            if(magicState.intValue > 0 && !settingsPreferences.getBoolean("debug_mode", false)) {
+            if (magicState.intValue > 0 && !settingsPreferences.getBoolean("debug_mode", false)) {
                 v.vibrate(100)
                 magicState.intValue--
             }
@@ -118,7 +116,6 @@ val onASPUButtonLongClick: MutableState<() -> Unit> = mutableStateOf({
     }
 })
 val aspuButtonLoading = mutableStateOf(false)
-
 
 
 @Composable
@@ -130,9 +127,10 @@ fun MainScreen() {
                     modifier = Modifier
                         .fillMaxHeight(.06f)
                         .fillMaxWidth()
-                        .background(SurfaceTheme.foreground.color)
+                        .background(SurfaceTheme.appBars.color)
                 ) { topBarContent.value() }
-                Divider(color = SurfaceTheme.divider.color,
+                Divider(
+                    color = SurfaceTheme.divider.color,
                     modifier = Modifier.height(2.dp)
                 )
             }
@@ -142,7 +140,7 @@ fun MainScreen() {
                 modifier = Modifier
                     .fillMaxHeight(.075f)
                     .fillMaxWidth()
-                    .background(SurfaceTheme.foreground.color)
+                    .background(SurfaceTheme.appBars.color)
             ) {
                 Column {
                     Divider(
@@ -218,17 +216,16 @@ fun NavigationBar() {
             }, icon = R.drawable.other_icon,
             "other"
         )
-        /*NavBarItem(
+        NavBarItem(
             title = "Настройки",
             icon = R.drawable.settings_icon,
             "settings"
-        )*/
-        NavBarItem(
-            title = "Профиль",
-            icon = 0,
-            "account",
-            Icons.Outlined.AccountCircle
         )
+        /*NavBarItem(
+            title = "Профиль",
+            icon = R.drawable.profile,
+            "account",
+        )*/
     }
 }
 
@@ -236,8 +233,7 @@ fun NavigationBar() {
 fun NavBarItem(
     title: String,
     icon: Int,
-    route: String,
-    imageVector: ImageVector? = null
+    route: String
 ) {
     val selected = selected_page.value == route
     Box(
@@ -252,67 +248,45 @@ fun NavBarItem(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if(imageVector != null){
-                Image(
-                    imageVector,
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .size(28.dp)
-                        .offset(
-                            y = animateDpAsState(
-                                targetValue = if (selected) -(5.dp) else 0.dp,
-                                animationSpec = tween(
-                                    durationMillis = 100,
-                                    easing = FastOutSlowInEasing
-                                ),
-                                label = ""
-                            ).value
-                        ),
-                    colorFilter = ColorFilter.tint(if (selected)
+
+            Image(
+                painter = painterResource(id = icon),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .size(25.dp)
+                    .offset(
+                        y = animateDpAsState(
+                            targetValue = if (selected) -(5.dp) else 0.dp,
+                            animationSpec = tween(
+                                durationMillis = 100,
+                                easing = FastOutSlowInEasing
+                            ),
+                            label = ""
+                        ).value
+                    ),
+                colorFilter = ColorFilter.tint(
+                    if (selected)
                         SurfaceTheme.enable.color
                     else
                         SurfaceTheme.disable.color
-                    )
                 )
-            } else {
-                Image(
-                    painter = painterResource(id = icon),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .size(25.dp)
-                        .offset(
-                            y = animateDpAsState(
-                                targetValue = if (selected) -(5.dp) else 0.dp,
-                                animationSpec = tween(
-                                    durationMillis = 100,
-                                    easing = FastOutSlowInEasing
-                                ),
-                                label = ""
-                            ).value
-                        ),
-                    colorFilter = ColorFilter.tint(if (selected)
-                        SurfaceTheme.enable.color
-                    else
-                        SurfaceTheme.disable.color
-                    )
-                )
-            }
+            )
+
             forNavBarUpdate.value
             Text(
                 text = title,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (selected)
-                        SurfaceTheme.enable.color.copy(1f)
-                    else
-                        SurfaceTheme.disable.color.copy(
-                            if (settingsPreferences.getBoolean("text_in_navbar", true))
-                                1f
-                            else
-                                0f
-                        )
+                    SurfaceTheme.enable.color.copy(1f)
+                else
+                    SurfaceTheme.disable.color.copy(
+                        if (settingsPreferences.getBoolean("text_in_navbar", true))
+                            1f
+                        else
+                            0f
+                    )
             )
         }
     }

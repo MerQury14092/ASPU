@@ -37,9 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
-import com.merqury.aspu.services.FileOpener
+import com.merqury.aspu.services.intents.FileOpener
 import com.merqury.aspu.ui.aspuButtonLoading
-import com.merqury.aspu.ui.navfragments.other.ObservableString
 import com.merqury.aspu.ui.openInBrowser
 import com.merqury.aspu.ui.theme.color
 import java.util.Stack

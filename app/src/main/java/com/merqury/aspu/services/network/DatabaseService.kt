@@ -1,4 +1,4 @@
-package com.merqury.aspu.services
+package com.merqury.aspu.services.network
 
 import android.util.Log
 import com.merqury.aspu.apiDomain

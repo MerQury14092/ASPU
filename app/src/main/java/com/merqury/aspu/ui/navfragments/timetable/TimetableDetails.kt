@@ -21,9 +21,9 @@ import androidx.compose.ui.unit.dp
 import com.merqury.aspu.R
 import com.merqury.aspu.enums.TimetableDisciplineType
 import com.merqury.aspu.services.cache
-import com.merqury.aspu.services.openMapWithMarker
-import com.merqury.aspu.ui.navfragments.timetable.DTO.Discipline
-import com.merqury.aspu.ui.navfragments.timetable.DTO.getCorpsByAudience
+import com.merqury.aspu.services.intents.openMapWithMarker
+import com.merqury.aspu.services.timetable.models.Discipline
+import com.merqury.aspu.services.timetable.models.getCorpsByAudience
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color

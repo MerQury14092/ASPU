@@ -1,4 +1,4 @@
-package com.merqury.aspu.services
+package com.merqury.aspu.services.news
 
 import android.util.Log
 import androidx.compose.runtime.MutableIntState
@@ -8,6 +8,11 @@ import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.apiDomain
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.requestQueue
+import com.merqury.aspu.services.cache
+import com.merqury.aspu.services.network.EncodingConverter
+import com.merqury.aspu.services.network.handleVolleyError
+import com.merqury.aspu.services.timestampDifference
+import com.merqury.aspu.services.timestampNow
 import com.merqury.aspu.ui.async
 import com.merqury.aspu.ui.navfragments.news.currentPage
 import com.merqury.aspu.ui.navfragments.news.selectedFaculty

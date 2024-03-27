@@ -1,4 +1,4 @@
-package com.merqury.aspu.services
+package com.merqury.aspu.services.timetable
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
@@ -6,11 +6,17 @@ import com.android.volley.Request
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.requestQueue
-import com.merqury.aspu.ui.after
+import com.merqury.aspu.services.cache
+import com.merqury.aspu.services.getEndDayOfWeekByDate
+import com.merqury.aspu.services.getStartDayOfWeekByDate
+import com.merqury.aspu.services.network.EncodingConverter
+import com.merqury.aspu.services.network.handleVolleyError
+import com.merqury.aspu.services.timestampDifference
+import com.merqury.aspu.services.timestampNow
+import com.merqury.aspu.services.timetable.models.TimetableDay
+import com.merqury.aspu.services.timetable.models.TimetableDay.Companion.toJson
 import com.merqury.aspu.ui.async
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
-import com.merqury.aspu.ui.navfragments.timetable.DTO.TimetableDay
-import com.merqury.aspu.ui.navfragments.timetable.DTO.TimetableDay.Companion.toJson
 import com.merqury.aspu.ui.navfragments.timetable.selectedDate
 import com.merqury.aspu.ui.navfragments.timetable.selectedId
 import com.merqury.aspu.ui.openInBrowser
@@ -23,7 +29,6 @@ import org.json.JSONObject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
-import kotlin.time.Duration.Companion.seconds
 
 fun getTimetableByDateRange(
     id: String,
@@ -45,7 +50,7 @@ fun getTimetableByDateRange(
             async {
                 val response = JSONArray(EncodingConverter.translateISO8859_1toUTF_8(it))
                 val timetableDays = ArrayList<TimetableDay>()
-                for(i in 0..<response.length()){
+                for (i in 0..<response.length()) {
                     timetableDays.add(TimetableDay.fromJson(response.getJSONObject(i).toString()))
                 }
                 onLoad(timetableDays)
@@ -83,39 +88,38 @@ fun getTimetableByDate(
             return
         }
     }
-    after(4.seconds){
 
-        val startWeekDate = getStartDayOfWeekByDate(selectedDate.value)
-        val endWeekDate = getEndDayOfWeekByDate(selectedDate.value)
-        getTimetableByDateRange(
-            id,
-            owner,
-            startWeekDate,
-            endWeekDate,
-            { ttList ->
-                ttList.forEach {
-                    if(it.date == selectedDate.value) {
-                        result.value = it
-                        isLoaded.value = true
-                        success.value = true
-                    }
-                    cache.edit().putString(
-                        "$id ${it.date}",
-                        JSONObject().apply {
-                            put("created", timestampNow())
-                            put("value", it.toJson())
-                        }.toString()
-                    ).apply()
+    val startWeekDate = getStartDayOfWeekByDate(selectedDate.value)
+    val endWeekDate = getEndDayOfWeekByDate(selectedDate.value)
+    getTimetableByDateRange(
+        id,
+        owner,
+        startWeekDate,
+        endWeekDate,
+        { ttList ->
+            ttList.forEach {
+                if (it.date == selectedDate.value) {
+                    result.value = it
+                    isLoaded.value = true
+                    success.value = true
                 }
-            },
-            {
-                success.value = false
-                isLoaded.value = true
-                Log.d("network-error", "ERROR")
-                handleVolleyError(it, responseText)
+                cache.edit().putString(
+                    "$id ${it.date}",
+                    JSONObject().apply {
+                        put("created", timestampNow())
+                        put("value", it.toJson())
+                    }.toString()
+                ).apply()
             }
-        )
-    }
+        },
+        {
+            success.value = false
+            isLoaded.value = true
+            Log.d("network-error", "ERROR")
+            handleVolleyError(it, responseText)
+        }
+    )
+
 }
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -132,7 +136,7 @@ fun showTimetableWebPageView(searchId: Long, searchType: String) {
             searchId +
             "&Type=$searchType&WeekId=${WeekIdService.weekIdByDate(selectedDate.value)}" +
             "&SearchString=${selectedId.value}"
-    val inBrowser = settingsPreferences.getBoolean("use_included_browser", false)
+    val inBrowser = settingsPreferences.getBoolean("use_included_browser", true)
     if (inBrowser)
         showWebPage(url, "https")
     else

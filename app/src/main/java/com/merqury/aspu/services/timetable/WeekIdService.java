@@ -1,4 +1,4 @@
-package com.merqury.aspu.services;
+package com.merqury.aspu.services.timetable;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

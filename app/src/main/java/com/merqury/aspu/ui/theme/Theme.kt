@@ -21,6 +21,7 @@ enum class SurfaceTheme {
     button,
     placeholder_primary,
     placeholder_secondary,
+    appBars,
 }
 
 private const val themeChangeDuration = 300
@@ -28,6 +29,7 @@ private const val themeChangeDuration = 300
 private val lightTheme = mapOf(
     SurfaceTheme.background to Color.White,
     SurfaceTheme.foreground to Color(0xffedeef0),
+    SurfaceTheme.appBars to Color(0xffedeef0),
     SurfaceTheme.placeholder_primary to Color(0xFFD4D6D8),
     SurfaceTheme.placeholder_secondary to Color(0xFFBCBEC0),
     SurfaceTheme.divider to Color(0xffdee1e6),
@@ -40,6 +42,7 @@ private val lightTheme = mapOf(
 private val darkTheme = mapOf(
     SurfaceTheme.background to Color(0xff141414),
     SurfaceTheme.foreground to Color(0xff222222),
+    SurfaceTheme.appBars to Color(0xff222222),
     SurfaceTheme.placeholder_primary to Color(0xFF252525),
     SurfaceTheme.placeholder_secondary to Color(0xFF302F2F),
     SurfaceTheme.divider to Color(0xff1f1f1f),
@@ -49,9 +52,10 @@ private val darkTheme = mapOf(
     SurfaceTheme.button to Color(0xff2b2b2b)
 )
 
-private val darkCyanTheme = mapOf(
+private val seaTheme = mapOf(
     SurfaceTheme.background to Color(0xff252850),
     SurfaceTheme.foreground to Color(0xff2271B3),
+    SurfaceTheme.appBars to Color(0xff2271B3),
     SurfaceTheme.placeholder_primary to Color(0xFF0095B6),
     SurfaceTheme.placeholder_secondary to Color(0xFF80DAEB),
     SurfaceTheme.divider to Color(0xff002F55),
@@ -61,27 +65,44 @@ private val darkCyanTheme = mapOf(
     SurfaceTheme.button to Color(0xff1A4780)
 )
 
+
+// TODO: site theme
+private val aspuSiteTheme = mapOf(
+    SurfaceTheme.background to Color.White,
+    SurfaceTheme.foreground to Color(0xFF9DE3E7),
+    SurfaceTheme.appBars to Color(0xff00C6D2),
+    SurfaceTheme.placeholder_primary to Color(0xFF9DE3E7),
+    SurfaceTheme.placeholder_secondary to Color(0xFF80DAEB),
+    SurfaceTheme.divider to Color(0xFF03929B),
+    SurfaceTheme.disable to Color(0xFF2E2D2D),
+    SurfaceTheme.enable to Color(0xFF030F1A),
+    SurfaceTheme.text to Color(0xFF060C11),
+    SurfaceTheme.button to Color(0xFF0AA3AD)
+)
+
 private var theme = mutableStateOf(
-    if (settingsPreferences.getString("theme",
-            if(appContext?.isDarkThemeOn() != false)
-                "dark"
-            else
-                "light"
-        ) == "dark") darkTheme else lightTheme
+    byName(settingsPreferences.getString("theme",
+        if(appContext?.isDarkThemeOn() != false)
+            "dark"
+        else
+            "light"
+    )!!)
 )
 
 private fun byName(name: String): Map<SurfaceTheme, Color>{
     return when(name){
-        "cyan" -> darkCyanTheme
+        "sea" -> seaTheme
         "dark" -> darkTheme
+        "site" -> aspuSiteTheme
         else -> lightTheme
     }
 }
 
 fun getThemeName(name: String): String{
     return when(name){
-        "cyan" -> "Морская"
+        "sea" -> "Морская"
         "dark" -> "Тёмная"
+        "site" -> "Лазурная"
         else -> "Светлая"
     }
 }

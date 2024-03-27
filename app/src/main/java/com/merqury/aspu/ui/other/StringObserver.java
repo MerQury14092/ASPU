@@ -1,4 +1,4 @@
-package com.merqury.aspu.ui.navfragments.other;
+package com.merqury.aspu.ui.other;
 
 public interface StringObserver {
     void onChange(String newValue);

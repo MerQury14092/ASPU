@@ -1,4 +1,4 @@
-package com.merqury.aspu.services
+package com.merqury.aspu.services.intents
 
 import android.content.Intent
 import android.net.Uri

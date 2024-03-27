@@ -1,11 +1,11 @@
-package com.merqury.aspu.ui.navfragments.timetable.DTO
+package com.merqury.aspu.services.timetable.models
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.merqury.aspu.services.fetchFullFio
+import com.merqury.aspu.services.timetable.fetchFullFio
 
 
 data class TimetableDay (

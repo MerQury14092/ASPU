@@ -25,13 +25,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.merqury.aspu.services.getTimetableByDate
-import com.merqury.aspu.services.getTodayDate
+import com.merqury.aspu.services.timetable.getTimetableByDate
+import com.merqury.aspu.services.timetable.getTodayDate
 import com.merqury.aspu.ui.SwipeableBox
 import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
-import com.merqury.aspu.ui.navfragments.timetable.DTO.Discipline
-import com.merqury.aspu.ui.navfragments.timetable.DTO.TimetableDay
+import com.merqury.aspu.services.timetable.models.Discipline
+import com.merqury.aspu.services.timetable.models.TimetableDay
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color

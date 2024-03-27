@@ -20,7 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import com.merqury.aspu.enums.NewsCategoryEnum
-import com.merqury.aspu.services.getNews
+import com.merqury.aspu.services.news.getNews
 import com.merqury.aspu.ui.SwipeableBox
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences

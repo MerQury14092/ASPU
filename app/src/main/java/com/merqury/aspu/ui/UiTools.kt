@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.TypedValue
 import android.widget.Toast
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -35,6 +36,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -326,6 +329,19 @@ fun Modifier.placeholder(visible: Boolean = true): Modifier {
         )
     )
 }
+
+val Int.vw: Dp
+    get() = ((appContext!!.resources.configuration.screenWidthDp.toDouble()/100)*this).dp
+
+val Double.vw: Dp
+    get() = ((appContext!!.resources.configuration.screenWidthDp.toDouble()/100)*this).dp
+
+val Dp.px: Float
+    get() = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.value, appContext!!.resources.displayMetrics)
+
+val Dp.sp: TextUnit
+    get() =  (px / appContext!!.resources.displayMetrics.scaledDensity).sp
+
 
 @Composable
 fun TitleHeader(title: String) {

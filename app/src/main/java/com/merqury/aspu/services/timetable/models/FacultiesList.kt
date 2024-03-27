@@ -1,4 +1,4 @@
-package com.merqury.aspu.ui.navfragments.timetable.DTO
+package com.merqury.aspu.services.timetable.models
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty

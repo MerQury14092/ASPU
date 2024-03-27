@@ -1,4 +1,4 @@
-package com.merqury.aspu.ui.navfragments.timetable.DTO
+package com.merqury.aspu.services.timetable.models
 
 data class Corps(val name: String, val lat: String, val lon: String, val audiences: List<String>)
 
@@ -133,8 +133,8 @@ private val ASPUCorpses = listOf(
     Corps("НЕИЗВЕСТНО", "45.001817", "41.132393", listOf())
 )
 
-fun getCorpsByAudience(audience: String): Corps{
-    ASPUCorpses.forEach {corps ->
+fun getCorpsByAudience(audience: String): Corps {
+    ASPUCorpses.forEach { corps ->
         corps.audiences.forEach {
             if(audience.lowercase() == it.lowercase())
                 return corps

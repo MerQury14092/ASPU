@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,8 +45,10 @@ import com.merqury.aspu.services.profile.getMarkStatsById
 import com.merqury.aspu.services.profile.models.Data
 import com.merqury.aspu.services.profile.models.MarkStat
 import com.merqury.aspu.ui.placeholder
+import com.merqury.aspu.ui.sp
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
+import com.merqury.aspu.ui.vw
 
 
 private var marksStat: MarkStat? by mutableStateOf(null)
@@ -57,7 +61,7 @@ fun ProfileInfo(info: Data) {
             .fillMaxSize()
     ) {
         info.apply {
-            if(marksStat == null) {
+            if (marksStat == null) {
                 getMarkStatsById(studentID!!, onError = {
                 }) {
                     marksStat = it
@@ -225,7 +229,7 @@ fun ProfileInfo(info: Data) {
                                     color = SurfaceTheme.text.color,
                                     modifier = Modifier.placeholder(visible = marksStat == null)
                                 )
-                                if(collapsing)
+                                if (collapsing)
                                     Text(text = "$count оц.", color = SurfaceTheme.text.color)
                             }
                         }
@@ -248,10 +252,12 @@ fun ProfileInfo(info: Data) {
                                 markCAvg = "${it.avg}%"
                                 markCCount = it.count.toInt()
                             }
+
                             "Хор" -> {
                                 markBAvg = "${it.avg}%"
                                 markBCount = it.count.toInt()
                             }
+
                             "Отл" -> {
                                 markAAvg = "${it.avg}%"
                                 markACount = it.count.toInt()
@@ -282,23 +288,67 @@ fun ProfileInfo(info: Data) {
                             }
                         }
                     }
-                    numberMobile?.also {
-                        ProfileItem(text = "Номер телефона: $numberMobile")
+
+                    val profileCardButtonSize = 27
+
+                    @Composable
+                    fun ProfileCardButton(
+                        text: String,
+                        icon: Int
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .background(
+                                    SurfaceTheme.foreground.color,
+                                    shape = RoundedCornerShape(20.dp)
+                                )
+                                .size(profileCardButtonSize.vw),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Image(
+                                    painter = painterResource(id = icon),
+                                    contentDescription = null,
+                                    colorFilter = ColorFilter.tint(SurfaceTheme.text.color),
+                                    contentScale = ContentScale.Fit,
+                                    modifier = Modifier.size(12.vw)
+                                )
+                                Spacer(modifier = Modifier.size(10.dp))
+                                Text(
+                                    text = text,
+                                    color = SurfaceTheme.text.color,
+                                    modifier = Modifier.width(17.vw),
+                                    textAlign = TextAlign.Center,
+                                    fontSize = 3.vw.sp
+                                )
+                            }
+                        }
                     }
-                    email?.also {
-                        ProfileItem(text = "E-mail: $email")
+
+                    @Composable
+                    fun RowSpaceEvenly(content: @Composable () -> Unit) {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            content()
+                        }
                     }
-                    group?.item1?.also {
-                        ProfileItem(text = "Группа: ${group.item1}")
+
+                    Divider(color = SurfaceTheme.divider.color)
+                    Spacer(modifier = Modifier.size(20.dp))
+                    RowSpaceEvenly {
+                        ProfileCardButton("О себе", R.drawable.user)
+                        ProfileCardButton("Оценки", R.drawable.book_alt)
+                        ProfileCardButton("Уч. план", R.drawable.study_plan)
                     }
-                    facul?.faculName?.also {
-                        ProfileItem(text = "Факультет: ${facul.faculName}")
-                    }
-                    admissionYear?.also {
-                        ProfileItem(text = "Год поступления: $admissionYear")
-                    }
-                    plan?.item1?.also {
-                        ProfileItem(text = "План: ${plan.item1}")
+                    Spacer(modifier = Modifier.size(((100-profileCardButtonSize.toDouble()*3)/4).vw))
+                    RowSpaceEvenly {
+                        ProfileCardButton("Портфолио", R.drawable.trophy)
+                        ProfileCardButton("Методички", R.drawable.book)
+                        ProfileCardButton("Выйти", R.drawable.back)
                     }
                 }
             }
@@ -531,10 +581,89 @@ fun ProfileInfoPlaceholder() {
                         }
                     }
                 }
-                ProfileItem(text = "Номер телефона: 88005553535")
-                ProfileItem(text = "E-mail: vasyapupkin@mail.com")
-                ProfileItem(text = "Группа: vm-ivt-2-1")
-                ProfileItem(text = "Факультет: ipimif")
+                Spacer(modifier = Modifier.size(30.dp))
+                Column {
+                    @Composable
+                    fun ProfileItem(text: String) {
+                        Column(
+                            Modifier.padding(vertical = space / 4)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(
+                                        SurfaceTheme.foreground.color,
+                                        shape = RoundedCornerShape(10.dp)
+                                    )
+                                    .padding(10.dp)
+                            ) {
+                                Text(text = text, color = SurfaceTheme.text.color)
+                            }
+                        }
+                    }
+
+                    val profileCardButtonSize = 27
+
+                    @Composable
+                    fun ProfileCardButton(
+                        text: String,
+                        icon: Int
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .background(
+                                    SurfaceTheme.foreground.color,
+                                    shape = RoundedCornerShape(20.dp)
+                                )
+                                .size(profileCardButtonSize.vw),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Image(
+                                    painter = painterResource(id = icon),
+                                    contentDescription = null,
+                                    colorFilter = ColorFilter.tint(SurfaceTheme.text.color),
+                                    contentScale = ContentScale.Fit,
+                                    modifier = Modifier.size(12.vw).placeholder(true)
+                                )
+                                Spacer(modifier = Modifier.size(10.dp))
+                                Text(
+                                    text = text,
+                                    color = SurfaceTheme.text.color,
+                                    modifier = Modifier.width(17.vw).placeholder(true),
+                                    textAlign = TextAlign.Center,
+                                    fontSize = 3.vw.sp
+                                )
+                            }
+                        }
+                    }
+
+                    @Composable
+                    fun RowSpaceEvenly(content: @Composable () -> Unit) {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            content()
+                        }
+                    }
+
+                    Divider(color = SurfaceTheme.divider.color)
+                    Spacer(modifier = Modifier.size(20.dp))
+                    RowSpaceEvenly {
+                        ProfileCardButton("О себе", R.drawable.user)
+                        ProfileCardButton("Оценки", R.drawable.book_alt)
+                        ProfileCardButton("Уч. план", R.drawable.study_plan)
+                    }
+                    Spacer(modifier = Modifier.size(((100-profileCardButtonSize.toDouble()*3)/4).vw))
+                    RowSpaceEvenly {
+                        ProfileCardButton("Портфолио", R.drawable.trophy)
+                        ProfileCardButton("Методички", R.drawable.book)
+                        ProfileCardButton("Выйти", R.drawable.back)
+                    }
+                }
             }
         }
     }

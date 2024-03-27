@@ -28,8 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.Volley
-import com.merqury.aspu.services.getApiDomain
-import com.merqury.aspu.services.getLastPublishedVersion
+import com.merqury.aspu.services.network.getApiDomain
+import com.merqury.aspu.services.network.getLastPublishedVersion
 import com.merqury.aspu.ui.MainScreen
 import com.merqury.aspu.ui.navfragments.settings.reloadSettingsScreen
 import com.merqury.aspu.ui.navfragments.settings.selectUser
@@ -47,9 +47,10 @@ var requestQueue: RequestQueue? = null
 var appVersion: String? = null
 const val RUSTORE_RELEASE = "rustore"
 const val PLAYMARKET_RELEASE = "google"
-const val releaseType = PLAYMARKET_RELEASE
+const val releaseType = RUSTORE_RELEASE
 private val storeAppVersion = mutableStateOf("UNKNOWN")
 private val storeAppReleaseNotes = mutableStateOf("")
+private var launchFlag = true
 var apiDomain = "agpu.merqury.fun"
 
 class MainActivity : ComponentActivity() {
@@ -65,8 +66,10 @@ class MainActivity : ComponentActivity() {
         requestQueue = Volley.newRequestQueue(appContext)
         getLastPublishedVersion(storeAppVersion, storeAppReleaseNotes)
         setContent {
-            if (storeAppVersion.value != "UNKNOWN" && storeAppVersionBigger())
+            if (storeAppVersion.value != "UNKNOWN" && storeAppVersionBigger() && launchFlag) {
                 NewVersionNotification()
+                launchFlag = false
+            }
             contentList.forEach {
                 it()
             }

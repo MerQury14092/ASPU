@@ -25,7 +25,7 @@ import com.merqury.aspu.appContext
 import com.merqury.aspu.appVersion
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.services.cache
-import com.merqury.aspu.services.sendToDevEmail
+import com.merqury.aspu.services.intents.sendToDevEmail
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.goToScreen
 import com.merqury.aspu.ui.makeToast
@@ -38,7 +38,6 @@ import com.merqury.aspu.ui.showSelectListDialog
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.theme.getThemeName
-import com.merqury.aspu.ui.theme.isDarkThemeOn
 import com.merqury.aspu.ui.theme.updateTheme
 import java.util.concurrent.TimeUnit
 
@@ -239,11 +238,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                     ClickableSettingsButton(
                         "${getThemeName(settingsPreferences.getString("theme", "light")!!)} тема"
                     ) {
-                        showSelectListDialog(mapOf(
-                            "Светлая тема" to { setTheme("light") },
-                            "Тёмная тема" to { setTheme("dark") },
-                            "Морская тема" to { setTheme("cyan") }
-                        ))
+                        showSelectTheme()
                     },
                     SwitchableSettingsPreferenceButton(
                         "Цветной фон ячеек в расписании",
@@ -303,20 +298,17 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
     }
 }
 
+fun showSelectTheme(){
+    showSelectListDialog(mapOf(
+        "Светлая тема" to { setTheme("light") },
+        "Тёмная тема" to { setTheme("dark") },
+        "Морская тема" to { setTheme("sea") },
+//                            "Лазурная тема" to { setTheme("site") }
+    ))
+}
+
 fun toggleTheme() {
-    if (settingsPreferences.getString(
-            "theme",
-            if (appContext!!.isDarkThemeOn())
-                "dark"
-            else
-                "light"
-        ) == "dark"
-    )
-        settingsPreferences.edit().putString("theme", "light").apply()
-    else
-        settingsPreferences.edit().putString("theme", "dark").apply()
-    updateTheme()
-    reloadSettingsScreen()
+    showSelectTheme()
 }
 
 fun setTheme(name: String) {

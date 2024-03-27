@@ -1,4 +1,4 @@
-package com.merqury.aspu.services
+package com.merqury.aspu.services.network
 
 import androidx.compose.runtime.MutableState
 import com.android.volley.NoConnectionError

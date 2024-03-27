@@ -1,4 +1,4 @@
-package com.merqury.aspu.services
+package com.merqury.aspu.services.timetable
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
@@ -6,9 +6,10 @@ import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.apiDomain
 import com.merqury.aspu.requestQueue
+import com.merqury.aspu.services.network.EncodingConverter
 import com.merqury.aspu.ui.async
-import com.merqury.aspu.ui.navfragments.timetable.DTO.FacultiesList
-import com.merqury.aspu.ui.navfragments.timetable.DTO.SearchContent
+import com.merqury.aspu.services.timetable.models.FacultiesList
+import com.merqury.aspu.services.timetable.models.SearchContent
 import java.net.URI
 import java.net.URLEncoder
 

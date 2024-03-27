@@ -1,4 +1,4 @@
-package com.merqury.aspu.ui.navfragments.other;
+package com.merqury.aspu.ui.other;
 
 import java.util.ArrayList;
 import java.util.List;

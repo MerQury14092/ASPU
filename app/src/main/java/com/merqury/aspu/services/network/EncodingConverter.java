@@ -1,4 +1,4 @@
-package com.merqury.aspu.services;
+package com.merqury.aspu.services.network;
 
 import java.nio.charset.StandardCharsets;
 
