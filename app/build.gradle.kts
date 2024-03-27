@@ -11,8 +11,8 @@ android {
         applicationId = "com.merqury.aspu"
         minSdk = 28
         targetSdk = 34
-        versionCode = 14
-        versionName = "1.11"
+        versionCode = 16
+        versionName = "1.16"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -48,6 +48,7 @@ android {
 
 dependencies {
     implementation("org.postgresql:postgresql:42.2.5")
+    implementation("com.airbnb.android:lottie-compose:6.4.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation("com.android.volley:volley:1.2.1")
     implementation("com.google.accompanist:accompanist-placeholder:0.35.0-alpha")

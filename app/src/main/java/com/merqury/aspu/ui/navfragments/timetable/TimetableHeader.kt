@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 import com.merqury.aspu.appContext
 import com.merqury.aspu.ui.theme.SurfaceTheme
-import com.merqury.aspu.ui.theme.theme
+import com.merqury.aspu.ui.theme.color
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
@@ -45,12 +45,12 @@ fun TimetableHeader() {
                         date.dayOfMonth
                     ).show()
                 }, colors = ButtonDefaults.buttonColors(
-                    containerColor = theme.value[SurfaceTheme.button]!!
+                    containerColor = SurfaceTheme.button.color
                 )
             ) {
                 Text(
                     "${prettyDate(selectedDate.value)}, ${dayOfWeek(selectedDate.value)}",
-                    color = theme.value[SurfaceTheme.text]!!,
+                    color = SurfaceTheme.text.color,
                     fontSize = 11.sp
                 )
             }
@@ -62,12 +62,12 @@ fun TimetableHeader() {
                         timetableLoaded.value = false
                     }
                 }, colors = ButtonDefaults.buttonColors(
-                    containerColor = theme.value[SurfaceTheme.button]!!
+                    containerColor = SurfaceTheme.button.color
                 )
             ) {
                 Text(
                     text = selectedId.value,
-                    color = theme.value[SurfaceTheme.text]!!,
+                    color = SurfaceTheme.text.color,
                     fontSize = 11.sp
                 )
             }

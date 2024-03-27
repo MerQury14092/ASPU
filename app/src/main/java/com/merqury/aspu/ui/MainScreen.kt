@@ -1,7 +1,6 @@
 package com.merqury.aspu.ui
 
 import android.os.Vibrator
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -23,7 +22,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Divider
+import androidx.compose.material.Divider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,11 +41,12 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getSystemService
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
-import com.merqury.aspu.services.showTimetableWebPageView
-import com.merqury.aspu.services.urlForCurrentFaculty
+import com.merqury.aspu.services.news.urlForCurrentFaculty
+import com.merqury.aspu.services.timetable.showTimetableWebPageView
 import com.merqury.aspu.ui.navfragments.news.NewsScreen
 import com.merqury.aspu.ui.navfragments.news.newsLoaded
 import com.merqury.aspu.ui.navfragments.other.OtherScreen
+import com.merqury.aspu.ui.navfragments.profile.ProfileScreen
 import com.merqury.aspu.ui.navfragments.settings.SettingsScreen
 import com.merqury.aspu.ui.navfragments.settings.reloadSettingsScreen
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
@@ -55,8 +55,7 @@ import com.merqury.aspu.ui.navfragments.settings.toggleTheme
 import com.merqury.aspu.ui.navfragments.timetable.TimetableScreen
 import com.merqury.aspu.ui.navfragments.timetable.timetableLoaded
 import com.merqury.aspu.ui.theme.SurfaceTheme
-import com.merqury.aspu.ui.theme.theme
-import com.merqury.aspu.ui.theme.themeChangeDuration
+import com.merqury.aspu.ui.theme.color
 
 
 val topBarContent: MutableState<@Composable () -> Unit> = mutableStateOf({})
@@ -102,14 +101,14 @@ val onASPUButtonLongClick: MutableState<() -> Unit> = mutableStateOf({
 
         "settings" -> {
             val v = getSystemService(appContext!!, Vibrator::class.java)!!
-            if(magicState.intValue == 0 && !settingsPreferences.getBoolean("debug_mode", false)) {
+            if (magicState.intValue == 0 && !settingsPreferences.getBoolean("debug_mode", false)) {
                 toggleBooleanSettingsPreference("debug_mode")
                 printlog("Если хотите отключить это, пропишите debug off")
                 reloadSettingsScreen()
                 appContext!!.makeToast("DEBUG MODE ON")
                 v.vibrate(100)
             }
-            if(magicState.intValue > 0 && !settingsPreferences.getBoolean("debug_mode", false)) {
+            if (magicState.intValue > 0 && !settingsPreferences.getBoolean("debug_mode", false)) {
                 v.vibrate(100)
                 magicState.intValue--
             }
@@ -119,10 +118,8 @@ val onASPUButtonLongClick: MutableState<() -> Unit> = mutableStateOf({
 val aspuButtonLoading = mutableStateOf(false)
 
 
-
 @Composable
 fun MainScreen() {
-
     Scaffold(
         topBar = {
             Column {
@@ -130,20 +127,10 @@ fun MainScreen() {
                     modifier = Modifier
                         .fillMaxHeight(.06f)
                         .fillMaxWidth()
-                        .background(
-                            animateColorAsState(
-                                targetValue = theme.value[SurfaceTheme.foreground]!!,
-                                animationSpec = tween(durationMillis = themeChangeDuration),
-                                label = ""
-                            ).value
-                        )
+                        .background(SurfaceTheme.appBars.color)
                 ) { topBarContent.value() }
                 Divider(
-                    color = animateColorAsState(
-                        targetValue = theme.value[SurfaceTheme.divider]!!,
-                        animationSpec = tween(durationMillis = themeChangeDuration),
-                        label = ""
-                    ).value,
+                    color = SurfaceTheme.divider.color,
                     modifier = Modifier.height(2.dp)
                 )
             }
@@ -153,21 +140,11 @@ fun MainScreen() {
                 modifier = Modifier
                     .fillMaxHeight(.075f)
                     .fillMaxWidth()
-                    .background(
-                        animateColorAsState(
-                            targetValue = theme.value[SurfaceTheme.foreground]!!,
-                            animationSpec = tween(durationMillis = themeChangeDuration),
-                            label = ""
-                        ).value
-                    )
+                    .background(SurfaceTheme.appBars.color)
             ) {
                 Column {
                     Divider(
-                        color = animateColorAsState(
-                            targetValue = theme.value[SurfaceTheme.divider]!!,
-                            animationSpec = tween(durationMillis = themeChangeDuration),
-                            label = ""
-                        ).value,
+                        color = SurfaceTheme.divider.color,
                         modifier = Modifier.height(2.dp)
                     )
                     NavigationBar()
@@ -244,7 +221,17 @@ fun NavigationBar() {
             icon = R.drawable.settings_icon,
             "settings"
         )
+        /*NavBarItem(
+            title = "Профиль",
+            icon = R.drawable.profile,
+            "account",
+        )*/
     }
+}
+
+fun routeTo(route: String){
+    content.value = getContentByRoute(route)
+    selected_page.value = route
 }
 
 @Composable
@@ -259,13 +246,13 @@ fun NavBarItem(
             interactionSource = remember { MutableInteractionSource() },
             indication = null
         ) {
-            content.value = getContentByRoute(route)
-            selected_page.value = route
-
-        }) {
+            routeTo(route)
+        }
+    ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             Image(
                 painter = painterResource(id = icon),
                 contentDescription = null,
@@ -283,35 +270,27 @@ fun NavBarItem(
                         ).value
                     ),
                 colorFilter = ColorFilter.tint(
-                    animateColorAsState(
-                        targetValue = if (selected)
-                            theme.value[SurfaceTheme.enable]!!
-                        else
-                            theme.value[SurfaceTheme.disable]!!,
-                        animationSpec = tween(durationMillis = 100, easing = FastOutSlowInEasing),
-                        label = ""
-                    ).value
+                    if (selected)
+                        SurfaceTheme.enable.color
+                    else
+                        SurfaceTheme.disable.color
                 )
             )
+
             forNavBarUpdate.value
             Text(
                 text = title,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
-                color =
-                animateColorAsState(
-                    targetValue = if (selected)
-                        theme.value[SurfaceTheme.enable]!!.copy(1f)
-                    else
-                        theme.value[SurfaceTheme.disable]!!.copy(
-                            if (settingsPreferences.getBoolean("text_in_navbar", true))
-                                1f
-                            else
-                                0f
-                        ),
-                    animationSpec = tween(durationMillis = 100, easing = FastOutSlowInEasing),
-                    label = ""
-                ).value,
+                color = if (selected)
+                    SurfaceTheme.enable.color.copy(1f)
+                else
+                    SurfaceTheme.disable.color.copy(
+                        if (settingsPreferences.getBoolean("text_in_navbar", true))
+                            1f
+                        else
+                            0f
+                    )
             )
         }
     }
@@ -322,10 +301,12 @@ fun getContentByRoute(route: String): @Composable () -> Unit {
     val timetable: @Composable () -> Unit = { TimetableScreen(topBarContent) }
     val settings: @Composable () -> Unit = { SettingsScreen(topBarContent) }
     val other: @Composable () -> Unit = { OtherScreen(topBarContent) }
+    val profile: @Composable () -> Unit = { ProfileScreen(topBarContent) }
     return when (route) {
         "news" -> news
         "timetable" -> timetable
         "other" -> other
+        "account" -> profile
         else -> settings
     }
 }

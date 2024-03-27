@@ -31,7 +31,7 @@ import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.navfragments.settings.toggleBooleanSettingsPreference
 import com.merqury.aspu.ui.printlog
 import com.merqury.aspu.ui.theme.SurfaceTheme
-import com.merqury.aspu.ui.theme.theme
+import com.merqury.aspu.ui.theme.color
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.time.LocalDate
@@ -109,7 +109,7 @@ private fun TerminalContent() {
         bottomBar = {
             Box(
                 modifier = Modifier
-                    .background(theme.value[SurfaceTheme.foreground]!!)
+                    .background(SurfaceTheme.foreground.color)
                     .fillMaxHeight(.06f)
             ) {
                 val gradientColors = listOf(
@@ -131,9 +131,9 @@ private fun TerminalContent() {
                             inputField.value = it
                     },
                     colors = TextFieldDefaults.textFieldColors(
-                        textColor = theme.value[SurfaceTheme.text]!!,
-                        cursorColor = theme.value[SurfaceTheme.text]!!,
-                        placeholderColor = theme.value[SurfaceTheme.disable]!!,
+                        textColor = SurfaceTheme.text.color,
+                        cursorColor = SurfaceTheme.text.color,
+                        placeholderColor = SurfaceTheme.disable.color,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
                         disabledIndicatorColor = Color.Transparent,
@@ -141,7 +141,7 @@ private fun TerminalContent() {
                     placeholder = {
                         Text(
                             text = "Введите команду",
-                            color = theme.value[SurfaceTheme.disable]!!
+                            color = SurfaceTheme.disable.color
                         )
                     },
                     textStyle = TextStyle(remember {
@@ -158,17 +158,17 @@ private fun TerminalContent() {
             modifier = Modifier
                 .padding(paddings)
                 .fillMaxSize()
-                .background(theme.value[SurfaceTheme.background]!!)
+                .background(SurfaceTheme.background.color)
         ) {
-            Divider(color = theme.value[SurfaceTheme.divider]!!)
+            Divider(color = SurfaceTheme.divider.color)
             LazyColumn(
                 Modifier.fillMaxSize(),
                 reverseLayout = true
             ) {
                 val list = output.toList().reversed()
                 items(output.size) {
-                    Text(text = list[it].message, color = theme.value[SurfaceTheme.text]!!)
-                    Divider(color = theme.value[SurfaceTheme.divider]!!)
+                    Text(text = list[it].message, color = SurfaceTheme.text.color)
+                    Divider(color = SurfaceTheme.divider.color)
                 }
             }
         }

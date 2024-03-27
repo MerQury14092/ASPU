@@ -25,16 +25,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.merqury.aspu.services.getTimetableByDate
-import com.merqury.aspu.services.getTodayDate
+import com.merqury.aspu.services.timetable.getTimetableByDate
+import com.merqury.aspu.services.timetable.getTodayDate
 import com.merqury.aspu.ui.SwipeableBox
 import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
-import com.merqury.aspu.ui.navfragments.timetable.DTO.Discipline
-import com.merqury.aspu.ui.navfragments.timetable.DTO.TimetableDay
+import com.merqury.aspu.services.timetable.models.Discipline
+import com.merqury.aspu.services.timetable.models.TimetableDay
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
-import com.merqury.aspu.ui.theme.theme
+import com.merqury.aspu.ui.theme.color
+import com.merqury.aspu.ui.theme.colorWithoutAnim
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -70,7 +71,7 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(theme.value[SurfaceTheme.background]!!)
+                .background(SurfaceTheme.background.color)
         ) {
             if (!timetableLoaded.value) {
                 getTimetableByDate(
@@ -99,7 +100,7 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
                     },
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(color = theme.value[SurfaceTheme.background]!!)
+                        .background(color = SurfaceTheme.background.color)
                 ) {
                     Column {
                         TimetableItemLoadingPlaceholder()
@@ -126,7 +127,7 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
                         },
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(color = theme.value[SurfaceTheme.background]!!)
+                            .background(color = SurfaceTheme.background.color)
                     ) {
                         if (timetableDay.value.disciplines.isEmpty())
                             Box(
@@ -134,7 +135,7 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
                                     .fillMaxSize(),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(text = "Нет пар", color = theme.value[SurfaceTheme.text]!!)
+                                Text(text = "Нет пар", color = SurfaceTheme.text.color)
                             }
                         else {
                             val disciplines = if (
@@ -165,12 +166,12 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
                             .fillMaxSize()
                             .pullRefresh(pullRefreshState)
                             .verticalScroll(rememberScrollState())
-                            .background(color = theme.value[SurfaceTheme.background]!!),
+                            .background(color = SurfaceTheme.background.color),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = timetableLoadStatusText.value,
-                            color = theme.value[SurfaceTheme.text]!!,
+                            color = SurfaceTheme.text.color,
                             textAlign = TextAlign.Center
                         )
                     }
@@ -223,7 +224,7 @@ fun filterSelectableDiscipline(res: ArrayList<Discipline>, discipline: Disciplin
 fun answerShowingSelectableDiscipline(name: String) {
     showSimpleModalWindow(
         closeable = false,
-        containerColor = theme.value[SurfaceTheme.background]!!
+        containerColor = SurfaceTheme.background.colorWithoutAnim
     ) {
         Column {
             Row {
@@ -235,7 +236,7 @@ fun answerShowingSelectableDiscipline(name: String) {
                 ) {
                     Text(
                         "Показывать дисциплину по выбору: $name?",
-                        color = theme.value[SurfaceTheme.text]!!
+                        color = SurfaceTheme.text.color
                     )
                 }
             }
@@ -254,7 +255,7 @@ fun answerShowingSelectableDiscipline(name: String) {
                         }
                         .padding(5.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = theme.value[SurfaceTheme.foreground]!!
+                        containerColor = SurfaceTheme.foreground.color
                     )
                 ) {
                     Box(
@@ -263,7 +264,7 @@ fun answerShowingSelectableDiscipline(name: String) {
                             .padding(10.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "Да", color = theme.value[SurfaceTheme.text]!!)
+                        Text(text = "Да", color = SurfaceTheme.text.color)
                     }
                 }
                 Card(
@@ -279,7 +280,7 @@ fun answerShowingSelectableDiscipline(name: String) {
                         }
                         .padding(5.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = theme.value[SurfaceTheme.foreground]!!
+                        containerColor = SurfaceTheme.foreground.color
                     )
                 ) {
                     Box(
@@ -288,7 +289,7 @@ fun answerShowingSelectableDiscipline(name: String) {
                             .padding(10.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "Нет", color = theme.value[SurfaceTheme.text]!!)
+                        Text(text = "Нет", color = SurfaceTheme.text.color)
                     }
                 }
             }

@@ -5,8 +5,8 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.TypedValue
 import android.widget.Toast
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -35,6 +36,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -44,13 +47,17 @@ import coil.compose.rememberAsyncImagePainter
 import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import coil.size.Size
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.placeholder
+import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.appContext
 import com.merqury.aspu.close
 import com.merqury.aspu.show
 import com.merqury.aspu.ui.other.WebViewActivity
 import com.merqury.aspu.ui.theme.SurfaceTheme
-import com.merqury.aspu.ui.theme.theme
-import com.merqury.aspu.ui.theme.themeChangeDuration
+import com.merqury.aspu.ui.theme.color
+import com.merqury.aspu.ui.theme.colorWithoutAnim
+import kotlin.time.Duration
 
 
 @Composable
@@ -155,7 +162,7 @@ fun showSimpleUpdatableModalWindow(
     show(showed, dialogContent)
 }
 
-fun goToScreen(activityClass: Class<*>){
+fun goToScreen(activityClass: Class<*>) {
     appContext!!.startActivity(Intent(appContext!!, activityClass))
 }
 
@@ -205,7 +212,8 @@ fun SwipeableBox(
                 modifier = Modifier.offset(
                     x = animateDpAsState(
                         targetValue = (summaryOffset.floatValue / 3).dp,
-                        animationSpec = tween(durationMillis =
+                        animationSpec = tween(
+                            durationMillis =
                             if (summaryOffset.floatValue == 0f) 250 else 50
                         ), label = ""
                     ).value
@@ -218,8 +226,15 @@ fun SwipeableBox(
 
 }
 
-fun async(runnable: () -> Unit){
-    Thread {runnable()}.start()
+fun async(runnable: () -> Unit) {
+    Thread { runnable() }.start()
+}
+
+fun after(duration: Duration, runnable: () -> Unit) {
+    async {
+        Thread.sleep(duration.inWholeMilliseconds)
+        runnable()
+    }
 }
 
 fun showSelectListDialog(
@@ -237,7 +252,7 @@ fun showSelectListDialog(
     sortedByAlphabet: Boolean = false
 ) {
     showSimpleModalWindow(
-        containerColor = theme.value[SurfaceTheme.background]!!
+        containerColor = SurfaceTheme.background.colorWithoutAnim
     ) {
         Box(
             modifier = Modifier
@@ -253,7 +268,7 @@ fun showSelectListDialog(
                 entries.forEach {
                     Card(
                         colors = CardDefaults.cardColors(
-                            containerColor = theme.value[SurfaceTheme.foreground]!!
+                            containerColor = SurfaceTheme.foreground.color
                         ),
                         modifier = Modifier.padding(10.dp)
                     ) {
@@ -270,7 +285,7 @@ fun showSelectListDialog(
                             Text(
                                 text = it.key,
                                 fontSize = 20.sp,
-                                color = theme.value[SurfaceTheme.text]!!
+                                color = SurfaceTheme.text.color
                             )
                         }
                     }
@@ -278,6 +293,10 @@ fun showSelectListDialog(
             }
         }
     }
+}
+
+fun Context.startActivity(cls: Class<*>){
+    startActivity(Intent(this, cls))
 }
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -299,25 +318,47 @@ fun openInBrowser(url: String, scheme: String) {
     aspuButtonLoading.value = false
 }
 
-fun MutableState<Boolean>.toggle(){
+fun MutableState<Boolean>.toggle() {
     value = !value
 }
+
+@Composable
+fun Modifier.placeholder(visible: Boolean = true): Modifier {
+    return then(
+        Modifier.placeholder(
+            visible = visible,
+            color = SurfaceTheme.placeholder_primary.color,
+            highlight = PlaceholderHighlight.shimmer(SurfaceTheme.placeholder_secondary.color),
+            shape = RoundedCornerShape(15.dp)
+        )
+    )
+}
+
+val Int.vw: Dp
+    get() = ((appContext!!.resources.configuration.screenWidthDp.toDouble()/100)*this).dp
+
+val Double.vw: Dp
+    get() = ((appContext!!.resources.configuration.screenWidthDp.toDouble()/100)*this).dp
+
+val Dp.px: Float
+    get() = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.value, appContext!!.resources.displayMetrics)
+
+val Dp.sp: TextUnit
+    get() =  (px / appContext!!.resources.displayMetrics.scaledDensity).sp
+
+
 @Composable
 fun TitleHeader(title: String) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text(
             text = title,
-            color = animateColorAsState(
-                targetValue = theme.value[SurfaceTheme.text]!!,
-                animationSpec = tween(durationMillis = themeChangeDuration),
-                label = ""
-            ).value,
+            color = SurfaceTheme.text.color,
             fontSize = 24.sp,
             fontStyle = FontStyle.Italic
         )
     }
 }
 
-fun Context.makeToast(text: String){
+fun Context.makeToast(text: String) {
     Toast.makeText(this, text, Toast.LENGTH_LONG).show()
 }

@@ -23,7 +23,8 @@ import androidx.compose.ui.unit.sp
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
-import com.merqury.aspu.ui.theme.theme
+import com.merqury.aspu.ui.theme.color
+import com.merqury.aspu.ui.theme.colorWithoutAnim
 
 
 fun showFacultySelectModalWindow(
@@ -31,7 +32,7 @@ fun showFacultySelectModalWindow(
 ) {
     showSimpleModalWindow (
         Modifier.fillMaxWidth(.8f),
-        containerColor = theme.value[SurfaceTheme.background]!!
+        containerColor = SurfaceTheme.background.colorWithoutAnim
     ) {
         NewsCategoryEnum.entries.forEach { entry ->
             Box(
@@ -47,7 +48,7 @@ fun showFacultySelectModalWindow(
             ) {
                 Card (
                     colors = CardDefaults.cardColors(
-                        containerColor = theme.value[SurfaceTheme.foreground]!!
+                        containerColor = SurfaceTheme.foreground.color
                     )
                 ){
                     Row (
@@ -69,7 +70,7 @@ fun showFacultySelectModalWindow(
                                 fontSize = 25.sp,
                                 modifier = Modifier
                                     .padding(horizontal = 5.dp),
-                                color = theme.value[SurfaceTheme.text]!!
+                                color = SurfaceTheme.text.color
                             )
                             Image(
                                 painter = painterResource(id = entry.logo),
@@ -88,7 +89,7 @@ fun showFacultySelectModalWindow(
 fun showPageSelectModalWindow() {
     showSimpleModalWindow(
         Modifier.fillMaxWidth(.8f),
-        containerColor = theme.value[SurfaceTheme.background]!!
+        containerColor = SurfaceTheme.background.colorWithoutAnim
     ) {
         val pageSelectDialogVisible = it
         LazyColumn() {
@@ -108,10 +109,10 @@ fun showPageSelectModalWindow() {
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
                         fontSize = 25.sp,
-                        color = theme.value[SurfaceTheme.text]!!
+                        color = SurfaceTheme.text.color
                     )
                 }
-                Divider(modifier = Modifier.fillMaxWidth(), color = theme.value[SurfaceTheme.divider]!!)
+                Divider(modifier = Modifier.fillMaxWidth(), color = SurfaceTheme.divider.color)
             }
         }
     }

@@ -36,12 +36,12 @@ import coil.compose.SubcomposeAsyncImage
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
-import com.merqury.aspu.services.getNewsArticle
+import com.merqury.aspu.services.news.getNewsArticle
 import com.merqury.aspu.ui.ModalWindow
 import com.merqury.aspu.ui.navfragments.timetable.prettyDate
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
-import com.merqury.aspu.ui.theme.theme
+import com.merqury.aspu.ui.theme.color
 import net.engawapg.lib.zoomable.rememberZoomState
 import net.engawapg.lib.zoomable.zoomable
 import org.json.JSONObject
@@ -54,7 +54,7 @@ fun ArticleView() {
         onDismiss = {
             showArticleView.value = false
         },
-        background = theme.value[SurfaceTheme.background]!!
+        background = SurfaceTheme.background.color
     ) {
         val articleLoaded = remember {
             mutableStateOf(false)
@@ -76,7 +76,7 @@ fun ArticleView() {
             Box(
                 Modifier
                     .fillMaxSize()
-                    .background(color = theme.value[SurfaceTheme.background]!!),
+                    .background(color = SurfaceTheme.background.color),
                 contentAlignment = Alignment.Center
             )
             {
@@ -89,10 +89,10 @@ fun ArticleView() {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(color = theme.value[SurfaceTheme.background]!!),
+                        .background(color = SurfaceTheme.background.color),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "Ошибка загрузки статьи!", color = theme.value[SurfaceTheme.text]!!)
+                    Text(text = "Ошибка загрузки статьи!", color = SurfaceTheme.text.color)
                 }
         }
     }
@@ -104,9 +104,9 @@ private fun ArticleViewContent(articleJson: JSONObject) {
     Box(
         modifier = Modifier
             .padding(15.dp)
-            .background(color = theme.value[SurfaceTheme.background]!!)
+            .background(color = SurfaceTheme.background.color)
     ) {
-        Divider(color = theme.value[SurfaceTheme.divider]!!)
+        Divider(color = SurfaceTheme.divider.color)
         Column(
             Modifier.verticalScroll(rememberScrollState())
         ) {
@@ -116,23 +116,23 @@ private fun ArticleViewContent(articleJson: JSONObject) {
                 text = articleJson.getString("title"),
                 fontSize = 25.sp,
                 fontStyle = FontStyle.Italic,
-                color = theme.value[SurfaceTheme.text]!!
+                color = SurfaceTheme.text.color
             )
             Text(
                 text = prettyDate(articleJson.getString("date")),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.End,
-                color = theme.value[SurfaceTheme.text]!!
+                color = SurfaceTheme.text.color
             )
-            Divider(color = theme.value[SurfaceTheme.divider]!!)
+            Divider(color = SurfaceTheme.divider.color)
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Left,
                 fontSize = 15.sp,
                 text = articleJson.getString("description"),
-                color = theme.value[SurfaceTheme.text]!!
+                color = SurfaceTheme.text.color
             )
-            Divider(color = theme.value[SurfaceTheme.divider]!!)
+            Divider(color = SurfaceTheme.divider.color)
             val images = articleJson.getJSONArray("images")
 
             Column(
@@ -196,9 +196,9 @@ private fun ArticleViewContentLoadingPlaceholder() {
     Box(
         modifier = Modifier
             .padding(15.dp)
-            .background(color = theme.value[SurfaceTheme.background]!!)
+            .background(color = SurfaceTheme.background.color)
     ) {
-        Divider(color = theme.value[SurfaceTheme.divider]!!)
+        Divider(color = SurfaceTheme.divider.color)
         Column(
             Modifier.verticalScroll(rememberScrollState())
         ) {
@@ -211,15 +211,15 @@ private fun ArticleViewContentLoadingPlaceholder() {
                         .padding(10.dp)
                         .placeholder(
                             visible = true,
-                            color = theme.value[SurfaceTheme.placeholder_primary]!!,
-                            highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                            color = SurfaceTheme.placeholder_primary.color,
+                            highlight = PlaceholderHighlight.shimmer(SurfaceTheme.placeholder_secondary.color),
                             shape = RoundedCornerShape(15.dp)
                         ),
                     textAlign = TextAlign.Center,
                     text = "Это очень крутой заголовок",
                     fontSize = 25.sp,
                     fontStyle = FontStyle.Italic,
-                    color = theme.value[SurfaceTheme.text]!!
+                    color = SurfaceTheme.text.color
                 )
             }
             Column(
@@ -232,15 +232,15 @@ private fun ArticleViewContentLoadingPlaceholder() {
                         .padding(bottom = 10.dp)
                         .placeholder(
                             visible = true,
-                            color = theme.value[SurfaceTheme.placeholder_primary]!!,
-                            highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                            color = SurfaceTheme.placeholder_primary.color,
+                            highlight = PlaceholderHighlight.shimmer(SurfaceTheme.placeholder_secondary.color),
                             shape = RoundedCornerShape(15.dp)
                         ),
                     textAlign = TextAlign.End,
-                    color = theme.value[SurfaceTheme.text]!!
+                    color = SurfaceTheme.text.color
                 )
             }
-            Divider(color = theme.value[SurfaceTheme.divider]!!)
+            Divider(color = SurfaceTheme.divider.color)
             Spacer(Modifier.size(10.dp))
             (1..50).forEach { _ ->
                 Text(
@@ -249,14 +249,14 @@ private fun ArticleViewContentLoadingPlaceholder() {
                         .padding(1.dp)
                         .placeholder(
                             visible = true,
-                            color = theme.value[SurfaceTheme.placeholder_primary]!!,
-                            highlight = PlaceholderHighlight.shimmer(theme.value[SurfaceTheme.placeholder_secondary]!!),
+                            color = SurfaceTheme.placeholder_primary.color,
+                            highlight = PlaceholderHighlight.shimmer(SurfaceTheme.placeholder_secondary.color),
                             shape = RoundedCornerShape(15.dp)
                         ),
                     textAlign = TextAlign.Left,
                     fontSize = 15.sp,
                     text = "Очень крутое описание",
-                    color = theme.value[SurfaceTheme.text]!!
+                    color = SurfaceTheme.text.color
                 )
             }
         }

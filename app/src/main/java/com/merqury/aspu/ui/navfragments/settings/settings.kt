@@ -2,8 +2,6 @@ package com.merqury.aspu.ui.navfragments.settings
 
 import android.content.Context
 import android.widget.Toast
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -27,7 +25,7 @@ import com.merqury.aspu.appContext
 import com.merqury.aspu.appVersion
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.services.cache
-import com.merqury.aspu.services.sendToDevEmail
+import com.merqury.aspu.services.intents.sendToDevEmail
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.goToScreen
 import com.merqury.aspu.ui.makeToast
@@ -38,9 +36,8 @@ import com.merqury.aspu.ui.navfragments.timetable.timetableLoaded
 import com.merqury.aspu.ui.other.Terminal
 import com.merqury.aspu.ui.showSelectListDialog
 import com.merqury.aspu.ui.theme.SurfaceTheme
-import com.merqury.aspu.ui.theme.isDarkThemeOn
-import com.merqury.aspu.ui.theme.theme
-import com.merqury.aspu.ui.theme.themeChangeDuration
+import com.merqury.aspu.ui.theme.color
+import com.merqury.aspu.ui.theme.getThemeName
 import com.merqury.aspu.ui.theme.updateTheme
 import java.util.concurrent.TimeUnit
 
@@ -61,13 +58,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                animateColorAsState(
-                    targetValue = theme.value[SurfaceTheme.background]!!,
-                    animationSpec = tween(durationMillis = themeChangeDuration),
-                    label = ""
-                ).value
-            )
+            .background(SurfaceTheme.background.color)
     ) {
         Column(
             modifier = Modifier
@@ -245,21 +236,9 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
             SettingsChapter(
                 title = "Настройки внешнего вида", buttons = listOf(
                     ClickableSettingsButton(
-                        "${
-                            if (settingsPreferences.getString(
-                                    "theme",
-                                    if (appContext!!.isDarkThemeOn())
-                                        "dark"
-                                    else
-                                        "light"
-                                ) == "dark"
-                            )
-                                "Тёмная"
-                            else
-                                "Светлая"
-                        } тема"
+                        "${getThemeName(settingsPreferences.getString("theme", "light")!!)} тема"
                     ) {
-                        toggleTheme()
+                        showSelectTheme()
                     },
                     SwitchableSettingsPreferenceButton(
                         "Цветной фон ячеек в расписании",
@@ -272,22 +251,14 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                 )
             )
             Text(
-                "О приложении", color = animateColorAsState(
-                    targetValue = theme.value[SurfaceTheme.text]!!,
-                    animationSpec = tween(durationMillis = themeChangeDuration),
-                    label = ""
-                ).value,
+                "О приложении", color = SurfaceTheme.text.color,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(5.dp))
             Text(
                 "Версия приложения: $appVersion",
-                color = animateColorAsState(
-                    targetValue = theme.value[SurfaceTheme.text]!!,
-                    animationSpec = tween(durationMillis = themeChangeDuration),
-                    label = ""
-                ).value,
+                color = SurfaceTheme.text.color,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Left
             )
@@ -295,11 +266,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
             if (appVersion!!.contains("alpha")) {
                 Text(
                     "Приложение находится на этапе активной разработки и тестирования, в связи с этим в нём могут быть баги и ошибки",
-                    color = animateColorAsState(
-                        targetValue = theme.value[SurfaceTheme.text]!!,
-                        animationSpec = tween(durationMillis = themeChangeDuration),
-                        label = ""
-                    ).value,
+                    color = SurfaceTheme.text.color,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Left
                 )
@@ -307,11 +274,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
             }
             Text(
                 "Если встретились с ошибкой, сообщите разработчику",
-                color = animateColorAsState(
-                    targetValue = theme.value[SurfaceTheme.text]!!,
-                    animationSpec = tween(durationMillis = themeChangeDuration),
-                    label = ""
-                ).value,
+                color = SurfaceTheme.text.color,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Left
             )
@@ -335,18 +298,21 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
     }
 }
 
+fun showSelectTheme(){
+    showSelectListDialog(mapOf(
+        "Светлая тема" to { setTheme("light") },
+        "Тёмная тема" to { setTheme("dark") },
+        "Морская тема" to { setTheme("sea") },
+//                            "Лазурная тема" to { setTheme("site") }
+    ))
+}
+
 fun toggleTheme() {
-    if (settingsPreferences.getString(
-            "theme",
-            if (appContext!!.isDarkThemeOn())
-                "dark"
-            else
-                "light"
-        ) == "dark"
-    )
-        settingsPreferences.edit().putString("theme", "light").apply()
-    else
-        settingsPreferences.edit().putString("theme", "dark").apply()
+    showSelectTheme()
+}
+
+fun setTheme(name: String) {
+    settingsPreferences.edit().putString("theme", name).apply()
     updateTheme()
     reloadSettingsScreen()
 }
@@ -367,7 +333,7 @@ fun toggleBooleanSettingsPreference(name: String) {
 }
 
 fun getDefault(name: String): Boolean {
-    return when (name){
+    return when (name) {
         "use_included_browser" -> true
         "text_in_navbar" -> true
         "color_timetable" -> true
