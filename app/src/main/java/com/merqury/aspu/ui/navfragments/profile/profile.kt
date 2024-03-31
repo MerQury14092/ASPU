@@ -29,8 +29,11 @@ import com.merqury.aspu.appContext
 import com.merqury.aspu.services.profile.getProfileInfo
 import com.merqury.aspu.services.profile.models.ProfileInfo
 import com.merqury.aspu.ui.TitleHeader
+import com.merqury.aspu.ui.navfragments.messenger.MessengerScreen
+import com.merqury.aspu.ui.navfragments.messenger.messagesLoaded
 import com.merqury.aspu.ui.navfragments.settings.SettingsActivity
 import com.merqury.aspu.ui.startActivity
+import com.merqury.aspu.ui.startTopBarActivity
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.toggle
 
@@ -42,7 +45,7 @@ var profileInfo: ProfileInfo? by mutableStateOf(null)
 @Composable
 fun ProfileScreen(header: MutableState<@Composable () -> Unit>) {
     header.value = {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             TitleHeader(title = "Профиль")
         }
         Row(
@@ -51,7 +54,7 @@ fun ProfileScreen(header: MutableState<@Composable () -> Unit>) {
                 .padding(horizontal = 20.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
-        ){
+        ) {
             Image(
                 painter = painterResource(id = R.drawable.settings_icon),
                 contentDescription = null,
@@ -70,7 +73,13 @@ fun ProfileScreen(header: MutableState<@Composable () -> Unit>) {
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
-                    .size(30.dp),
+                    .size(30.dp)
+                    .clickable {
+                        messagesLoaded = false
+                        appContext.startTopBarActivity{
+                            MessengerScreen(header = it)
+                        }
+                    },
                 colorFilter = ColorFilter.tint(
                     com.merqury.aspu.ui.theme.SurfaceTheme.enable.color
                 )
@@ -83,22 +92,21 @@ fun ProfileScreen(header: MutableState<@Composable () -> Unit>) {
     forUpdate.value
     if ((profileInfo?.state ?: -1) != 1L) {
         ProfileInfoPlaceholder()
-        if(secretPreferences.contains("authToken"))
+        if (secretPreferences.contains("authToken"))
             getProfileInfo(
                 secretPreferences.getString("authToken", null)!!,
                 secretPreferences.getInt("userId", 0),
                 onClosure = {
                     forUpdate.toggle()
                 }
-            ){
+            ) {
                 profileInfo = it
             }
         else
             showEiosAuthModalWindow {
                 forUpdate.toggle()
             }
-    }
-    else {
+    } else {
         com.merqury.aspu.ui.navfragments.profile.ProfileInfo(info = profileInfo?.data!!)
     }
 }

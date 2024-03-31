@@ -8,7 +8,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.merqury.aspu"
+        applicationId = "com.merqury.aspudev"
         minSdk = 28
         targetSdk = 34
         versionCode = 16
@@ -47,6 +47,7 @@ android {
 }
 
 dependencies {
+    implementation("org.jetbrains:markdown:0.5.0")
     implementation("org.postgresql:postgresql:42.2.5")
     implementation("com.airbnb.android:lottie-compose:6.4.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")

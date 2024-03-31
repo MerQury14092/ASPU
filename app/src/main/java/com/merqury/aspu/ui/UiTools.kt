@@ -1,11 +1,15 @@
 package com.merqury.aspu.ui
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
+import android.text.util.Linkify
 import android.util.TypedValue
+import android.widget.TextView
 import android.widget.Toast
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -32,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -40,8 +45,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.text.HtmlCompat
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.ImageDecoderDecoder
@@ -53,10 +60,18 @@ import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.appContext
 import com.merqury.aspu.close
 import com.merqury.aspu.show
+import com.merqury.aspu.ui.other.TopBarActivity
 import com.merqury.aspu.ui.other.WebViewActivity
+import com.merqury.aspu.ui.other.activityContentList
+import com.merqury.aspu.ui.other.activityMap
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.theme.colorWithoutAnim
+import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
+import org.intellij.markdown.html.HtmlGenerator
+import org.intellij.markdown.parser.MarkdownParser
+import kotlin.math.abs
+import kotlin.random.Random
 import kotlin.time.Duration
 
 
@@ -137,6 +152,9 @@ fun showSimpleUpdatableModalWindow(
         }
         val update = {
             forUpdate.value = !forUpdate.value
+        }
+        if (!showed.value) {
+            onClosed()
         }
         if (showed.value)
             Dialog(
@@ -295,8 +313,64 @@ fun showSelectListDialog(
     }
 }
 
-fun Context.startActivity(cls: Class<*>){
+fun Context.startActivity(cls: Class<*>) {
     startActivity(Intent(this, cls))
+}
+
+fun Context?.startTopBarActivity(content: @Composable (topBar: MutableState<@Composable () -> Unit>) -> Unit) {
+    startTopBarActivityWithActivityLink { header, _ ->
+        content(header)
+    }
+}
+
+@Composable
+fun MarkdownText(text: String, modifier: Modifier = Modifier, color: Color = Color.Black) {
+    val flavour = CommonMarkFlavourDescriptor()
+    val parsedTree = MarkdownParser(flavour).buildMarkdownTreeFromString(text)
+    val html = HtmlGenerator(text, parsedTree, flavour).generateHtml()
+    printlog(html)
+    HtmlText(text = html, color = color, modifier = modifier)
+}
+
+@Composable
+fun HtmlText(text: String, modifier: Modifier = Modifier, color: Color = Color.Black) {
+    AndroidView(
+        modifier = modifier,
+        factory = {
+            TextView(it).apply {
+                autoLinkMask = Linkify.WEB_URLS
+                linksClickable = true
+                setTextColor(color.toArgb())
+            }
+        },
+        update = {
+            it.text = HtmlCompat.fromHtml(text, HtmlCompat.FROM_HTML_MODE_COMPACT)
+        }
+    )
+}
+
+fun Modifier.conditional(condition: Boolean, modifier: Modifier.() -> Modifier): Modifier {
+    return if (condition) {
+        then(modifier(Modifier))
+    } else {
+        this
+    }
+}
+
+fun Context?.startTopBarActivityWithActivityLink(content: @Composable (topBar: MutableState<@Composable () -> Unit>, activity: Activity?) -> Unit) {
+    this!!
+    var id = ""
+    (1..10).forEach { _ ->
+        id += Char(abs(Random.nextInt()) % 32768)
+    }
+    val intent = Intent(this, TopBarActivity::class.java)
+    intent.putExtras(Bundle().apply {
+        putString("activityId", id)
+    })
+    activityContentList.add {
+        content(it, activityMap[id])
+    }
+    startActivity(intent)
 }
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -335,16 +409,20 @@ fun Modifier.placeholder(visible: Boolean = true): Modifier {
 }
 
 val Int.vw: Dp
-    get() = ((appContext!!.resources.configuration.screenWidthDp.toDouble()/100)*this).dp
+    get() = ((appContext!!.resources.configuration.screenWidthDp.toDouble() / 100) * this).dp
 
 val Double.vw: Dp
-    get() = ((appContext!!.resources.configuration.screenWidthDp.toDouble()/100)*this).dp
+    get() = ((appContext!!.resources.configuration.screenWidthDp.toDouble() / 100) * this).dp
 
 val Dp.px: Float
-    get() = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.value, appContext!!.resources.displayMetrics)
+    get() = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        this.value,
+        appContext!!.resources.displayMetrics
+    )
 
 val Dp.sp: TextUnit
-    get() =  (px / appContext!!.resources.displayMetrics.scaledDensity).sp
+    get() = (px / appContext!!.resources.displayMetrics.scaledDensity).sp
 
 
 @Composable

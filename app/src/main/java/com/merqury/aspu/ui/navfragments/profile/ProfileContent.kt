@@ -40,11 +40,16 @@ import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.R
+import com.merqury.aspu.appContext
 import com.merqury.aspu.services.profile.getAvg
 import com.merqury.aspu.services.profile.getMarkStatsById
 import com.merqury.aspu.services.profile.models.Data
 import com.merqury.aspu.services.profile.models.MarkStat
+import com.merqury.aspu.ui.makeToast
+import com.merqury.aspu.ui.navBarUpdate
+import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.placeholder
+import com.merqury.aspu.ui.routeTo
 import com.merqury.aspu.ui.sp
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
@@ -294,7 +299,8 @@ fun ProfileInfo(info: Data) {
                     @Composable
                     fun ProfileCardButton(
                         text: String,
-                        icon: Int
+                        icon: Int,
+                        action: () -> Unit
                     ) {
                         Box(
                             modifier = Modifier
@@ -302,7 +308,10 @@ fun ProfileInfo(info: Data) {
                                     SurfaceTheme.foreground.color,
                                     shape = RoundedCornerShape(20.dp)
                                 )
-                                .size(profileCardButtonSize.vw),
+                                .size(profileCardButtonSize.vw)
+                                .clickable {
+                                    action()
+                                },
                             contentAlignment = Alignment.Center
                         ) {
                             Column(
@@ -339,16 +348,29 @@ fun ProfileInfo(info: Data) {
 
                     Divider(color = SurfaceTheme.divider.color)
                     Spacer(modifier = Modifier.size(20.dp))
+//                    RowSpaceEvenly {
+                        /*ProfileCardButton("О себе", R.drawable.user){} TODO*/
+                        /*ProfileCardButton("Оценки", R.drawable.book_alt){}TODO*/
+                        /*ProfileCardButton("Уч. план", R.drawable.study_plan){}TODO*/
+//                    }
+                    Spacer(modifier = Modifier.size(((100 - profileCardButtonSize.toDouble() * 3) / 4).vw))
                     RowSpaceEvenly {
-                        ProfileCardButton("О себе", R.drawable.user)
-                        ProfileCardButton("Оценки", R.drawable.book_alt)
-                        ProfileCardButton("Уч. план", R.drawable.study_plan)
-                    }
-                    Spacer(modifier = Modifier.size(((100-profileCardButtonSize.toDouble()*3)/4).vw))
-                    RowSpaceEvenly {
-                        ProfileCardButton("Портфолио", R.drawable.trophy)
-                        ProfileCardButton("Методички", R.drawable.book)
-                        ProfileCardButton("Выйти", R.drawable.back)
+                        /*ProfileCardButton("Портфолио", R.drawable.trophy){}TODO*/
+                        /*ProfileCardButton("Методички", R.drawable.book){}TODO*/
+                        ProfileCardButton("Выйти", R.drawable.back){
+                            settingsPreferences.edit()
+                                .putBoolean("eios_logged", false)
+                                .apply()
+                            navBarUpdate()
+                            routeTo("settings")
+                            secretPreferences.edit()
+                                .remove("username")
+                                .remove("password")
+                                .remove("authToken")
+                                .apply()
+                            profileInfo = null
+                            appContext!!.makeToast("Вы вышли!")
+                        }
                     }
                 }
             }
@@ -626,13 +648,17 @@ fun ProfileInfoPlaceholder() {
                                     contentDescription = null,
                                     colorFilter = ColorFilter.tint(SurfaceTheme.text.color),
                                     contentScale = ContentScale.Fit,
-                                    modifier = Modifier.size(12.vw).placeholder(true)
+                                    modifier = Modifier
+                                        .size(12.vw)
+                                        .placeholder(true)
                                 )
                                 Spacer(modifier = Modifier.size(10.dp))
                                 Text(
                                     text = text,
                                     color = SurfaceTheme.text.color,
-                                    modifier = Modifier.width(17.vw).placeholder(true),
+                                    modifier = Modifier
+                                        .width(17.vw)
+                                        .placeholder(true),
                                     textAlign = TextAlign.Center,
                                     fontSize = 3.vw.sp
                                 )
@@ -657,7 +683,7 @@ fun ProfileInfoPlaceholder() {
                         ProfileCardButton("Оценки", R.drawable.book_alt)
                         ProfileCardButton("Уч. план", R.drawable.study_plan)
                     }
-                    Spacer(modifier = Modifier.size(((100-profileCardButtonSize.toDouble()*3)/4).vw))
+                    Spacer(modifier = Modifier.size(((100 - profileCardButtonSize.toDouble() * 3) / 4).vw))
                     RowSpaceEvenly {
                         ProfileCardButton("Портфолио", R.drawable.trophy)
                         ProfileCardButton("Методички", R.drawable.book)

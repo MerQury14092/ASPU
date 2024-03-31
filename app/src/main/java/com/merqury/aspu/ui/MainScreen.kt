@@ -216,20 +216,22 @@ fun NavigationBar() {
             }, icon = R.drawable.other_icon,
             "other"
         )
-        NavBarItem(
-            title = "Настройки",
-            icon = R.drawable.settings_icon,
-            "settings"
-        )
-        /*NavBarItem(
-            title = "Профиль",
-            icon = R.drawable.profile,
-            "account",
-        )*/
+        if (!settingsPreferences.getBoolean("eios_logged", false))
+            NavBarItem(
+                title = "Настройки",
+                icon = R.drawable.settings_icon,
+                "settings"
+            )
+        else
+            NavBarItem(
+                title = "Профиль",
+                icon = R.drawable.profile,
+                "account",
+            )
     }
 }
 
-fun routeTo(route: String){
+fun routeTo(route: String) {
     content.value = getContentByRoute(route)
     selected_page.value = route
 }

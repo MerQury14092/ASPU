@@ -108,7 +108,7 @@ fun getThemeName(name: String): String{
 }
 
 val SurfaceTheme.color: Color
-    @Composable get() = theme.value[this]!!.animatedColorOnThemeChange()
+    @Composable get() = theme.value[this]!!.animatedColor()
 
 val SurfaceTheme.colorWithoutAnim
     get() = theme.value[this]!!
@@ -128,7 +128,7 @@ fun Context.isDarkThemeOn(): Boolean {
 }
 
 @Composable
-private fun Color.animatedColorOnThemeChange(): Color {
+fun Color.animatedColor(): Color {
     return animateColorAsState(
         targetValue = this,
         animationSpec = tween(durationMillis = themeChangeDuration),

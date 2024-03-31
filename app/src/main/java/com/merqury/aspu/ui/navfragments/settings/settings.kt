@@ -83,6 +83,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                                 "news" -> "новости"
                                 "timetable" -> "расписание"
                                 "other" -> "студенту"
+                                "account" -> "аккаунт ЭИОС"
                                 else -> "настройки"
                             }
                         }"

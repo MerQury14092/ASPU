@@ -43,10 +43,16 @@ fun selectInitialRoute() {
                 settingsPreferences.edit().putString("initial_route", "other").apply()
                 reloadSettingsScreen()
             },
-            "Настройки" to {
-                settingsPreferences.edit().putString("initial_route", "settings").apply()
-                reloadSettingsScreen()
-            }
+            if(settingsPreferences.getBoolean("eios_logged", false))
+                "Аккаунт ЭИОС" to {
+                    settingsPreferences.edit().putString("initial_route", "account").apply()
+                    reloadSettingsScreen()
+                }
+            else
+                "Настройки" to {
+                    settingsPreferences.edit().putString("initial_route", "settings").apply()
+                    reloadSettingsScreen()
+                }
         )
     )
 }
