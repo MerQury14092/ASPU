@@ -18,12 +18,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -31,15 +33,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -71,6 +76,7 @@ import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
 import kotlin.math.abs
+import kotlin.math.round
 import kotlin.random.Random
 import kotlin.time.Duration
 
@@ -137,6 +143,13 @@ fun showSimpleModalWindow(
     }
 }
 
+fun Double.round(decimals: Int): Double {
+    var multiplier = 1.0
+    repeat(decimals) { multiplier *= 10 }
+    return round(this * multiplier) / multiplier
+}
+
+val contentList = mutableStateListOf<@Composable () -> Unit>()
 fun showSimpleUpdatableModalWindow(
     modifier: Modifier = Modifier,
     onClosed: () -> Unit = {},
@@ -328,7 +341,6 @@ fun MarkdownText(text: String, modifier: Modifier = Modifier, color: Color = Col
     val flavour = CommonMarkFlavourDescriptor()
     val parsedTree = MarkdownParser(flavour).buildMarkdownTreeFromString(text)
     val html = HtmlGenerator(text, parsedTree, flavour).generateHtml()
-    printlog(html)
     HtmlText(text = html, color = color, modifier = modifier)
 }
 
@@ -355,6 +367,34 @@ fun Modifier.conditional(condition: Boolean, modifier: Modifier.() -> Modifier):
     } else {
         this
     }
+}
+
+@Composable
+fun EditableText(
+    value: String,
+    onChange: (String) -> Unit,
+    placeholder: String = "",
+    enabled: Boolean = true
+){
+    BasicTextField(
+        value,
+        onChange,
+        enabled = enabled,
+        textStyle = TextStyle(color = SurfaceTheme.text.color),
+        cursorBrush = SolidColor(SurfaceTheme.text.color),
+        decorationBox = { innerTextField ->
+            Row(modifier = Modifier.fillMaxWidth()) {
+                if (value.isEmpty()) {
+                    androidx.compose.material.Text(
+                        text = placeholder,
+                        color = SurfaceTheme.disable.color,
+                        fontSize = 14.sp
+                    )
+                }
+            }
+            innerTextField()
+        }
+    )
 }
 
 fun Context?.startTopBarActivityWithActivityLink(content: @Composable (topBar: MutableState<@Composable () -> Unit>, activity: Activity?) -> Unit) {

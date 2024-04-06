@@ -44,7 +44,6 @@ import com.merqury.aspu.ui.conditional
 import com.merqury.aspu.ui.navfragments.messenger.message.MessageDetailsScreen
 import com.merqury.aspu.ui.navfragments.timetable.prettyDate
 import com.merqury.aspu.ui.placeholder
-import com.merqury.aspu.ui.startTopBarActivity
 import com.merqury.aspu.ui.startTopBarActivityWithActivityLink
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
@@ -84,8 +83,10 @@ fun Inbox(
                     .size(60.dp)
                     .background(SurfaceTheme.button.color, RoundedCornerShape(20.dp))
                     .clickable {
-                        appContext!!.startTopBarActivity {
-                            SendMessageScreen(header = it)
+                        appContext!!.startTopBarActivityWithActivityLink() { header, activity ->
+                            SendMessageScreen(header = header, onBack = {
+                                activity!!.finish()
+                            })
                         }
                     },
                 contentAlignment = Alignment.Center

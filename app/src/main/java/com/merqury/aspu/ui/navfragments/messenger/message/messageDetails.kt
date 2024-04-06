@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
+import com.merqury.aspu.services.file.models.FileModel
 import com.merqury.aspu.services.intents.FileOpener
 import com.merqury.aspu.services.mailbox.inbox.deleteMessage
 import com.merqury.aspu.services.mailbox.inbox.models.MessageElement
@@ -50,6 +51,7 @@ import com.merqury.aspu.ui.MarkdownText
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.makeToast
 import com.merqury.aspu.ui.navfragments.messenger.messages
+import com.merqury.aspu.ui.other.FileView
 import com.merqury.aspu.ui.other.ImageVectorButton
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
@@ -238,24 +240,17 @@ fun MessageDetailsScreen(
             Divider(color = SurfaceTheme.divider.color)
             Column(Modifier.padding(20.dp)) {
                 message.files?.onEach {
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                SurfaceTheme.foreground.color,
-                                RoundedCornerShape(5.dp)
-                            )
-                            .padding(10.dp)
-                            .clickable {
-                                FileOpener.open(
-                                    appContext!!,
-                                    "http://plany.agpu.net${it.path}"
-                                )
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = it.fileName!!, color = SurfaceTheme.text.color)
+                    FileView(file = FileModel(
+                        fileName = it.fileName!!,
+                        size = it.size!!
+                    )
+                    ){
+                        FileOpener.open(
+                            appContext!!,
+                            "http://plany.agpu.net${it.path}"
+                        )
                     }
-                    Spacer(modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.size(10.dp))
                 }
             }
         }

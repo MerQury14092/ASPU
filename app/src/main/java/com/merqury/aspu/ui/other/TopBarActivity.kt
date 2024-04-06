@@ -26,6 +26,8 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import com.merqury.aspu.appContext
+import com.merqury.aspu.ui.contentList
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 
@@ -36,13 +38,20 @@ val activityMap = HashMap<String, Activity>()
 
 class TopBarActivity : ComponentActivity() {
     private var activityId: String = ""
+    private val lastAppContext = appContext
+    private var activityContent: @Composable (MutableState<@Composable () -> Unit>) -> Unit = {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        activityContent = activityContentList.last()
+        activityContentList.removeLast()
+        appContext = this
         activityId = intent.extras!!.getString("activityId")!!
         activityMap[activityId] = this
         setContent {
-
+            contentList.forEach {
+                it()
+            }
             val topBarContent: MutableState<@Composable () -> Unit> = remember {
                 mutableStateOf({})
             }
@@ -53,23 +62,23 @@ class TopBarActivity : ComponentActivity() {
                             modifier = Modifier
                                 .fillMaxHeight(.06f)
                                 .fillMaxWidth()
-                                .background(com.merqury.aspu.ui.theme.SurfaceTheme.appBars.color)
+                                .background(SurfaceTheme.appBars.color)
                         ) { topBarContent.value() }
                         Divider(
-                            color = com.merqury.aspu.ui.theme.SurfaceTheme.divider.color,
+                            color = SurfaceTheme.divider.color,
                             modifier = Modifier.height(2.dp)
                         )
                     }
                 },
             ) {
+
                 Box(
                     modifier = Modifier
                         .padding(it)
                         .fillMaxSize()
                         .background(SurfaceTheme.background.color)
                 ) {
-                    activityContentList.last()(topBarContent)
-                    activityContentList.removeLast()
+                    activityContent(topBarContent)
                 }
             }
         }
@@ -77,6 +86,7 @@ class TopBarActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        appContext = lastAppContext
         activityMap.remove(activityId)
     }
 }
