@@ -45,6 +45,11 @@
             android:exported="true"
             android:theme="@style/Theme.ASPU">
         </activity>
+        <activity
+            android:name=".ui.other.TopBarActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ASPU">
+        </activity>
     </application>
 
 </manifest>

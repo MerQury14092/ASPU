@@ -88,7 +88,7 @@ fun prettyDate(
         today.minusDays(1) -> "Вчера"
         today.minusDays(2) -> "Позавчера"
         else -> humanDate(rawDate)
-    }
+    }.trim()
 }
 
 fun humanDate(

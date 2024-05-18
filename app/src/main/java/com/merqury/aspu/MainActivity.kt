@@ -17,7 +17,6 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -31,6 +30,7 @@ import com.android.volley.toolbox.Volley
 import com.merqury.aspu.services.network.getApiDomain
 import com.merqury.aspu.services.network.getLastPublishedVersion
 import com.merqury.aspu.ui.MainScreen
+import com.merqury.aspu.ui.contentList
 import com.merqury.aspu.ui.navfragments.settings.reloadSettingsScreen
 import com.merqury.aspu.ui.navfragments.settings.selectUser
 import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
@@ -57,13 +57,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
+        appContext = this
+        appVersion = appContext!!.packageManager.getPackageInfo(appContext!!.packageName, 0).versionName
+        requestQueue = Volley.newRequestQueue(appContext)
         getApiDomain {
             if(it != apiDomain)
                 apiDomain = it
         }
-        appContext = this
-        appVersion = appContext!!.packageManager.getPackageInfo(appContext!!.packageName, 0).versionName
-        requestQueue = Volley.newRequestQueue(appContext)
         getLastPublishedVersion(storeAppVersion, storeAppReleaseNotes)
         setContent {
             if (storeAppVersion.value != "UNKNOWN" && storeAppVersionBigger() && launchFlag) {
@@ -140,7 +141,6 @@ private fun NewVersionNotification() {
     }
 }
 
-val contentList = mutableStateListOf<@Composable () -> Unit>()
 fun show(
     visibility: MutableState<Boolean>,
     content: @Composable () -> Unit

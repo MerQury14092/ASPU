@@ -1,5 +1,6 @@
 package com.merqury.aspu.services.profile
 
+import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.requestQueue
 import com.merqury.aspu.ui.navfragments.profile.secretPreferences
@@ -28,6 +29,19 @@ fun reauthorization(onClosure: () -> Unit){
                 showEiosAuthModalWindow(msg = "Bad credentials")
             }
         )
+    }
+}
+
+open class AuthorizedStringRequest(
+    method: Int,
+    url: String?,
+    listener: Response.Listener<String>?,
+    errorListener: Response.ErrorListener?
+): StringRequest(method, url, listener, errorListener) {
+    override fun getHeaders(): MutableMap<String, String> {
+        val headers = HashMap<String, String>()
+        headers["Authorization"] = "Bearer ${secretPreferences.getString("authToken", null)!!}"
+        return headers
     }
 }
 

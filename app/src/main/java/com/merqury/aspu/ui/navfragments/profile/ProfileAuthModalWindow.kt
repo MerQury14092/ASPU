@@ -44,6 +44,8 @@ import androidx.compose.ui.unit.sp
 import com.merqury.aspu.R
 import com.merqury.aspu.services.profile.getAuthToken
 import com.merqury.aspu.ui.after
+import com.merqury.aspu.ui.navBarUpdate
+import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
@@ -51,7 +53,9 @@ import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalMaterial3Api::class)
 fun showEiosAuthModalWindow(msg: String = "", closure: () -> Unit = {}) {
-    showSimpleModalWindow {
+    showSimpleModalWindow(
+        closeable = false
+    ) {
         val username = remember {
             mutableStateOf("")
         }
@@ -210,6 +214,10 @@ fun showEiosAuthModalWindow(msg: String = "", closure: () -> Unit = {}) {
                                         .putString("login", username.value)
                                         .putString("password", password.value)
                                         .apply()
+                                    settingsPreferences.edit()
+                                        .putBoolean("eios_logged", true)
+                                        .apply()
+                                    navBarUpdate()
                                     closure()
                                 },
                                 {

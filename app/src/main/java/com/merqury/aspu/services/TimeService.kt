@@ -12,7 +12,7 @@ val cache: SharedPreferences = appContext!!.getSharedPreferences("news-cache", C
 fun timestampDifference(a: String, b: String): Long{
     val dtA = LocalDateTime.parse(a, formatter)
     val dtB = LocalDateTime.parse(b, formatter)
-    return ChronoUnit.SECONDS.between(dtA, dtB)
+    return ChronoUnit.SECONDS.between(dtB, dtA)
 }
 
 fun forEachDayInWeekByDate(date: String, runnable: (day: String) -> Unit){

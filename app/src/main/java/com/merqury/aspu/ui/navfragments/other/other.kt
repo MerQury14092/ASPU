@@ -83,7 +83,7 @@ fun OtherScreenContent() {
                 val icon: Int,
                 val action: () -> Unit
             )
-            listOf<Any>(
+            listOf(
                 WebEntry(
                     "Сведения об образовательной организации",
                     R.drawable.info,
@@ -124,13 +124,14 @@ fun OtherScreenContent() {
                     R.drawable.study_plan,
                     "plany.agpu.net/Plans/"
                 ),
-                /*ActionEntry(
-                    "Аккаунт ЭИОС",
-                    R.drawable.account
-                ) {
-                  routeTo("account")
-//                    appContext!!.startActivity(ProfileActivity::class.java)
-                },*/
+//                ActionEntry(
+//                    "Аккаунт ЭИОС",
+//                    R.drawable.account
+//                ) {
+//                  showEiosAuthModalWindow {
+//                      routeTo("account")
+//                  }
+//                },
                 WebEntry(
                     "Рабочие программы",
                     R.drawable.programs,
@@ -182,9 +183,9 @@ fun OtherScreenContent() {
                         else
                             openInBrowser(it.url, it.scheme)
                     }
-                } else if (it is ActionEntry){
+                } /*else if (it is ActionEntry){
                     ActionButton(name = it.name, icon = it.icon, action = it.action)
-                }
+                }*/
             }
         }
     }

@@ -26,10 +26,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.merqury.aspu.ui.magicState
+import com.merqury.aspu.ui.navfragments.profile.showEiosAuthModalWindow
 import com.merqury.aspu.ui.navfragments.settings.reloadSettingsScreen
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.navfragments.settings.toggleBooleanSettingsPreference
 import com.merqury.aspu.ui.printlog
+import com.merqury.aspu.ui.routeTo
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 import java.io.BufferedReader
@@ -39,11 +41,16 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 
+var closeTerminal: () -> Unit = {}
+
 class Terminal : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             TerminalContent()
+        }
+        closeTerminal = {
+            finish()
         }
     }
 }
@@ -216,6 +223,17 @@ fun execCommand(command: String) {
                 settingsPreferences.edit().remove(name).apply()
         }
 
+        "exit" -> {
+            closeTerminal()
+        }
+
+        "eios" -> {
+            closeTerminal()
+            showEiosAuthModalWindow {
+                routeTo("eios")
+            }
+        }
+
         "help" -> {
             helpMePlease()
         }
@@ -235,6 +253,8 @@ fun helpMePlease() {
             - fatal : завершить работу приложения ошибкой (Зачем?)
             - set <name> <value> : установить в переменную name значение value
             - reset <name> : сбросить значение переменной до стандартного
+            - exit : выйти из режма терминала
+            - eios: вход в бета версию аккаунта ЭИОС, который сейчас находится в разработке
         В командах echo и reset можно использовать имя переменной all
         для того чтобы обратиться ко всем переменным
     """.trimIndent()

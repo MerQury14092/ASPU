@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import com.merqury.aspu.contentList
+import com.merqury.aspu.ui.contentList
 
 class ProfileActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
