@@ -87,18 +87,18 @@ fun ProfileInfo(info: Data) {
                         )
                     )
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.profile_background),
-                        contentDescription = null,
-                        modifier = Modifier.clip(
-                            shape = RoundedCornerShape(
-                                topStart = CornerSize(0),
-                                topEnd = CornerSize(0),
-                                bottomStart = CornerSize(15.dp),
-                                bottomEnd = CornerSize(15.dp)
-                            )
-                        )
-                    )
+//                    Image(
+//                        painter = painterResource(id = R.drawable.profile_background),
+//                        contentDescription = null,
+//                        modifier = Modifier.clip(
+//                            shape = RoundedCornerShape(
+//                                topStart = CornerSize(0),
+//                                topEnd = CornerSize(0),
+//                                bottomStart = CornerSize(15.dp),
+//                                bottomEnd = CornerSize(15.dp)
+//                            )
+//                        )
+//                    )
                     Column {
                         Spacer(modifier = Modifier.size(20.dp))
                         Column(
@@ -400,18 +400,18 @@ fun ProfileInfoPlaceholder() {
                     )
                 )
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.profile_background),
-                    contentDescription = null,
-                    modifier = Modifier.clip(
-                        shape = RoundedCornerShape(
-                            topStart = CornerSize(0),
-                            topEnd = CornerSize(0),
-                            bottomStart = CornerSize(15.dp),
-                            bottomEnd = CornerSize(15.dp)
-                        )
-                    )
-                )
+//                Image(
+//                    painter = painterResource(id = R.drawable.profile_background),
+//                    contentDescription = null,
+//                    modifier = Modifier.clip(
+//                        shape = RoundedCornerShape(
+//                            topStart = CornerSize(0),
+//                            topEnd = CornerSize(0),
+//                            bottomStart = CornerSize(15.dp),
+//                            bottomEnd = CornerSize(15.dp)
+//                        )
+//                    )
+//                )
                 Column {
                     Spacer(modifier = Modifier.size(20.dp))
                     Column(

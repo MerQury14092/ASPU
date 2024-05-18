@@ -28,10 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.merqury.aspu.R
 import com.merqury.aspu.ui.TitleHeader
-import com.merqury.aspu.ui.navfragments.profile.showEiosAuthModalWindow
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.openInBrowser
-import com.merqury.aspu.ui.routeTo
 import com.merqury.aspu.ui.showWebPage
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
@@ -126,14 +124,14 @@ fun OtherScreenContent() {
                     R.drawable.study_plan,
                     "plany.agpu.net/Plans/"
                 ),
-                ActionEntry(
-                    "Аккаунт ЭИОС",
-                    R.drawable.account
-                ) {
-                  showEiosAuthModalWindow {
-                      routeTo("account")
-                  }
-                },
+//                ActionEntry(
+//                    "Аккаунт ЭИОС",
+//                    R.drawable.account
+//                ) {
+//                  showEiosAuthModalWindow {
+//                      routeTo("account")
+//                  }
+//                },
                 WebEntry(
                     "Рабочие программы",
                     R.drawable.programs,
@@ -185,9 +183,9 @@ fun OtherScreenContent() {
                         else
                             openInBrowser(it.url, it.scheme)
                     }
-                } else if (it is ActionEntry){
+                } /*else if (it is ActionEntry){
                     ActionButton(name = it.name, icon = it.icon, action = it.action)
-                }
+                }*/
             }
         }
     }
