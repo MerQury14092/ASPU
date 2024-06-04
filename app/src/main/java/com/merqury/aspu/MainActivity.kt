@@ -85,7 +85,7 @@ class MainActivity : ComponentActivity() {
                 android.graphics.Color.rgb(foreground.red, foreground.green, foreground.blue)
 
             if (settingsPreferences.getString("theme", "light")!! == "light")
-                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
             else
                 window.decorView.systemUiVisibility = 0
         }
