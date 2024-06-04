@@ -3,6 +3,7 @@ package com.merqury.aspu
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -57,12 +58,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
         appContext = this
-        appVersion = appContext!!.packageManager.getPackageInfo(appContext!!.packageName, 0).versionName
+        appVersion =
+            appContext!!.packageManager.getPackageInfo(appContext!!.packageName, 0).versionName
         requestQueue = Volley.newRequestQueue(appContext)
         getApiDomain {
-            if(it != apiDomain)
+            if (it != apiDomain)
                 apiDomain = it
         }
         getLastPublishedVersion(storeAppVersion, storeAppReleaseNotes)
@@ -77,12 +78,17 @@ class MainActivity : ComponentActivity() {
             if (settingsPreferences.getBoolean("first_launch", true))
                 FirstStart()
             MainScreen()
-        }
-    }
+            val foreground = SurfaceTheme.foreground.color
+            window.statusBarColor =
+                android.graphics.Color.rgb(foreground.red, foreground.green, foreground.blue)
+            window.navigationBarColor =
+                android.graphics.Color.rgb(foreground.red, foreground.green, foreground.blue)
 
-    override fun onPause() {
-        super.onPause()
-        contentList.clear()
+            if (settingsPreferences.getString("theme", "light")!! == "light")
+                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            else
+                window.decorView.systemUiVisibility = 0
+        }
     }
 }
 
