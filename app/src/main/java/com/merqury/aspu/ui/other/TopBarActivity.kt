@@ -2,6 +2,7 @@ package com.merqury.aspu.ui.other
 
 import android.app.Activity
 import android.os.Bundle
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -28,6 +29,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.appContext
 import com.merqury.aspu.ui.contentList
+import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 
@@ -81,6 +83,16 @@ class TopBarActivity : ComponentActivity() {
                     activityContent(topBarContent)
                 }
             }
+            val foreground = SurfaceTheme.foreground.color
+            window.statusBarColor =
+                android.graphics.Color.rgb(foreground.red, foreground.green, foreground.blue)
+            window.navigationBarColor =
+                android.graphics.Color.rgb(foreground.red, foreground.green, foreground.blue)
+
+            if (settingsPreferences.getString("theme", "light")!! == "light")
+                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+            else
+                window.decorView.systemUiVisibility = 0
         }
     }
 

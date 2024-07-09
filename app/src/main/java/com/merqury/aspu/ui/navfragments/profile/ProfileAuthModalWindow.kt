@@ -60,10 +60,6 @@ fun showEiosAuthModalWindow(msg: String = "", closure: () -> Unit = {}) {
             mutableStateOf("")
         }
 
-        fun String.hide(): String {
-            return "•".repeat(length);
-        }
-
         val password = remember {
             mutableStateOf("")
         }
@@ -223,7 +219,10 @@ fun showEiosAuthModalWindow(msg: String = "", closure: () -> Unit = {}) {
                                 {
                                     receivedResponse = true
                                     authSuccess = false
-                                    authMessage = it
+                                    authMessage = if (it.contains("NoConnectionError"))
+                                        "Нет подключения к инетрнету!"
+                                    else
+                                        it
                                 }
                             )
                         }, colors = ButtonDefaults.buttonColors(

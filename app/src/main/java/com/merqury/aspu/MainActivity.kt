@@ -52,7 +52,7 @@ const val releaseType = RUSTORE_RELEASE
 private val storeAppVersion = mutableStateOf("UNKNOWN")
 private val storeAppReleaseNotes = mutableStateOf("")
 private var launchFlag = true
-var apiDomain = "agpu.merqury.fun"
+var apiDomain = "202.181.148.79"
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

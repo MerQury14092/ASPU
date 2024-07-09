@@ -41,16 +41,19 @@ import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
+import com.merqury.aspu.services.marks.getMarks
 import com.merqury.aspu.services.profile.getAvg
 import com.merqury.aspu.services.profile.getMarkStatsById
 import com.merqury.aspu.services.profile.models.Data
 import com.merqury.aspu.services.profile.models.MarkStat
 import com.merqury.aspu.ui.makeToast
 import com.merqury.aspu.ui.navBarUpdate
+import com.merqury.aspu.ui.navfragments.marks.MarksScreen
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.placeholder
 import com.merqury.aspu.ui.routeTo
 import com.merqury.aspu.ui.sp
+import com.merqury.aspu.ui.startTopBarActivity
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.vw
@@ -348,15 +351,24 @@ fun ProfileInfo(info: Data) {
 
                     Divider(color = SurfaceTheme.divider.color)
                     Spacer(modifier = Modifier.size(20.dp))
-//                    RowSpaceEvenly {
-                        /*ProfileCardButton("О себе", R.drawable.user){} TODO*/
-                        /*ProfileCardButton("Оценки", R.drawable.book_alt){}TODO*/
-                        /*ProfileCardButton("Уч. план", R.drawable.study_plan){}TODO*/
-//                    }
+                    RowSpaceEvenly {
+                        ProfileCardButton("О себе", R.drawable.user){
+
+                        }
+                        ProfileCardButton("Сессии", R.drawable.book_alt){
+                            appContext.startTopBarActivity {
+                                getMarks()
+                                MarksScreen(header = it)
+                            }
+                        }
+                        ProfileCardButton("Экзамены", R.drawable.study_plan){
+
+                        }
+                    }
                     Spacer(modifier = Modifier.size(((100 - profileCardButtonSize.toDouble() * 3) / 4).vw))
                     RowSpaceEvenly {
-                        /*ProfileCardButton("Портфолио", R.drawable.trophy){}TODO*/
-                        /*ProfileCardButton("Методички", R.drawable.book){}TODO*/
+                        ProfileCardButton("Портфолио", R.drawable.trophy){}
+                        ProfileCardButton("Методички", R.drawable.book){}
                         ProfileCardButton("Выйти", R.drawable.back){
                             settingsPreferences.edit()
                                 .putBoolean("eios_logged", false)

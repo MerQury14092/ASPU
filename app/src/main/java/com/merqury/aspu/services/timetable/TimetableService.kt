@@ -5,6 +5,7 @@ import androidx.compose.runtime.MutableState
 import com.android.volley.Request
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
+import com.merqury.aspu.apiDomain
 import com.merqury.aspu.requestQueue
 import com.merqury.aspu.services.cache
 import com.merqury.aspu.services.getEndDayOfWeekByDate
@@ -39,7 +40,7 @@ fun getTimetableByDateRange(
     onLoad: (result: List<TimetableDay>) -> Unit,
     onError: (e: VolleyError) -> Unit
 ) {
-    val url = "https://agpu.merqury.fun/api/v2/timetable/days?" +
+    val url = "https://$apiDomain/api/v2/timetable/days?" +
             "id=$id" +
             "&owner=$owner" +
             "&startDate=$startDate" +

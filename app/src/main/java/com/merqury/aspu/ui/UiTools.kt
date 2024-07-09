@@ -206,6 +206,25 @@ fun SwipeableBox(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
+    SwipeableBox (
+        onSwipeLeft,
+        onSwipeRight,
+        swipeableRight = {swipeableRight},
+        swipeableLeft = {swipeableLeft},
+        modifier = modifier,
+        content = content
+    )
+}
+
+@Composable
+fun SwipeableBox(
+    onSwipeLeft: () -> Unit = {},
+    onSwipeRight: () -> Unit = {},
+    swipeableRight: () -> Boolean,
+    swipeableLeft: () -> Boolean,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
     val summaryOffset = remember {
         mutableFloatStateOf(0f)
     }
@@ -215,11 +234,11 @@ fun SwipeableBox(
         modifier = Modifier.pointerInput(Unit) {
             detectHorizontalDragGestures(
                 onDragEnd = {
-                    if (swipeableLeft && (summaryOffset.floatValue >= 500f || lastOffsets.max() >= 60f)) {
+                    if (swipeableLeft() && (summaryOffset.floatValue >= 500f || lastOffsets.max() >= 60f)) {
 
                         onSwipeLeft()
                     }
-                    if (swipeableRight && (summaryOffset.floatValue <= -500f || lastOffsets.min() <= -60f)) {
+                    if (swipeableRight() && (summaryOffset.floatValue <= -500f || lastOffsets.min() <= -60f)) {
 
                         onSwipeRight()
                     }

@@ -3,6 +3,7 @@ package com.merqury.aspu.ui.other
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.view.View
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
@@ -39,7 +40,9 @@ import com.merqury.aspu.R
 import com.merqury.aspu.appContext
 import com.merqury.aspu.services.intents.FileOpener
 import com.merqury.aspu.ui.aspuButtonLoading
+import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.openInBrowser
+import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 import java.util.Stack
 
@@ -190,6 +193,16 @@ class WebViewActivity : ComponentActivity() {
                         })
                 }
             }
+            val foreground = SurfaceTheme.foreground.color
+            window.statusBarColor =
+                android.graphics.Color.rgb(foreground.red, foreground.green, foreground.blue)
+            window.navigationBarColor =
+                android.graphics.Color.rgb(foreground.red, foreground.green, foreground.blue)
+
+            if (settingsPreferences.getString("theme", "light")!! == "light")
+                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+            else
+                window.decorView.systemUiVisibility = 0
         }
     }
 
