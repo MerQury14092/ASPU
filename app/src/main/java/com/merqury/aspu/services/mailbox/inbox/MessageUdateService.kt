@@ -7,11 +7,11 @@ import com.merqury.aspu.services.mailbox.inbox.models.ListMail
 import com.merqury.aspu.services.mailbox.inbox.models.MessageElement
 import com.merqury.aspu.services.mailbox.inbox.models.MessageState
 import com.merqury.aspu.services.mailbox.inbox.models.MessageUpdateAction
-import com.merqury.aspu.services.profile.AuthorizedStringRequest
+import com.merqury.aspu.services.profile.EiosAuthorizedStringRequest
 
 fun updateMessage(message: MessageElement){
     val url = "http://plany.agpu.net/api/Mail/InboxMail/${message.id}"
-    val request = object: AuthorizedStringRequest(
+    val request = object: EiosAuthorizedStringRequest(
         Request.Method.PUT,
         url,
         {
@@ -66,7 +66,7 @@ fun doMessageAction(message: MessageElement, actionType: ActionType){
             )
         )
     ).toJson()
-    val request = object: AuthorizedStringRequest(
+    val request = object: EiosAuthorizedStringRequest(
         Request.Method.POST,
         url,
         {

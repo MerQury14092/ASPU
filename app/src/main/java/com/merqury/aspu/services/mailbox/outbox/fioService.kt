@@ -5,12 +5,12 @@ import com.merqury.aspu.requestQueue
 import com.merqury.aspu.services.mailbox.outbox.models.FioSearchElement
 import com.merqury.aspu.services.mailbox.outbox.models.PrepodFioModel
 import com.merqury.aspu.services.mailbox.outbox.models.StudentFioModel
-import com.merqury.aspu.services.profile.AuthorizedStringRequest
+import com.merqury.aspu.services.profile.EiosAuthorizedStringRequest
 
 fun getFioStudent(q: String, onSuccess: (List<FioSearchElement>) -> Unit){
     requestQueue!!.cancelAll("fiorequest")
     val url = "http://plany.agpu.net/api/Mail/Find/Students?fio=$q"
-    val request = AuthorizedStringRequest(
+    val request = EiosAuthorizedStringRequest(
         Request.Method.GET,
         url,
         {
@@ -28,7 +28,7 @@ fun getFioStudent(q: String, onSuccess: (List<FioSearchElement>) -> Unit){
 fun getFioPrepod(q: String, onSuccess: (List<FioSearchElement>) -> Unit){
     requestQueue!!.cancelAll("fiorequest")
     val url = "http://plany.agpu.net/api/Mail/Find/Prepods?fio=$q"
-    val request = AuthorizedStringRequest(
+    val request = EiosAuthorizedStringRequest(
         Request.Method.GET,
         url,
         {

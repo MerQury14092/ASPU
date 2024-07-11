@@ -6,7 +6,7 @@ import com.merqury.aspu.services.file.models.FileModel
 import com.merqury.aspu.services.mailbox.outbox.models.FioSearchElement
 import com.merqury.aspu.services.mailbox.outbox.models.SendMessageModel
 import com.merqury.aspu.services.mailbox.outbox.models.SendedMessageResponse
-import com.merqury.aspu.services.profile.AuthorizedStringRequest
+import com.merqury.aspu.services.profile.EiosAuthorizedStringRequest
 import com.merqury.aspu.ui.makeToast
 import com.merqury.aspu.ui.printlog
 import java.nio.charset.StandardCharsets
@@ -18,7 +18,7 @@ fun sendMessage(
     files: List<FileModel> = listOf()
 ) {
     val url = "http://plany.agpu.net/api/Mail/InboxMail"
-    val request = object : AuthorizedStringRequest(
+    val request = object : EiosAuthorizedStringRequest(
         Method.POST,
         url,
         {

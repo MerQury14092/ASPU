@@ -162,7 +162,7 @@ private fun ArticleViewContent(articleJson: JSONObject) {
                                         pageCount = { images.length() })
                                     HorizontalPager(
                                         state = pagerState
-                                    ) {
+                                    ) { page ->
                                         Box(
                                             modifier = Modifier
                                                 .fillMaxHeight(.5f)
@@ -171,7 +171,7 @@ private fun ArticleViewContent(articleJson: JSONObject) {
                                         ) {
                                             SubcomposeAsyncImage(
                                                 model = images
-                                                    .get(pagerState.currentPage)
+                                                    .get(page)
                                                     .toString()
                                                     .replace("test", "www"),
                                                 contentDescription = null,

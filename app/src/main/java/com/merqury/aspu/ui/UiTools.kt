@@ -23,12 +23,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -206,11 +208,11 @@ fun SwipeableBox(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    SwipeableBox (
+    SwipeableBox(
         onSwipeLeft,
         onSwipeRight,
-        swipeableRight = {swipeableRight},
-        swipeableLeft = {swipeableLeft},
+        swipeableRight = { swipeableRight },
+        swipeableLeft = { swipeableLeft },
         modifier = modifier,
         content = content
     )
@@ -345,6 +347,78 @@ fun showSelectListDialog(
     }
 }
 
+fun showSelectListDialogWithClickAnimation(
+    buttons: Map<String, (MutableState<Boolean>) -> Unit>,
+    sortedByAlphabet: Boolean = false
+) {
+    showSelectListDialogWithClickAnimation(
+        mutableStateOf(buttons),
+        sortedByAlphabet
+    )
+}
+
+fun showSelectListDialogWithClickAnimation(
+    buttons: MutableState<Map<String, (MutableState<Boolean>) -> Unit>>,
+    sortedByAlphabet: Boolean = false
+) {
+    showSimpleModalWindow(
+        containerColor = SurfaceTheme.background.colorWithoutAnim
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(.75f)
+                .verticalScroll(rememberScrollState())
+        ) {
+            val modalWindowVisibility = it
+            var isLoading = remember {
+                mutableStateListOf<String>()
+            }
+            val isDone = remember {
+                mutableStateOf(false)
+            }
+            if (isDone.value)
+                modalWindowVisibility.value = false
+            Column {
+                val entries = if (sortedByAlphabet)
+                    buttons.value.entries.sortedBy { it.key }
+                else
+                    buttons.value.entries
+                entries.forEach {
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = SurfaceTheme.foreground.color
+                        ),
+                        modifier = Modifier.padding(10.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp)
+                                .clickable {
+                                    it.value(isDone)
+                                    isLoading.add(it.key)
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (isLoading.contains(it.key))
+                               CircularProgressIndicator(
+                                   modifier = Modifier.size(20.dp),
+                                   color = SurfaceTheme.text.color
+                               )
+                            else
+                                Text(
+                                    text = it.key,
+                                    fontSize = 20.sp,
+                                    color = SurfaceTheme.text.color
+                                )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 fun Context.startActivity(cls: Class<*>) {
     startActivity(Intent(this, cls))
 }
@@ -392,13 +466,15 @@ fun Modifier.conditional(condition: Boolean, modifier: Modifier.() -> Modifier):
 fun EditableText(
     value: String,
     onChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
     placeholder: String = "",
     enabled: Boolean = true
-){
+) {
     BasicTextField(
         value,
         onChange,
         enabled = enabled,
+        modifier = modifier,
         textStyle = TextStyle(color = SurfaceTheme.text.color),
         cursorBrush = SolidColor(SurfaceTheme.text.color),
         decorationBox = { innerTextField ->
