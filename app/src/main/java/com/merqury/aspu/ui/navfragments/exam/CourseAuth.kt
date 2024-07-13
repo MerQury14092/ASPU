@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Button
@@ -32,13 +31,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.merqury.aspu.services.exam.models.ExamCourse
+import com.merqury.aspu.R
 import com.merqury.aspu.services.exam.cancelAllLoginTries
 import com.merqury.aspu.services.exam.loginToCourse
+import com.merqury.aspu.services.exam.models.ExamCourse
 import com.merqury.aspu.ui.after
 import com.merqury.aspu.ui.printlog
 import com.merqury.aspu.ui.showSimpleModalWindow
@@ -101,7 +102,7 @@ fun showCourseAuthModalWindow(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    Icons.Rounded.AccountCircle,
+                    painter = painterResource(id = R.drawable.study_plan),
                     contentDescription = "",
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.size(50.dp),

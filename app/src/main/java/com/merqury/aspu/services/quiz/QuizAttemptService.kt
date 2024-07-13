@@ -95,26 +95,38 @@ private fun getQuestionPage(
 }
 
 fun parseQuestionElement(element: Element): QuestionModel {
-    val el = element.select(".content").first()!!
-    val sequenceCheck = el
+    val content = element.select(".content").first()!!
+    val sequenceCheck = content
         .select("input[type=hidden][name*=sequencecheck]")
 
     val sequenceCheckName = sequenceCheck.attr("name")
     val sequenceCheckValue = sequenceCheck.attr("value")
-    val qText = el
+    val qText = content
         .select(".qtext")
         .text()
-    val images = el
+        .replace(Regex("Ответ Вопрос \\d+"), " [ответ] ")
+    val images = content
         .select("img")
         .map { img ->
             img.attr("src")
         }.toList()
 
-    val answers = ArrayList(el
-        .select(".answer")
-        .first()!!
-        .select("div.r0, div.r1")
+    val answers = ArrayList(content
+        .select(".r0, .r1")
         .map {
+            if(it.select("select").isNotEmpty()){
+                return@map AnswerModel(
+                    it.select(".text").text(),
+                    AnswerType.select,
+                    it.select("select").attr("name"),
+                    null,
+                    it.select("select option")
+                        .associate { option ->
+                            option.text() to option.attr("value")
+                        }
+                )
+            }
+
             val input = it.select("input[type*=o]").first()!!
 
             val inputType = when (input.attr("type")) {
@@ -124,32 +136,33 @@ fun parseQuestionElement(element: Element): QuestionModel {
             }
             val inputName = input.attr("name")
             val inputValue = input.attr("value")
-            val text = it.select(".flex-fill").text()
+            val text = it.select(".flex-fill, label[for*=answer]").text()
             return@map AnswerModel(
                 text,
                 inputType,
                 inputName,
-                inputValue
+                inputValue,
+                null
             )
         }.toList()
     )
 
-    el.select(".answer")
-        .first()!!
-        .select("input[type=text][name*=answer]")
+    content.select("input[type=text][name*=answer]")
         .forEach {
             answers.add(
                 AnswerModel(
                     "",
                     AnswerType.text,
                     it.attr("name"),
-                    "none"
+                    null,
+                    null
                 )
             )
         }
 
 
     return QuestionModel(
+        element.select(".qno").first()!!.text().toInt()-1,
         qText,
         sequenceCheckName,
         sequenceCheckValue,

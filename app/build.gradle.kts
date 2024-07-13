@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -47,6 +48,8 @@ android {
 }
 
 dependencies {
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation("com.google.firebase:firebase-analytics")
     implementation("com.squareup.okhttp:okhttp:2.7.5")
     implementation("org.jsoup:jsoup:1.17.2")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

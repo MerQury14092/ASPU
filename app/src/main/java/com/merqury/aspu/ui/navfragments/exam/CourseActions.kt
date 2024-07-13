@@ -9,7 +9,7 @@ import com.merqury.aspu.ui.makeToast
 import com.merqury.aspu.ui.navfragments.quiz.QuizScreen
 import com.merqury.aspu.ui.showSelectListDialog
 import com.merqury.aspu.ui.showSelectListDialogWithClickAnimation
-import com.merqury.aspu.ui.startTopBarActivity
+import com.merqury.aspu.ui.startTopBarActivityWithActivityLink
 
 fun showCourseActionsModalWindow(
     course: ExamCourse
@@ -59,7 +59,9 @@ fun showSelectQuizModalWindow(
 fun openQuiz(
     quizId: Int
 ) {
-    appContext!!.startTopBarActivity {
-        QuizScreen(header = it, quizId = quizId)
+    appContext!!.startTopBarActivityWithActivityLink { header, activity ->
+        QuizScreen(header = header, quizId = quizId){
+            activity!!.finish()
+        }
     }
 }

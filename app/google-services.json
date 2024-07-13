@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "639378829719",
+    "project_id": "aspu-dev",
+    "storage_bucket": "aspu-dev.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639378829719:android:a7395757a2ddff42d994d2",
+        "android_client_info": {
+          "package_name": "com.merqury.aspudev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUiQd7DnHSisZtIjtaStq8I8y1PYkVqa0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

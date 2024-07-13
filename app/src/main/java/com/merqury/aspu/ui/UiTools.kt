@@ -19,6 +19,7 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -28,6 +29,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -41,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
@@ -48,6 +53,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -72,6 +79,7 @@ import com.merqury.aspu.ui.other.WebViewActivity
 import com.merqury.aspu.ui.other.activityContentList
 import com.merqury.aspu.ui.other.activityMap
 import com.merqury.aspu.ui.theme.SurfaceTheme
+import com.merqury.aspu.ui.theme.ThemeText
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.theme.colorWithoutAnim
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
@@ -81,6 +89,7 @@ import kotlin.math.abs
 import kotlin.math.round
 import kotlin.random.Random
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 
 @Composable
@@ -401,10 +410,10 @@ fun showSelectListDialogWithClickAnimation(
                             contentAlignment = Alignment.Center
                         ) {
                             if (isLoading.contains(it.key))
-                               CircularProgressIndicator(
-                                   modifier = Modifier.size(20.dp),
-                                   color = SurfaceTheme.text.color
-                               )
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    color = SurfaceTheme.text.color
+                                )
                             else
                                 Text(
                                     text = it.key,
@@ -416,6 +425,92 @@ fun showSelectListDialogWithClickAnimation(
                 }
             }
         }
+    }
+}
+
+@Volatile
+var loadingWindowClosed = false
+
+fun showLoadingModalWindow(
+    title: MutableState<String>,
+    success: MutableState<Boolean?>,
+    afterClosing: () -> Unit = {}
+) {
+    loadingWindowClosed = false
+    showSimpleModalWindow(
+        containerColor = SurfaceTheme.background.colorWithoutAnim,
+        closeable = false
+    ) {
+        if (success.value != null) {
+            if (success.value!!) {
+                Box(modifier = Modifier.padding(30.dp), contentAlignment = Alignment.Center) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            Icons.Rounded.Check,
+                            contentDescription = "",
+                            colorFilter = ColorFilter.tint(
+                                SurfaceTheme.text.color
+                            )
+                        )
+                        Spacer(modifier = Modifier.size(20.dp))
+                        ThemeText(
+                            text = title.value,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            } else {
+                Box(modifier = Modifier.padding(30.dp), contentAlignment = Alignment.Center) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            Icons.Rounded.Warning,
+                            contentDescription = "",
+                            colorFilter = ColorFilter.tint(
+                                SurfaceTheme.text.color
+                            )
+                        )
+                        Spacer(modifier = Modifier.size(20.dp))
+                        ThemeText(
+                            text = title.value,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+            async {
+                after(2.seconds) {
+                    it.value = false
+                    after(Random.nextDouble(0.0, 0.5).seconds){
+                        if(!loadingWindowClosed) {
+                            afterClosing()
+                            loadingWindowClosed = true
+                        }
+                    }
+                }
+            }
+        } else
+            Box(modifier = Modifier.padding(30.dp), contentAlignment = Alignment.Center) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator(color = SurfaceTheme.text.color)
+                    Spacer(modifier = Modifier.size(20.dp))
+                    ThemeText(
+                        text = title.value,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
     }
 }
 

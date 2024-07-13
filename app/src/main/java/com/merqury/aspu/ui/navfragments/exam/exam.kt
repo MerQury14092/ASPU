@@ -35,10 +35,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
-import com.merqury.aspu.services.exam.models.ExamCourse
 import com.merqury.aspu.services.exam.checkCredentials
 import com.merqury.aspu.services.exam.getAllCourses
 import com.merqury.aspu.services.exam.getMyCourses
+import com.merqury.aspu.services.exam.models.ExamCourse
 import com.merqury.aspu.ui.EditableText
 import com.merqury.aspu.ui.makeToast
 import com.merqury.aspu.ui.navfragments.profile.secretPreferences

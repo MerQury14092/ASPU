@@ -3,6 +3,7 @@ package com.merqury.aspu.services.exam
 import com.android.volley.Request.Method
 import com.merqury.aspu.requestQueue
 import com.merqury.aspu.services.exam.models.ExamCourse
+import com.merqury.aspu.ui.async
 import com.merqury.aspu.ui.navfragments.exam.myCourses
 import okhttp3.Call
 import okhttp3.Callback
@@ -54,15 +55,17 @@ fun getMyCourses(onError: (String) -> Unit = {}, onSuccess: (List<ExamCourse>) -
         Method.POST,
         "https://examen.agpu.net/lib/ajax/service.php?sesskey=${sessionKey()}",
         { response ->
-            MyCourses.fromJson(response)[0].data?.courses?.let { course ->
-                onSuccess(
-                    course.map {
-                        ExamCourse(
-                            it.fullname!!,
-                            it.id!!.toInt()
-                        )
-                    }
-                )
+            async {
+                MyCourses.fromJson(response)[0].data?.courses?.let { course ->
+                    onSuccess(
+                        course.map {
+                            ExamCourse(
+                                it.fullname!!,
+                                it.id!!.toInt()
+                            )
+                        }
+                    )
+                }
             }
         },
         {
