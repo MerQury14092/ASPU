@@ -122,7 +122,9 @@ fun getTimetableByDate(
             success.value = false
             isLoaded.value = true
             Log.d("network-error", "ERROR")
-            handleVolleyError(it, responseText)
+            handleVolleyError(it){
+                responseText.value = it
+            }
         }
     )
 

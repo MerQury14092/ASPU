@@ -1,5 +1,6 @@
 package com.merqury.aspu.ui.navfragments.news
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,11 +24,11 @@ import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NewsHeader(
-    currentPage: MutableIntState,
-    countPages: Int,
-    selectedFaculty: MutableState<NewsCategoryEnum>
+    selectedFaculty: MutableState<NewsCategoryEnum>,
+    newsLoaded: Boolean
 ) {
     Box(
         modifier = Modifier
@@ -50,9 +50,10 @@ fun NewsHeader(
                     modifier = Modifier
                         .size(60.dp)
                         .clickable {
-                            if (newsLoaded.value)
+                            if (newsLoaded)
                                 showFacultySelectModalWindow{
                                     selectedFaculty.value = it
+                                    reloadNews()
                                 }
                         },
                     contentScale = ContentScale.Fit,
@@ -64,7 +65,7 @@ fun NewsHeader(
                         .fillMaxHeight()
                         .fillMaxWidth(0.3f)
                         .clickable {
-                            if (newsLoaded.value)
+                            if (newsLoaded)
                                 showPageSelectModalWindow()
                         }
                 ) {
@@ -73,7 +74,7 @@ fun NewsHeader(
                         verticalArrangement = Arrangement.SpaceAround
                     ) {
                         Text(
-                            text = "${currentPage.intValue} из $countPages",
+                            text = "${pagerState.value.currentPage+1} из ${pagerState.value.pageCount}",
                             textAlign = TextAlign.Center,
                             color = SurfaceTheme.text.color
                         )

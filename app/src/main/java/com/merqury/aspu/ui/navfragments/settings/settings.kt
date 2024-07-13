@@ -29,7 +29,7 @@ import com.merqury.aspu.services.intents.sendToDevEmail
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.goToScreen
 import com.merqury.aspu.ui.makeToast
-import com.merqury.aspu.ui.navfragments.news.newsLoaded
+import com.merqury.aspu.ui.navfragments.news.reloadNews
 import com.merqury.aspu.ui.navfragments.news.showFacultySelectModalWindow
 import com.merqury.aspu.ui.navfragments.timetable.showSelectIdModalWindow
 import com.merqury.aspu.ui.navfragments.timetable.timetableLoaded
@@ -196,7 +196,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                     ClickableSettingsButton("Очистить кэш") {
                         cache.edit().clear().apply()
                         Toast.makeText(appContext!!, "Очищено!", Toast.LENGTH_LONG).show()
-                        newsLoaded.value = false
+                        reloadNews()
                         timetableLoaded.value = false
                     }
                 )

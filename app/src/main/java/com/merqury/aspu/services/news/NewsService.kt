@@ -1,7 +1,7 @@
 package com.merqury.aspu.services.news
 
 import android.util.Log
-import androidx.compose.runtime.MutableIntState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.MutableState
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
@@ -14,21 +14,18 @@ import com.merqury.aspu.services.network.handleVolleyError
 import com.merqury.aspu.services.timestampDifference
 import com.merqury.aspu.services.timestampNow
 import com.merqury.aspu.ui.async
-import com.merqury.aspu.ui.navfragments.news.currentPage
+import com.merqury.aspu.ui.navfragments.news.pagerState
 import com.merqury.aspu.ui.navfragments.news.selectedFaculty
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
 fun getNews(
-    faculty: NewsCategoryEnum,
     pageNumber: Int,
-    newsResponse: MutableState<JSONObject>,
-    countPages: MutableIntState,
-    newsLoaded: MutableState<Boolean>,
-    success: MutableState<Boolean>,
-    responseText: MutableState<String>
+    onError: (String) -> Unit,
+    onSuccess: (JSONObject, Int) -> Unit
 ) {
+    val faculty = selectedFaculty.value
     val timeCache = settingsPreferences.getLong("timeCache", TimeUnit.HOURS.toSeconds(3))
     if (timeCache != 0L && cache.getString("${faculty.name} $pageNumber", "") != "") {
         val cacheNewsPage = cache.getString("${faculty.name} $pageNumber", "")
@@ -36,15 +33,14 @@ fun getNews(
         if (timestampDifference(timestampNow(), cacheNewsPage!!.getString("created")) < timeCache) {
             async {
                 Thread.sleep(500)
-                newsResponse.value = cacheNewsPage.getJSONObject("value")
-                countPages.intValue = cacheNewsPage.getJSONObject("value").getInt("countPages")
-                success.value = true
-                newsLoaded.value = true
+                onSuccess(
+                    cacheNewsPage.getJSONObject("value"),
+                    cacheNewsPage.getJSONObject("value").getInt("countPages")
+                )
             }
             return
         }
     }
-    newsLoaded.value = false
     var url = "https://$apiDomain/api/news"
     if (faculty != NewsCategoryEnum.agpu)
         url = "$url/${faculty.name}"
@@ -54,22 +50,23 @@ fun getNews(
         url,
         { response ->
             val convertedResponse = EncodingConverter.translateISO8859_1toUTF_8(response)
-            newsResponse.value = JSONObject(convertedResponse)
-            countPages.intValue = newsResponse.value.getInt("countPages")
-            newsLoaded.value = true
-            success.value = true
+            val res = JSONObject(convertedResponse)
+            onSuccess(
+                res,
+                res.getInt("countPages")
+            )
             cache.edit().putString(
                 "${faculty.name} $pageNumber",
                 JSONObject().apply {
                     put("created", timestampNow())
-                    put("value", newsResponse.value)
+                    put("value", res)
                 }.toString()
             ).apply()
         },
         {
-            success.value = false
-            newsLoaded.value = true
-            handleVolleyError(it, responseText)
+            handleVolleyError(it){ errorMessage ->
+                onError(errorMessage)
+            }
         }
     )
     requestQueue!!.add(request)
@@ -102,11 +99,12 @@ fun getNewsArticle(
     requestQueue!!.add(request)
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 fun urlForCurrentFaculty(): String {
     return when (selectedFaculty.value.name) {
-        "agpu" -> "agpu.net/news.php?PAGEN_1=${currentPage.value}"
-        "educationaltechnopark" -> "www.agpu.net/struktura-vuza/educationaltechnopark/news/news.php?PAGEN_1=${currentPage.value}"
-        "PedagogicalQuantorium" -> "www.agpu.net/struktura-vuza/PedagogicalQuantorium/news/news.php?PAGEN_1=${currentPage.value}"
-        else -> "agpu.net/struktura-vuza/faculties-institutes/${selectedFaculty.value.name}/news/news.php?PAGEN_1=${currentPage.value}"
+        "agpu" -> "agpu.net/news.php?PAGEN_1=${pagerState.value.currentPage}"
+        "educationaltechnopark" -> "www.agpu.net/struktura-vuza/educationaltechnopark/news/news.php?PAGEN_1=${pagerState.value.currentPage}"
+        "PedagogicalQuantorium" -> "www.agpu.net/struktura-vuza/PedagogicalQuantorium/news/news.php?PAGEN_1=${pagerState.value.currentPage}"
+        else -> "agpu.net/struktura-vuza/faculties/${selectedFaculty.value.name}/news/news.php?PAGEN_1=${pagerState.value.currentPage}"
     }
 }

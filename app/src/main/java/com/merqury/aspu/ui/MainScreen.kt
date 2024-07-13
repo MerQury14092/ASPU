@@ -44,7 +44,6 @@ import com.merqury.aspu.appContext
 import com.merqury.aspu.services.news.urlForCurrentFaculty
 import com.merqury.aspu.services.timetable.showTimetableWebPageView
 import com.merqury.aspu.ui.navfragments.news.NewsScreen
-import com.merqury.aspu.ui.navfragments.news.newsLoaded
 import com.merqury.aspu.ui.navfragments.other.OtherScreen
 import com.merqury.aspu.ui.navfragments.profile.ProfileScreen
 import com.merqury.aspu.ui.navfragments.settings.SettingsScreen
@@ -92,7 +91,6 @@ val magicState = mutableIntStateOf(3)
 val onASPUButtonLongClick: MutableState<() -> Unit> = mutableStateOf({
     when (selected_page.value) {
         "news" -> {
-            newsLoaded.value = false
         }
 
         "timetable" -> {
