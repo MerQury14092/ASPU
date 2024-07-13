@@ -11,18 +11,14 @@ import android.text.util.Linkify
 import android.util.TypedValue
 import android.widget.TextView
 import android.widget.Toast
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -38,7 +34,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,7 +43,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -206,85 +200,6 @@ fun showSimpleUpdatableModalWindow(
 
 fun goToScreen(activityClass: Class<*>) {
     appContext!!.startActivity(Intent(appContext!!, activityClass))
-}
-
-@Composable
-fun SwipeableBox(
-    onSwipeLeft: () -> Unit = {},
-    onSwipeRight: () -> Unit = {},
-    swipeableRight: Boolean = true,
-    swipeableLeft: Boolean = true,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    SwipeableBox(
-        onSwipeLeft,
-        onSwipeRight,
-        swipeableRight = { swipeableRight },
-        swipeableLeft = { swipeableLeft },
-        modifier = modifier,
-        content = content
-    )
-}
-
-@Composable
-fun SwipeableBox(
-    onSwipeLeft: () -> Unit = {},
-    onSwipeRight: () -> Unit = {},
-    swipeableRight: () -> Boolean,
-    swipeableLeft: () -> Boolean,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    val summaryOffset = remember {
-        mutableFloatStateOf(0f)
-    }
-    val lastOffsets = arrayOf(0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f)
-
-    Box(
-        modifier = Modifier.pointerInput(Unit) {
-            detectHorizontalDragGestures(
-                onDragEnd = {
-                    if (swipeableLeft() && (summaryOffset.floatValue >= 500f || lastOffsets.max() >= 60f)) {
-
-                        onSwipeLeft()
-                    }
-                    if (swipeableRight() && (summaryOffset.floatValue <= -500f || lastOffsets.min() <= -60f)) {
-
-                        onSwipeRight()
-                    }
-                    summaryOffset.floatValue = 0f
-                    lastOffsets.indices.forEach {
-                        lastOffsets[it] = 0f
-                    }
-                }
-            ) { _, dragAmount ->
-                summaryOffset.floatValue += dragAmount
-                (lastOffsets.size - 1 downTo 1).forEach {
-                    lastOffsets[it] = lastOffsets[it - 1]
-                }
-                lastOffsets[0] = dragAmount
-            }
-
-        }
-    ) {
-        Box(modifier = modifier) {
-            Box(
-                modifier = Modifier.offset(
-                    x = animateDpAsState(
-                        targetValue = (summaryOffset.floatValue / 3).dp,
-                        animationSpec = tween(
-                            durationMillis =
-                            if (summaryOffset.floatValue == 0f) 250 else 50
-                        ), label = ""
-                    ).value
-                )
-            ) {
-                content()
-            }
-        }
-    }
-
 }
 
 fun async(runnable: () -> Unit) {

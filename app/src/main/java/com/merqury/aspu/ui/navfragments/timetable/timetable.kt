@@ -68,7 +68,8 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
             modifier = Modifier
                 .fillMaxSize()
                 .background(SurfaceTheme.background.color),
-            verticalAlignment = Alignment.Top
+            verticalAlignment = Alignment.Top,
+            outOfBoundsPageCount = 5
         ) {
             TimetableDay(page = it)
         }
@@ -85,6 +86,9 @@ private fun TimetableDay(
     var timetableLoaded by remember {
         mutableStateOf(false)
     }
+    var errorString by remember {
+        mutableStateOf<String?>(null)
+    }
     if (!timetableLoaded || !loaded) {
         Column(
             modifier = Modifier
@@ -97,14 +101,27 @@ private fun TimetableDay(
         }
         getTimetableByDate(
             getDateByPage(page),
-            {}
+            {
+                errorString = it
+                timetableLoaded = true
+                loaded = true
+            }
         ) {
             data = it
             timetableLoaded = true
             loaded = true
         }
     } else {
-        if (data!!.disciplines.isEmpty())
+        if (errorString != null)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(SurfaceTheme.background.color),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = errorString!!, color = SurfaceTheme.text.color)
+            }
+        else if (data!!.disciplines.isEmpty())
             Box(
                 modifier = Modifier
                     .fillMaxSize()

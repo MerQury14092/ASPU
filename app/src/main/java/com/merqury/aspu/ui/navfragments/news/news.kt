@@ -3,13 +3,16 @@ package com.merqury.aspu.ui.navfragments.news
 import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -17,6 +20,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.services.news.getNews
@@ -60,6 +64,9 @@ fun NewsContent(
         TitleHeader(title = "Новости")
         NewsHeader(selectedFaculty, newsLoaded)
     }
+    var errorString by remember {
+        mutableStateOf<String?>(null)
+    }
     if (!newsLoaded) {
         Column(
             Modifier
@@ -71,17 +78,33 @@ fun NewsContent(
             NewsItemLoadingPlaceholder()
             NewsItemLoadingPlaceholder()
         }
-        getNews(1, {}) { _, pageCount ->
-            pagerState.value = PagerState { pageCount }
+        getNews(1, {
+            errorString = it
+            newsLoaded = true
+        }) { _, pageCount ->
+            pagerState.value = PagerState {
+                pageCount
+            }
             newsLoaded = true
         }
     } else {
-        HorizontalPager(
-            state = pagerState.value,
-            modifier = Modifier.background(SurfaceTheme.background.color)
-        ) {
-            NewsPage(pageNumber = it)
-        }
+        if (errorString != null)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(SurfaceTheme.background.color),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = errorString!!, color = SurfaceTheme.text.color)
+            }
+        else
+            HorizontalPager(
+                state = pagerState.value,
+                modifier = Modifier.background(SurfaceTheme.background.color),
+                outOfBoundsPageCount = 3
+            ) {
+                NewsPage(pageNumber = it)
+            }
     }
 
 }
@@ -96,10 +119,16 @@ private fun NewsPage(
     var json by remember {
         mutableStateOf<JSONObject?>(null)
     }
+    var errorString by remember {
+        mutableStateOf<String?>(null)
+    }
     if (!loaded) {
         getNews(
-            pageNumber+1,
-            {}
+            pageNumber + 1,
+            {
+                errorString = it
+                loaded = true
+            }
         ) { response, _ ->
             json = response
             loaded = true
@@ -114,22 +143,32 @@ private fun NewsPage(
             NewsItemLoadingPlaceholder()
         }
     } else {
-        LazyColumn(
-            modifier = Modifier.background(SurfaceTheme.background.color)
-        ) {
-            items(count = json!!.getJSONArray("articles").length()) {
-                val article = json!!.getJSONArray("articles").getJSONObject(it)
-                NewsItem(
-                    title = article.getString("title"),
-                    date = article.getString("date"),
-                    imageUrl = article.getString("previewImage"),
-                    id = article.getInt("id")
-                )
+        if (errorString != null)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(SurfaceTheme.background.color),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = errorString!!, color = SurfaceTheme.text.color)
             }
-        }
+        else
+            LazyColumn(
+                modifier = Modifier.background(SurfaceTheme.background.color)
+            ) {
+                items(count = json!!.getJSONArray("articles").length()) {
+                    val article = json!!.getJSONArray("articles").getJSONObject(it)
+                    NewsItem(
+                        title = article.getString("title"),
+                        date = article.getString("date"),
+                        imageUrl = article.getString("previewImage"),
+                        id = article.getInt("id")
+                    )
+                }
+            }
     }
 }
 
-fun reloadNews(){
+fun reloadNews() {
     newsLoaded = false
 }

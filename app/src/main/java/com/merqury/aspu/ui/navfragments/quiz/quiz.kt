@@ -78,7 +78,10 @@ fun QuizScreen(
                     finishActivity
                 )
             }
-            HorizontalPager(state = pagerState) {
+            HorizontalPager(
+                state = pagerState,
+                outOfBoundsPageCount = 4
+            ) {
                 QuizContent(quizId = quizId, attemptId = attemptId, page = it, questionsCount)
             }
         }
