@@ -32,11 +32,11 @@ import com.merqury.aspu.R
 import com.merqury.aspu.services.network.executeSqlQuery
 import com.merqury.aspu.services.timetable.getFacultiesAndThemGroups
 import com.merqury.aspu.services.timetable.getSearchResults
-import com.merqury.aspu.services.timetable.toInitials
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.services.timetable.models.FacultiesList
 import com.merqury.aspu.services.timetable.models.SearchContent
 import com.merqury.aspu.services.timetable.models.SearchContentElement
+import com.merqury.aspu.services.timetable.toInitials
+import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.showSelectListDialog
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
@@ -59,8 +59,7 @@ fun getButtonsFacultyAndGroups(
                             put(group) {
                                 onResultClick(SearchContentElement(group, "Group", 0, 0))
                                 it.value = false
-                                timetableLoaded.value = false
-                            }
+                                reloadTimetable()                            }
                         }
                     })
             }
@@ -285,7 +284,7 @@ fun showSelectIdModalWindow(
                                             "timetable_id",
                                             "ВМ-ИВТ-2-1"
                                         )!!
-                                    timetableLoaded.value = false
+                                    reloadTimetable()
                                     it.value = false
                                 },
                             colors = CardDefaults.cardColors(

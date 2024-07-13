@@ -3,7 +3,7 @@ package com.merqury.aspu.ui.navfragments.settings
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import com.merqury.aspu.ui.navBarUpdate
-import com.merqury.aspu.ui.navfragments.timetable.timetableLoaded
+import com.merqury.aspu.ui.navfragments.timetable.reloadTimetable
 import com.merqury.aspu.ui.showSelectListDialog
 
 fun selectInitialSubgroup() {
@@ -12,18 +12,16 @@ fun selectInitialSubgroup() {
             "Нет" to {
                 settingsPreferences.edit().putInt("selected_subgroup", 0).apply()
                 reloadSettingsScreen()
-                timetableLoaded.value = false
+                reloadTimetable()
             },
             "1" to {
                 settingsPreferences.edit().putInt("selected_subgroup", 1).apply()
                 reloadSettingsScreen()
-                timetableLoaded.value = false
-            },
+                reloadTimetable()            },
             "2" to {
                 settingsPreferences.edit().putInt("selected_subgroup", 2).apply()
                 reloadSettingsScreen()
-                timetableLoaded.value = false
-            }
+                reloadTimetable()            }
         )
     )
 }

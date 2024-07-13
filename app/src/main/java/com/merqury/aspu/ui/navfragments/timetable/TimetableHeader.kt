@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 
 @Composable
-fun TimetableHeader() {
+fun TimetableHeader(selectedDate: String) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -33,12 +33,12 @@ fun TimetableHeader() {
             Button(
                 onClick = {
                     val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-                    val date = LocalDate.parse(selectedDate.value, formatter)
+                    val date = LocalDate.parse(selectedDate, formatter)
                     DatePickerDialog(
                         appContext!!,
                         { _, year, month, day ->
                             changeDate(day, month, year)
-                            timetableLoaded.value = false
+                            reloadTimetable()
                         },
                         date.year,
                         date.monthValue - 1,
@@ -49,7 +49,7 @@ fun TimetableHeader() {
                 )
             ) {
                 Text(
-                    "${prettyDate(selectedDate.value)}, ${dayOfWeek(selectedDate.value)}",
+                    "${prettyDate(selectedDate)}, ${dayOfWeek(selectedDate)}",
                     color = SurfaceTheme.text.color,
                     fontSize = 11.sp
                 )
@@ -59,7 +59,7 @@ fun TimetableHeader() {
                     showSelectIdModalWindow {
                         selectedId.value = it.searchContent
                         selectedOwner.value = it.type.uppercase()
-                        timetableLoaded.value = false
+                        reloadTimetable()
                     }
                 }, colors = ButtonDefaults.buttonColors(
                     containerColor = SurfaceTheme.button.color
@@ -127,5 +127,5 @@ fun changeDate(
     else
         "${month + 1}."
     newDate += year.toString()
-    selectedDate.value = newDate
+    setTimetableDate(newDate)
 }

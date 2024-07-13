@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -40,11 +41,14 @@ import com.merqury.aspu.ui.navfragments.timetable.showSelectIdModalWindow
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
+import kotlinx.coroutines.CoroutineScope
 
 
 @SuppressLint("StaticFieldLeak")
 var appContext: Context? = null
 var requestQueue: RequestQueue? = null
+var _coroutineScope: CoroutineScope? = null
+inline val mainCoroutineScope: CoroutineScope get() =  _coroutineScope!!
 var appVersion: String? = null
 const val RUSTORE_RELEASE = "rustore"
 const val PLAYMARKET_RELEASE = "google"
@@ -68,6 +72,7 @@ class MainActivity : ComponentActivity() {
         }
         getLastPublishedVersion(storeAppVersion, storeAppReleaseNotes)
         setContent {
+            _coroutineScope = rememberCoroutineScope()
             if (storeAppVersion.value != "UNKNOWN" && storeAppVersionBigger() && launchFlag) {
                 NewVersionNotification()
                 launchFlag = false

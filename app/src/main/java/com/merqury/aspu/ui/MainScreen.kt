@@ -42,7 +42,6 @@ import androidx.core.content.ContextCompat.getSystemService
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
 import com.merqury.aspu.services.news.urlForCurrentFaculty
-import com.merqury.aspu.services.timetable.showTimetableWebPageView
 import com.merqury.aspu.ui.navfragments.news.NewsScreen
 import com.merqury.aspu.ui.navfragments.other.OtherScreen
 import com.merqury.aspu.ui.navfragments.profile.ProfileScreen
@@ -52,7 +51,7 @@ import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.navfragments.settings.toggleBooleanSettingsPreference
 import com.merqury.aspu.ui.navfragments.settings.toggleTheme
 import com.merqury.aspu.ui.navfragments.timetable.TimetableScreen
-import com.merqury.aspu.ui.navfragments.timetable.timetableLoaded
+import com.merqury.aspu.ui.navfragments.timetable.reloadTimetable
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 
@@ -73,7 +72,7 @@ val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
 
         "timetable" -> {
             aspuButtonLoading.value = true
-            showTimetableWebPageView()
+//            showTimetableWebPageView() TODO
         }
 
         "settings" -> toggleTheme()
@@ -94,7 +93,7 @@ val onASPUButtonLongClick: MutableState<() -> Unit> = mutableStateOf({
         }
 
         "timetable" -> {
-            timetableLoaded.value = false
+            reloadTimetable()
         }
 
         "settings" -> {

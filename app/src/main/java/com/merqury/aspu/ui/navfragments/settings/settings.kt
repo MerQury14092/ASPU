@@ -31,8 +31,8 @@ import com.merqury.aspu.ui.goToScreen
 import com.merqury.aspu.ui.makeToast
 import com.merqury.aspu.ui.navfragments.news.reloadNews
 import com.merqury.aspu.ui.navfragments.news.showFacultySelectModalWindow
+import com.merqury.aspu.ui.navfragments.timetable.reloadTimetable
 import com.merqury.aspu.ui.navfragments.timetable.showSelectIdModalWindow
-import com.merqury.aspu.ui.navfragments.timetable.timetableLoaded
 import com.merqury.aspu.ui.other.Terminal
 import com.merqury.aspu.ui.showSelectListDialog
 import com.merqury.aspu.ui.theme.SurfaceTheme
@@ -197,7 +197,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                         cache.edit().clear().apply()
                         Toast.makeText(appContext!!, "Очищено!", Toast.LENGTH_LONG).show()
                         reloadNews()
-                        timetableLoaded.value = false
+                        reloadTimetable()
                     }
                 )
             )
@@ -229,7 +229,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                         "Очистить политику показа дисциплин по выбору"
                     ) {
                         selectableDisciplines.edit().clear().apply()
-                        timetableLoaded.value = false
+                        reloadTimetable()
                         appContext!!.makeToast("Очищено!")
                     }
                 ))
