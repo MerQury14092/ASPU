@@ -38,6 +38,7 @@ import com.merqury.aspu.ui.navfragments.settings.selectUser
 import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.navfragments.timetable.showSelectIdModalWindow
+import com.merqury.aspu.ui.printlog
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
@@ -62,6 +63,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        setContent {
+
+        }
         appContext = this
         appVersion =
             appContext!!.packageManager.getPackageInfo(appContext!!.packageName, 0).versionName
@@ -72,7 +76,10 @@ class MainActivity : ComponentActivity() {
         }
         getLastPublishedVersion(storeAppVersion, storeAppReleaseNotes)
         setContent {
+            Text(text = "Hello world")
+            printlog("hello")
             _coroutineScope = rememberCoroutineScope()
+
             if (storeAppVersion.value != "UNKNOWN" && storeAppVersionBigger() && launchFlag) {
                 NewVersionNotification()
                 launchFlag = false

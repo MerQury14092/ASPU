@@ -25,51 +25,54 @@ fun getNews(
     onError: (String) -> Unit,
     onSuccess: (JSONObject, Int) -> Unit
 ) {
-    val faculty = selectedFaculty.value
-    val timeCache = settingsPreferences.getLong("timeCache", TimeUnit.HOURS.toSeconds(3))
-    if (timeCache != 0L && cache.getString("${faculty.name} $pageNumber", "") != "") {
-        val cacheNewsPage = cache.getString("${faculty.name} $pageNumber", "")
-            ?.let { JSONObject(it) }
-        if (timestampDifference(timestampNow(), cacheNewsPage!!.getString("created")) < timeCache) {
-            async {
-                Thread.sleep(500)
+    async {
+        Thread.sleep(100)
+        val faculty = selectedFaculty.value
+        val timeCache = settingsPreferences.getLong("timeCache", TimeUnit.HOURS.toSeconds(3))
+        if (timeCache != 0L && cache.getString("${faculty.name} $pageNumber", "") != "") {
+            val cacheNewsPage = cache.getString("${faculty.name} $pageNumber", "")
+                ?.let { JSONObject(it) }
+            if (timestampDifference(timestampNow(), cacheNewsPage!!.getString("created")) < timeCache) {
+                async {
+                    Thread.sleep(500)
+                    onSuccess(
+                        cacheNewsPage.getJSONObject("value"),
+                        cacheNewsPage.getJSONObject("value").getInt("countPages")
+                    )
+                }
+                return@async
+            }
+        }
+        var url = "https://$apiDomain/api/news"
+        if (faculty != NewsCategoryEnum.agpu)
+            url = "$url/${faculty.name}"
+        url = "$url?page=$pageNumber"
+        val request = StringRequest(
+            Request.Method.GET,
+            url,
+            { response ->
+                val convertedResponse = EncodingConverter.translateISO8859_1toUTF_8(response)
+                val res = JSONObject(convertedResponse)
                 onSuccess(
-                    cacheNewsPage.getJSONObject("value"),
-                    cacheNewsPage.getJSONObject("value").getInt("countPages")
+                    res,
+                    res.getInt("countPages")
                 )
+                cache.edit().putString(
+                    "${faculty.name} $pageNumber",
+                    JSONObject().apply {
+                        put("created", timestampNow())
+                        put("value", res)
+                    }.toString()
+                ).apply()
+            },
+            {
+                handleVolleyError(it){ errorMessage ->
+                    onError(errorMessage)
+                }
             }
-            return
-        }
+        )
+        requestQueue!!.add(request)
     }
-    var url = "https://$apiDomain/api/news"
-    if (faculty != NewsCategoryEnum.agpu)
-        url = "$url/${faculty.name}"
-    url = "$url?page=$pageNumber"
-    val request = StringRequest(
-        Request.Method.GET,
-        url,
-        { response ->
-            val convertedResponse = EncodingConverter.translateISO8859_1toUTF_8(response)
-            val res = JSONObject(convertedResponse)
-            onSuccess(
-                res,
-                res.getInt("countPages")
-            )
-            cache.edit().putString(
-                "${faculty.name} $pageNumber",
-                JSONObject().apply {
-                    put("created", timestampNow())
-                    put("value", res)
-                }.toString()
-            ).apply()
-        },
-        {
-            handleVolleyError(it){ errorMessage ->
-                onError(errorMessage)
-            }
-        }
-    )
-    requestQueue!!.add(request)
 }
 
 fun getNewsArticle(

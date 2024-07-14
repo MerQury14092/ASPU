@@ -26,6 +26,7 @@ import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.services.news.getNews
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
+import com.merqury.aspu.ui.selected_page
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 import org.json.JSONObject
@@ -59,11 +60,11 @@ private var newsLoaded by mutableStateOf(false)
 fun NewsContent(
     header: MutableState<@Composable () -> Unit>
 ) {
-
-    header.value = {
-        TitleHeader(title = "Новости")
-        NewsHeader(selectedFaculty, newsLoaded)
-    }
+    if (selectedNewsRoute)
+        header.value = {
+            TitleHeader(title = "Новости")
+            NewsHeader(selectedFaculty, newsLoaded)
+        }
     var errorString by remember {
         mutableStateOf<String?>(null)
     }
@@ -101,13 +102,15 @@ fun NewsContent(
             HorizontalPager(
                 state = pagerState.value,
                 modifier = Modifier.background(SurfaceTheme.background.color),
-                outOfBoundsPageCount = 3
             ) {
                 NewsPage(pageNumber = it)
             }
     }
 
 }
+
+private inline val selectedNewsRoute get() = selected_page.value == "news"
+
 
 @Composable
 private fun NewsPage(

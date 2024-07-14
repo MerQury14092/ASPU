@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material.Divider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -41,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getSystemService
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
+import com.merqury.aspu.mainCoroutineScope
 import com.merqury.aspu.services.news.urlForCurrentFaculty
 import com.merqury.aspu.ui.navfragments.news.NewsScreen
 import com.merqury.aspu.ui.navfragments.other.OtherScreen
@@ -54,6 +57,7 @@ import com.merqury.aspu.ui.navfragments.timetable.TimetableScreen
 import com.merqury.aspu.ui.navfragments.timetable.reloadTimetable
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
+import kotlinx.coroutines.launch
 
 
 val topBarContent: MutableState<@Composable () -> Unit> = mutableStateOf({})
@@ -115,6 +119,7 @@ val onASPUButtonLongClick: MutableState<() -> Unit> = mutableStateOf({
 val aspuButtonLoading = mutableStateOf(false)
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MainScreen() {
     Scaffold(
@@ -150,11 +155,25 @@ fun MainScreen() {
         }
     ) {
         Box(modifier = Modifier.padding(it)) {
-            content.value()
+            HorizontalPager(
+                state = pagerState,
+                outOfBoundsPageCount = 5,
+                userScrollEnabled = false
+            ) { page ->
+                when (page) {
+                    0 -> getContentByRoute("news")()
+                    1 -> getContentByRoute("timetable")()
+                    2 -> getContentByRoute("other")()
+                    3 -> getContentByRoute("settings")()
+                    else -> content.value()
+                }
+            }
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
+private val pagerState = PagerState { 5 }
 private val forNavBarUpdate = mutableStateOf(true)
 
 fun navBarUpdate() {
@@ -231,6 +250,20 @@ fun NavigationBar() {
 fun routeTo(route: String) {
     content.value = getContentByRoute(route)
     selected_page.value = route
+    when(route) {
+        "news" -> animateScrollToRoutePage(0)
+        "timetable" -> animateScrollToRoutePage(1)
+        "other" -> animateScrollToRoutePage(2)
+        "settings" -> animateScrollToRoutePage(3)
+        "account" -> animateScrollToRoutePage(3)
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun animateScrollToRoutePage(page: Int){
+    mainCoroutineScope.launch {
+        pagerState.animateScrollToPage(page = page, animationSpec = tween(1000))
+    }
 }
 
 @Composable

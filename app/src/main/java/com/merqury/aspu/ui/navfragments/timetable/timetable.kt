@@ -31,6 +31,7 @@ import com.merqury.aspu.services.timetable.models.Discipline
 import com.merqury.aspu.services.timetable.models.TimetableDay
 import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
+import com.merqury.aspu.ui.selected_page
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
@@ -59,9 +60,10 @@ fun TimetableScreen(header: MutableState<@Composable () -> Unit>) {
 @Composable
 fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
     Column {
-        header.value = {
-            TimetableHeader(getDateByPage(pagerState.currentPage))
-        }
+        if (selectedTimetableRoute)
+            header.value = {
+                TimetableHeader(getDateByPage(pagerState.currentPage))
+            }
 
         HorizontalPager(
             state = pagerState,
@@ -69,12 +71,13 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
                 .fillMaxSize()
                 .background(SurfaceTheme.background.color),
             verticalAlignment = Alignment.Top,
-            outOfBoundsPageCount = 5
         ) {
             TimetableDay(page = it)
         }
     }
 }
+
+private inline val selectedTimetableRoute get() = selected_page.value == "timetable"
 
 @Composable
 private fun TimetableDay(

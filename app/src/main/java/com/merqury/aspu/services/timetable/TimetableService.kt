@@ -58,6 +58,7 @@ fun getTimetableByDateRange(
         onError
     )
     requestQueue!!.add(request)
+
 }
 
 fun getTimetableByDate(
@@ -65,54 +66,61 @@ fun getTimetableByDate(
     onError: (String) -> Unit,
     onSuccess: (TimetableDay) -> Unit
 ) {
-    val timeCache = settingsPreferences.getLong("timeCache", TimeUnit.HOURS.toSeconds(3))
-    if (timeCache != 0L && cache.getString("${selectedId.value} $date", "") != "") {
-        val cacheTimetableDay = cache.getString("${selectedId.value} $date", "")
-            ?.let { JSONObject(it) }
-        if (timestampDifference(
-                timestampNow(),
-                cacheTimetableDay!!.getString("created")
-            ) < timeCache
-        ) {
-            printlog("Берем из кэша (debug: {timeCache: $timeCache, timestampDifference: ${timestampDifference(
-                timestampNow(), cacheTimetableDay.getString("created"))}})")
-            async {
-                Thread.sleep(100)
-                onSuccess(TimetableDay.fromJson(cacheTimetableDay.getString("value")))
-            }
-            return
-        }
-        printlog("Кэш просрочился")
-    }
-    printlog("Берем не из кэша")
-
-    val startWeekDate = getStartDayOfWeekByDate(date)
-    val endWeekDate = getEndDayOfWeekByDate(date)
-    getTimetableByDateRange(
-        startWeekDate,
-        endWeekDate,
-        { ttList ->
-            ttList.forEach {
-                if (it.date == date) {
-                    onSuccess(it)
+    async {
+        val timeCache = settingsPreferences.getLong("timeCache", TimeUnit.HOURS.toSeconds(3))
+        if (timeCache != 0L && cache.getString("${selectedId.value} $date", "") != "") {
+            val cacheTimetableDay = cache.getString("${selectedId.value} $date", "")
+                ?.let { JSONObject(it) }
+            if (timestampDifference(
+                    timestampNow(),
+                    cacheTimetableDay!!.getString("created")
+                ) < timeCache
+            ) {
+                printlog(
+                    "Берем из кэша (debug: {timeCache: $timeCache, timestampDifference: ${
+                        timestampDifference(
+                            timestampNow(), cacheTimetableDay.getString("created")
+                        )
+                    }})"
+                )
+                async {
+                    Thread.sleep(100)
+                    onSuccess(TimetableDay.fromJson(cacheTimetableDay.getString("value")))
                 }
-                cache.edit().putString(
-                    "${selectedId.value} ${it.date}",
-                    JSONObject().apply {
-                        put("created", timestampNow())
-                        put("value", it.toJson())
-                    }.toString()
-                ).apply()
+                return@async
             }
-        },
-        {
-            Log.d("network-error", "ERROR")
-            handleVolleyError(it){
-                onError(it)
-            }
+            printlog("Кэш просрочился")
         }
-    )
+        printlog("Берем не из кэша")
 
+        val startWeekDate = getStartDayOfWeekByDate(date)
+        val endWeekDate = getEndDayOfWeekByDate(date)
+        getTimetableByDateRange(
+            startWeekDate,
+            endWeekDate,
+            { ttList ->
+                ttList.forEach {
+                    if (it.date == date) {
+                        onSuccess(it)
+                    }
+                    cache.edit().putString(
+                        "${selectedId.value} ${it.date}",
+                        JSONObject().apply {
+                            put("created", timestampNow())
+                            put("value", it.toJson())
+                        }.toString()
+                    ).apply()
+                }
+            },
+            {
+                Log.d("network-error", "ERROR")
+                handleVolleyError(it) {
+                    onError(it)
+                }
+            }
+        )
+
+    }
 }
 
 @OptIn(DelicateCoroutinesApi::class)
