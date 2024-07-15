@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getSystemService
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
+import com.merqury.aspu.requestQueue
 import com.merqury.aspu.services.news.urlForCurrentFaculty
 import com.merqury.aspu.ui.navfragments.news.NewsScreen
 import com.merqury.aspu.ui.navfragments.other.OtherScreen
@@ -275,6 +276,7 @@ fun NavigationBar() {
 }
 
 fun routeTo(route: String) {
+    requestQueue!!.cancelAll { true }
     lastRoute = selected_page.value
     selected_page.value = route
 }

@@ -29,6 +29,7 @@ import com.merqury.aspu.services.timetable.getTimetableByDate
 import com.merqury.aspu.services.timetable.getTodayDate
 import com.merqury.aspu.services.timetable.models.Discipline
 import com.merqury.aspu.services.timetable.models.TimetableDay
+import com.merqury.aspu.ui.async
 import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
 import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.selected_page
@@ -111,7 +112,7 @@ private fun TimetableDay(
                 loaded = true
             }
         ) {
-            mainCoroutineScope.launch {
+            async {
                 disciplines = if (
                     settingsPreferences.getBoolean("filtration_on", false)
                     && settingsPreferences.getString("user", "student") == "student"

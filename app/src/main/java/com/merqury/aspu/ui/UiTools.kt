@@ -67,7 +67,6 @@ import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.appContext
 import com.merqury.aspu.close
-import com.merqury.aspu.mainCoroutineScope
 import com.merqury.aspu.show
 import com.merqury.aspu.ui.other.TopBarActivity
 import com.merqury.aspu.ui.other.WebViewActivity
@@ -77,10 +76,10 @@ import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.ThemeText
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.theme.colorWithoutAnim
-import kotlinx.coroutines.launch
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
+import java.util.concurrent.Executors
 import kotlin.math.abs
 import kotlin.math.round
 import kotlin.random.Random
@@ -204,10 +203,10 @@ fun goToScreen(activityClass: Class<*>) {
     appContext!!.startActivity(Intent(appContext!!, activityClass))
 }
 
+
+private val executor = Executors.newFixedThreadPool(12)
 fun async(runnable: () -> Unit) {
-    mainCoroutineScope.launch {
-        runnable()
-    }
+    executor.submit(runnable)
 }
 
 fun after(duration: Duration, runnable: () -> Unit) {
