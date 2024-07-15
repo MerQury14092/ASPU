@@ -71,6 +71,7 @@ fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
                 .fillMaxSize()
                 .background(SurfaceTheme.background.color),
             verticalAlignment = Alignment.Top,
+            outOfBoundsPageCount = 1
         ) {
             TimetableDay(page = it)
         }
@@ -83,8 +84,8 @@ private inline val selectedTimetableRoute get() = selected_page.value == "timeta
 private fun TimetableDay(
     page: Int
 ) {
-    var data by remember {
-        mutableStateOf<TimetableDay?>(null)
+    var disciplines by remember {
+        mutableStateOf<List<Discipline>?>(null)
     }
     var timetableLoaded by remember {
         mutableStateOf(false)
@@ -110,9 +111,21 @@ private fun TimetableDay(
                 loaded = true
             }
         ) {
-            data = it
-            timetableLoaded = true
-            loaded = true
+            mainCoroutineScope.launch {
+                disciplines = if (
+                    settingsPreferences.getBoolean("filtration_on", false)
+                    && settingsPreferences.getString("user", "student") == "student"
+                    && selectedId.value == settingsPreferences.getString(
+                        "timetable_id",
+                        "ВМ-ИВТ-2-1"
+                    )
+                )
+                    filter(it)
+                else
+                    it.disciplines
+                timetableLoaded = true
+                loaded = true
+            }
         }
     } else {
         if (errorString != null)
@@ -124,7 +137,7 @@ private fun TimetableDay(
             ) {
                 Text(text = errorString!!, color = SurfaceTheme.text.color)
             }
-        else if (data!!.disciplines.isEmpty())
+        else if (disciplines!!.isEmpty())
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -134,22 +147,10 @@ private fun TimetableDay(
                 Text(text = "Нет пар", color = SurfaceTheme.text.color)
             }
         else {
-            val disciplines = if (
-                settingsPreferences.getBoolean("filtration_on", false)
-                && settingsPreferences.getString("user", "student") == "student"
-                && selectedId.value == settingsPreferences.getString(
-                    "timetable_id",
-                    "ВМ-ИВТ-2-1"
-                )
-            )
-                filter(data!!)
-            else
-                data!!.disciplines
-
             LazyColumn {
-                items(count = disciplines.size) {
+                items(count = disciplines!!.size) {
                     TimetableItem(
-                        discipline = disciplines[it]
+                        discipline = disciplines!![it]
                     )
                 }
 

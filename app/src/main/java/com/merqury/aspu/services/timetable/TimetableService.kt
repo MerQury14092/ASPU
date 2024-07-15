@@ -20,7 +20,6 @@ import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.navfragments.timetable.selectedId
 import com.merqury.aspu.ui.navfragments.timetable.selectedOwner
 import com.merqury.aspu.ui.openInBrowser
-import com.merqury.aspu.ui.printlog
 import com.merqury.aspu.ui.showWebPage
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -76,22 +75,22 @@ fun getTimetableByDate(
                     cacheTimetableDay!!.getString("created")
                 ) < timeCache
             ) {
-                printlog(
-                    "Берем из кэша (debug: {timeCache: $timeCache, timestampDifference: ${
-                        timestampDifference(
-                            timestampNow(), cacheTimetableDay.getString("created")
-                        )
-                    }})"
-                )
+//                printlog(
+//                    "Берем из кэша (debug: {timeCache: $timeCache, timestampDifference: ${
+//                        timestampDifference(
+//                            timestampNow(), cacheTimetableDay.getString("created")
+//                        )
+//                    }})"
+//                )
                 async {
                     Thread.sleep(100)
                     onSuccess(TimetableDay.fromJson(cacheTimetableDay.getString("value")))
                 }
                 return@async
             }
-            printlog("Кэш просрочился")
+//            printlog("Кэш просрочился")
         }
-        printlog("Берем не из кэша")
+//        printlog("Берем не из кэша")
 
         val startWeekDate = getStartDayOfWeekByDate(date)
         val endWeekDate = getEndDayOfWeekByDate(date)

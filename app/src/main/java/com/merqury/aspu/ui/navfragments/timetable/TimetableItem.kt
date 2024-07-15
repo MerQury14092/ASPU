@@ -25,8 +25,8 @@ import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.enums.TimetableDisciplineType
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.services.timetable.models.Discipline
+import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 
