@@ -3,18 +3,21 @@
 
     <style name="Theme.ASPU" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowActivityTransitions">true</item>
     </style>
 
     <style name="Theme.ASPU.dark" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@color/dark_foreground</item>
         <item name="android:statusBarColor">@color/dark_foreground</item>
         <item name="android:navigationBarColor">@color/dark_foreground</item>
+        <item name="android:windowActivityTransitions">true</item>
     </style>
 
     <style name="Theme.ASPU.sea" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@color/sea_foreground</item>
         <item name="android:statusBarColor">@color/sea_foreground</item>
         <item name="android:navigationBarColor">@color/sea_foreground</item>
+        <item name="android:windowActivityTransitions">true</item>
     </style>
 
     <style name="Theme.ASPU.light" parent="android:Theme.Material.Light.NoActionBar">
@@ -23,6 +26,7 @@
         <item name="android:navigationBarColor">@color/light_foreground</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowActivityTransitions">true</item>
     </style>
 
 </resources>

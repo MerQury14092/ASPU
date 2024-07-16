@@ -27,6 +27,7 @@ class SplashScreenActivity: Activity() {
         Thread {
             Thread.sleep(600)
             startActivity(Intent(this, MainActivity::class.java))
+            this.overridePendingTransition(0,0)
             finish()
         }.start()
     }

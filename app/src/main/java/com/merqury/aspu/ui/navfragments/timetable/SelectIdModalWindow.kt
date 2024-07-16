@@ -419,9 +419,7 @@ fun loadTeachersOnButtons(
                 val fio = "${it.getString("last_name")} " +
                         "${it.getString("first_name")} " +
                         it.getString("father_name")
-                buttonEntries.put(
-                    fio
-                ) {
+                buttonEntries[fio] = {
                     onResultClick(
                         SearchContentElement(
                             fio.toInitials(),
