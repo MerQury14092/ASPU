@@ -17,7 +17,7 @@ fun showCourseActionsModalWindow(
     course: ExamCourse
 ) {
     showSelectListDialogWithClickAnimation(mapOf(
-        "Открыть эказмен" to {
+        "Открыть экзамен" to {
             getQuizzes(
                 course.id,
                 {
