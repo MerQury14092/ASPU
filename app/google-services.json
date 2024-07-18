@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:639378829719:android:a7395757a2ddff42d994d2",
+        "mobilesdk_app_id": "1:639378829719:android:6080c8ce7ca97598d994d2",
         "android_client_info": {
-          "package_name": "com.merqury.aspudev"
+          "package_name": "com.merqury.aspu"
         }
       },
       "oauth_client": [],

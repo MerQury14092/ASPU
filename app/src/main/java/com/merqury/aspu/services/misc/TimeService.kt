@@ -1,4 +1,4 @@
-package com.merqury.aspu.services
+package com.merqury.aspu.services.misc
 
 import android.content.Context
 import android.content.SharedPreferences

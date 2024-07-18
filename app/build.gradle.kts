@@ -9,7 +9,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.merqury.aspudev"
+        applicationId = "com.merqury.aspu"
         minSdk = 28
         targetSdk = 34
         versionCode = 16
@@ -48,6 +48,7 @@ android {
 }
 
 dependencies {
+    implementation("com.google.firebase:firebase-config-ktx")
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.squareup.okhttp:okhttp:2.7.5")

@@ -8,17 +8,16 @@ import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.apiDomain
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.requestQueue
-import com.merqury.aspu.services.cache
+import com.merqury.aspu.services.misc.AppSettings
+import com.merqury.aspu.services.misc.cache
+import com.merqury.aspu.services.misc.timestampDifference
+import com.merqury.aspu.services.misc.timestampNow
 import com.merqury.aspu.services.network.EncodingConverter
 import com.merqury.aspu.services.network.handleVolleyError
-import com.merqury.aspu.services.timestampDifference
-import com.merqury.aspu.services.timestampNow
 import com.merqury.aspu.ui.async
 import com.merqury.aspu.ui.navfragments.news.pagerState
 import com.merqury.aspu.ui.navfragments.news.selectedFaculty
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import org.json.JSONObject
-import java.util.concurrent.TimeUnit
 
 fun getNews(
     pageNumber: Int,
@@ -28,7 +27,7 @@ fun getNews(
     async {
         Thread.sleep(100)
         val faculty = selectedFaculty.value
-        val timeCache = settingsPreferences.getLong("timeCache", TimeUnit.HOURS.toSeconds(3))
+        val timeCache = AppSettings.timeCache
         if (timeCache != 0L && cache.getString("${faculty.name} $pageNumber", "") != "") {
             val cacheNewsPage = cache.getString("${faculty.name} $pageNumber", "")
                 ?.let { JSONObject(it) }

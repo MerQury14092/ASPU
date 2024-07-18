@@ -20,7 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.R
 import com.merqury.aspu.enums.TimetableDisciplineType
-import com.merqury.aspu.services.cache
+import com.merqury.aspu.services.misc.cache
 import com.merqury.aspu.services.intents.openMapWithMarker
 import com.merqury.aspu.services.timetable.models.Discipline
 import com.merqury.aspu.services.timetable.models.getCorpsByAudience

@@ -23,26 +23,30 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.mainCoroutineScope
+import com.merqury.aspu.services.appconfig.AppConfig
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.services.timetable.getTimetableByDate
 import com.merqury.aspu.services.timetable.getTodayDate
 import com.merqury.aspu.services.timetable.models.Discipline
 import com.merqury.aspu.services.timetable.models.TimetableDay
+import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.async
 import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.selected_page
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
+import com.merqury.aspu.ui.theme.ThemeText
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.theme.colorWithoutAnim
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-val selectedId = mutableStateOf(settingsPreferences.getString("timetable_id", "ВМ-ИВТ-2-1")!!)
-val selectedOwner = mutableStateOf(settingsPreferences.getString("timetable_id_owner", "GROUP")!!)
+val selectedId = mutableStateOf(AppSettings.timetableId)
+val selectedOwner = mutableStateOf(AppSettings.timetableIdOwner)
 private val pointDate = getTodayDate()
 private var loaded by mutableStateOf(false)
 
@@ -54,12 +58,31 @@ private val pagerState = PagerState(
 
 @Composable
 fun TimetableScreen(header: MutableState<@Composable () -> Unit>) {
-    TimetableScreenContent(header)
+    val useConfig = AppConfig.useTimetablePageConfig()
+    if (useConfig.canUse)
+        TimetableContent(header)
+    else
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(SurfaceTheme.background.color),
+            contentAlignment = Alignment.Center
+        ) {
+            header.value = {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                    TitleHeader(title = "Расписание")
+                }
+            }
+            ThemeText(
+                text = useConfig.reason ?: "Раснисание пока не работает в данной версии",
+                textAlign = TextAlign.Center
+            )
+        }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
+fun TimetableContent(header: MutableState<@Composable () -> Unit>) {
     Column {
         if (selectedTimetableRoute)
             header.value = {
@@ -114,12 +137,9 @@ private fun TimetableDay(
         ) {
             async {
                 disciplines = if (
-                    settingsPreferences.getBoolean("filtration_on", false)
-                    && settingsPreferences.getString("user", "student") == "student"
-                    && selectedId.value == settingsPreferences.getString(
-                        "timetable_id",
-                        "ВМ-ИВТ-2-1"
-                    )
+                    AppSettings.timetableFiltration
+                    && AppSettings.whoIsUser == "student"
+                    && selectedId.value == AppSettings.timetableId
                 )
                     filter(it)
                 else
@@ -160,10 +180,6 @@ private fun TimetableDay(
     }
 }
 
-fun reloadTimetable() {
-    loaded = false
-}
-
 private val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
 private fun getDateByPage(page: Int): String {
@@ -198,7 +214,7 @@ fun filter(
     timetableDay: TimetableDay
 ): ArrayList<Discipline> {
     var disciplines = arrayListOf<Discipline>()
-    if (timetableDay.id == settingsPreferences.getString("timetable_id", "ВМ-ИВТ-2-1"))
+    if (timetableDay.id == AppSettings.timetableId)
         (0..<timetableDay.disciplines.size).forEach {
             val currentDiscipline = timetableDay.disciplines[it]
             if (isSelectableDiscipline(currentDiscipline.name))
@@ -215,9 +231,9 @@ fun filterBySubgroup(res: ArrayList<Discipline>, discipline: Discipline) {
     if (
         discipline.subgroup == 0
         ||
-        discipline.subgroup == settingsPreferences.getInt("selected_subgroup", 0)
+        discipline.subgroup == AppSettings.selectedSubgroup
         ||
-        settingsPreferences.getInt("selected_subgroup", 0) == 0
+        AppSettings.selectedSubgroup == 0
     )
         res.add(discipline)
 }

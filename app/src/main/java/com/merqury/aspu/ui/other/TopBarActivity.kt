@@ -28,8 +28,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.appContext
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.ui.contentList
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 
@@ -89,7 +89,7 @@ class TopBarActivity : ComponentActivity() {
             window.navigationBarColor =
                 android.graphics.Color.rgb(foreground.red, foreground.green, foreground.blue)
 
-            if (settingsPreferences.getString("theme", "light")!! == "light")
+            if (AppSettings.selectedTheme == "light")
                 window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
             else
                 window.decorView.systemUiVisibility = 0

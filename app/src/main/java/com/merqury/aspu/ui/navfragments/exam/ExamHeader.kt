@@ -4,6 +4,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -34,7 +35,8 @@ import coil.compose.SubcomposeAsyncImage
 import com.merqury.aspu.R
 import com.merqury.aspu.requestQueue
 import com.merqury.aspu.services.exam.getProfilePhotoUrl
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
+import com.merqury.aspu.services.misc.AppSettings
+import com.merqury.aspu.ui.navfragments.exam.profile.startProfileScreen
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.ThemeText
 import com.merqury.aspu.ui.theme.color
@@ -76,6 +78,9 @@ fun ExamHeader() {
                     shape = RoundedCornerShape(20.dp)
                 )
                 .padding(4.dp)
+                .clickable {
+                    startProfileScreen()
+                }
         ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -86,8 +91,8 @@ fun ExamHeader() {
                         .padding(10.dp, 0.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    val firstName = settingsPreferences.getString("exam-first-name", "Имя")!!
-                    val lastName = settingsPreferences.getString("exam-last-name", "Фамилия")!!
+                    val firstName = AppSettings.examFirstName
+                    val lastName = AppSettings.examLastName
                     ThemeText(
                         text = "$lastName ${firstName[0]}.",
                         fontSize = 11.sp,

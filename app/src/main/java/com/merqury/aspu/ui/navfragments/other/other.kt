@@ -27,8 +27,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.merqury.aspu.R
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.ui.TitleHeader
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.openInBrowser
 import com.merqury.aspu.ui.showWebPage
 import com.merqury.aspu.ui.theme.SurfaceTheme
@@ -44,7 +44,7 @@ fun OtherPreview() {
 fun OtherScreen(header: MutableState<@Composable () -> Unit>) {
     header.value = {
         TitleHeader(
-            title = when (settingsPreferences.getString("user", "student")) {
+            title = when (AppSettings.whoIsUser) {
                 "student" -> "Студенту"
                 "teacher" -> "Педагогу"
                 else -> "Кому?"
@@ -124,14 +124,11 @@ fun OtherScreenContent() {
                     R.drawable.study_plan,
                     "plany.agpu.net/Plans/"
                 ),
-//                ActionEntry(
-//                    "Аккаунт ЭИОС",
-//                    R.drawable.account
-//                ) {
-//                  showEiosAuthModalWindow {
-//                      routeTo("account")
-//                  }
-//                },
+                ActionEntry(
+                    "Аккаунт ЭИОС",
+                    R.drawable.account
+                ) {
+                },
                 WebEntry(
                     "Рабочие программы",
                     R.drawable.programs,
@@ -176,16 +173,16 @@ fun OtherScreenContent() {
                         icon = it.icon
                     ) {
                         if (!it.inBrowser)
-                            if (settingsPreferences.getBoolean("use_included_browser", false))
+                            if (AppSettings.useIncludedBrowser)
                                 showWebPage(it.url, it.scheme)
                             else
                                 openInBrowser(it.url, it.scheme)
                         else
                             openInBrowser(it.url, it.scheme)
                     }
-                } /*else if (it is ActionEntry){
+                } else if (it is ActionEntry){
                     ActionButton(name = it.name, icon = it.icon, action = it.action)
-                }*/
+                }
             }
         }
     }

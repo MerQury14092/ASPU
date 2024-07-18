@@ -9,8 +9,8 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.merqury.aspudev" />
-                  <option name="mobileSdkAppId" value="1:639378829719:android:a7395757a2ddff42d994d2" />
+                  <option name="appId" value="com.merqury.aspu" />
+                  <option name="mobileSdkAppId" value="1:639378829719:android:6080c8ce7ca97598d994d2" />
                   <option name="projectId" value="aspu-dev" />
                   <option name="projectNumber" value="639378829719" />
                 </ConnectionSetting>

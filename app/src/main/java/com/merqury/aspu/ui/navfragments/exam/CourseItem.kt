@@ -35,7 +35,7 @@ fun CourseItem(item: ExamCourse, isMyCourse: Boolean) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(SurfaceTheme.foreground.color, shape = RoundedCornerShape(15.dp))
+                .background(SurfaceTheme.button.color, shape = RoundedCornerShape(15.dp))
                 .padding(5.dp, 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

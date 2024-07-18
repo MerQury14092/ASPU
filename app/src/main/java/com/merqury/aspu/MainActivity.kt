@@ -6,38 +6,21 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.Volley
-import com.merqury.aspu.services.network.getLastPublishedVersion
+import com.merqury.aspu.services.appconfig.AppConfig
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.ui.MainScreen
 import com.merqury.aspu.ui.contentList
-import com.merqury.aspu.ui.navfragments.settings.reloadSettingsScreen
 import com.merqury.aspu.ui.navfragments.settings.selectUser
 import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.navfragments.timetable.showSelectIdModalWindow
-import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 import kotlinx.coroutines.CoroutineScope
@@ -48,35 +31,23 @@ var appContext: Context? = null
 var requestQueue: RequestQueue? = null
 var _coroutineScope: CoroutineScope? = null
 inline val mainCoroutineScope: CoroutineScope get() =  _coroutineScope!!
-var appVersion: String? = null
-const val RUSTORE_RELEASE = "rustore"
-const val PLAYMARKET_RELEASE = "google"
-const val releaseType = RUSTORE_RELEASE
-private val storeAppVersion = mutableStateOf("UNKNOWN")
-private val storeAppReleaseNotes = mutableStateOf("")
-private var launchFlag = true
-var apiDomain = "202.181.148.79"
+val apiDomain = lazy {
+    AppConfig.getApiDomain()
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         appContext = this
-        appVersion =
-            appContext!!.packageManager.getPackageInfo(appContext!!.packageName, 0).versionName
         requestQueue = Volley.newRequestQueue(appContext)
         setContent {
             Text(text = "Hello world")
             _coroutineScope = rememberCoroutineScope()
-            getLastPublishedVersion(storeAppVersion, storeAppReleaseNotes)
-            if (storeAppVersion.value != "UNKNOWN" && storeAppVersionBigger() && launchFlag) {
-                NewVersionNotification()
-                launchFlag = false
-            }
             contentList.forEach {
                 it()
             }
-            if (settingsPreferences.getBoolean("first_launch", true))
+            if (AppSettings.firstLaunch)
                 FirstStart()
             MainScreen()
             val foreground = SurfaceTheme.foreground.color
@@ -85,65 +56,10 @@ class MainActivity : ComponentActivity() {
             window.navigationBarColor =
                 android.graphics.Color.rgb(foreground.red, foreground.green, foreground.blue)
 
-            if (settingsPreferences.getString("theme", "light")!! == "light")
+            if (AppSettings.selectedTheme == "light")
                 window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
             else
                 window.decorView.systemUiVisibility = 0
-        }
-    }
-}
-
-fun storeAppVersionBigger(): Boolean {
-    val sav = storeAppVersion.value.replace(Regex("[^0-9.]"), "").toDouble()
-    val cav = appVersion!!.replace(Regex("[^0-9.]"), "").toDouble()
-    return sav > cav
-}
-
-@Composable
-private fun NewVersionNotification() {
-    showSimpleModalWindow(
-        containerColor = SurfaceTheme.background.color
-    ) {
-        Box(modifier = Modifier.padding(10.dp)) {
-            Column {
-                Text(
-                    text = "В RUSTORE вышла новая версия! Скорее обновите!",
-                    color = SurfaceTheme.text.color,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.size(10.dp))
-                Divider(color = SurfaceTheme.divider.color)
-                Spacer(modifier = Modifier.size(10.dp))
-                Text(text = "Ваша версия: $appVersion", color = SurfaceTheme.text.color)
-                Spacer(modifier = Modifier.size(10.dp))
-                Text(
-                    text = "Новая версия: ${storeAppVersion.value}",
-                    color = SurfaceTheme.text.color
-                )
-                Spacer(modifier = Modifier.size(10.dp))
-                Text(
-                    text = "Что нового:",
-                    color = SurfaceTheme.text.color,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.size(10.dp))
-                Text(text = storeAppReleaseNotes.value, color = SurfaceTheme.text.color)
-                Spacer(modifier = Modifier.size(10.dp))
-                Divider(color = SurfaceTheme.divider.color)
-                Spacer(modifier = Modifier.size(10.dp))
-                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.BottomEnd) {
-                    Button(
-                        onClick = { it.value = false }, colors = ButtonDefaults.buttonColors(
-                            containerColor = SurfaceTheme.button.color
-                        )
-                    ) {
-                        Text(text = "Хорошо", color = SurfaceTheme.text.color)
-                    }
-                }
-            }
         }
     }
 }
@@ -179,20 +95,16 @@ fun FirstStart() {
     if (userSelected.value && !idSelectShow.value) {
         idSelectShow.value = true
         showSelectIdModalWindow(
-            filteredBy = when (settingsPreferences.getString("user", "student")) {
+            filteredBy = when (AppSettings.whoIsUser) {
                 "student" -> "group"
                 "teacher" -> "teacher"
                 else -> "group"
             }
         ) {
-            settingsPreferences.edit().putString("timetable_id", it.searchContent)
-                .apply()
-            settingsPreferences.edit()
-                .putString("timetable_id_owner", it.type.uppercase())
-                .apply()
+            AppSettings.timetableId = it.searchContent
+            AppSettings.timetableIdOwner = it.type.uppercase()
             selectableDisciplines.edit().clear().apply()
-            reloadSettingsScreen()
         }
-        settingsPreferences.edit().putBoolean("first_launch", false).apply()
+        AppSettings.firstLaunch = false
     }
 }

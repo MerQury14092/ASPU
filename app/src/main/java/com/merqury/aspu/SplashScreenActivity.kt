@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.view.animation.Animation
 import android.view.animation.ScaleAnimation
 import android.widget.ImageView
+import com.merqury.aspu.services.appconfig.AppConfig
 
 @SuppressLint("CustomSplashScreen")
 class SplashScreenActivity: Activity() {
@@ -17,19 +18,18 @@ class SplashScreenActivity: Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        appContext = this
         setTheme(getThemeStyle())
-
+        AppConfig.getConfig().fetchAndActivate().addOnSuccessListener {
+            startActivity(Intent(this, MainActivity::class.java))
+            this.overridePendingTransition(0,0)
+            finish()
+        }
         setContentView(R.layout.spash_screen_layout)
 
         imageView = findViewById(R.id.image_view)
 
         animateImageView()
-        Thread {
-            Thread.sleep(600)
-            startActivity(Intent(this, MainActivity::class.java))
-            this.overridePendingTransition(0,0)
-            finish()
-        }.start()
     }
 
     private fun animateImageView() {

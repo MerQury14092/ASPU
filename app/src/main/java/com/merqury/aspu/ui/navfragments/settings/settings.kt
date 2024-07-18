@@ -15,23 +15,20 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.appContext
-import com.merqury.aspu.appVersion
 import com.merqury.aspu.enums.NewsCategoryEnum
-import com.merqury.aspu.services.cache
 import com.merqury.aspu.services.intents.sendToDevEmail
+import com.merqury.aspu.services.misc.AppSettings
+import com.merqury.aspu.services.misc.cache
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.goToScreen
 import com.merqury.aspu.ui.makeToast
-import com.merqury.aspu.ui.navfragments.news.reloadNews
 import com.merqury.aspu.ui.navfragments.news.showFacultySelectModalWindow
-import com.merqury.aspu.ui.navfragments.timetable.reloadTimetable
 import com.merqury.aspu.ui.navfragments.timetable.showSelectIdModalWindow
 import com.merqury.aspu.ui.other.Terminal
 import com.merqury.aspu.ui.showSelectListDialog
@@ -41,16 +38,11 @@ import com.merqury.aspu.ui.theme.getThemeName
 import com.merqury.aspu.ui.theme.updateTheme
 import java.util.concurrent.TimeUnit
 
-val settingsPreferences = appContext?.getSharedPreferences("settings", Context.MODE_PRIVATE)!!
 val selectableDisciplines =
     appContext?.getSharedPreferences("selectable_disciplines", Context.MODE_PRIVATE)!!
 
 
-private val settingsUpdate = mutableStateOf(false)
 
-fun reloadSettingsScreen() {
-    settingsUpdate.value = !settingsUpdate.value
-}
 
 @Composable
 fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
@@ -64,22 +56,21 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
         ) {
-            settingsUpdate.value
             SettingsChapter(
                 title = "Общие настройки",
                 buttons = listOf(
                     ClickableSettingsButton(
                         "Кто использует приложение: ${
-                            when (settingsPreferences.getString("user", "student")) {
+                            when (val who = AppSettings.whoIsUser) {
                                 "student" -> "студент"
                                 "teacher" -> "преподаватель"
-                                else -> settingsPreferences.getString("user", "Кто?")
+                                else -> who
                             }
                         }"
                     ) { selectUser() },
                     ClickableSettingsButton(
                         "Начальная вкладка при входе: ${
-                            when (settingsPreferences.getString("initial_route", "news")) {
+                            when (AppSettings.initialRoute) {
                                 "news" -> "новости"
                                 "timetable" -> "расписание"
                                 "other" -> "студенту"
@@ -89,7 +80,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                         }"
                     ) { selectInitialRoute() },
                     SwitchableSettingsPreferenceButton(
-                        "Использовать встроенный браузер", "use_included_browser"
+                        "Использовать встроенный браузер", AppSettings.useIncludedBrowser
                     )
                 )
             )
@@ -98,126 +89,88 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                 buttons = listOf(
                     ClickableSettingsButton(
                         "Выбранная категория новостей при входе: ${
-                            NewsCategoryEnum.valueOf(
-                                settingsPreferences.getString("news_category", "agpu")!!
-                            ).localizedName
+                            NewsCategoryEnum.valueOf(AppSettings.newsCategory).localizedName
                         }"
                     ) {
                         showFacultySelectModalWindow {
-                            settingsPreferences.edit().putString("news_category", it.name).apply()
-                            reloadSettingsScreen()
+                            AppSettings.newsCategory = it.name
                         }
                     },
                     ClickableSettingsButton(
                         "${
-                            when (settingsPreferences.getString("user", "student")) {
+                            when (AppSettings.whoIsUser) {
                                 "teacher" -> "Вы"
                                 else -> "Выбранная группа"
                             }
-                        }: ${settingsPreferences.getString("timetable_id", "ВМ-ИВТ-2-1")}"
+                        }: ${AppSettings.timetableId}"
                     ) {
                         showSelectIdModalWindow(
-                            filteredBy = when (settingsPreferences.getString("user", "student")) {
+                            filteredBy = when (AppSettings.whoIsUser) {
                                 "student" -> "group"
                                 "teacher" -> "teacher"
                                 else -> "group"
                             }
                         ) {
-                            settingsPreferences.edit().putString("timetable_id", it.searchContent)
-                                .apply()
-                            settingsPreferences.edit()
-                                .putString("timetable_id_owner", it.type.uppercase())
-                                .apply()
+                            AppSettings.timetableId = it.searchContent
+                            AppSettings.timetableIdOwner = it.type.uppercase()
                             selectableDisciplines.edit().clear().apply()
-                            reloadSettingsScreen()
                         }
                     },
-                    if (settingsPreferences.getString(
-                            "user",
-                            "student"
-                        ) == "student"
+                    if (AppSettings.whoIsUser == "student"
                     ) SwitchableSettingsPreferenceButton(
                         "Фильтрация пар",
-                        "filtration_on"
+                        AppSettings.timetableFiltration
                     ) else null,
                     ClickableSettingsButton(
                         "Данные хранятся в кэше: ${
-                            when (settingsPreferences.getLong(
-                                "timeCache",
-                                TimeUnit.HOURS.toSeconds(3)
-                            )) {
+                            when (AppSettings.timeCache) {
                                 0L -> "не хранятся"
                                 TimeUnit.MINUTES.toSeconds(30) -> "пол часа"
                                 TimeUnit.HOURS.toSeconds(1) -> "1 час"
                                 TimeUnit.HOURS.toSeconds(3) -> "3 часа"
                                 TimeUnit.HOURS.toSeconds(5) -> "5 часов"
                                 TimeUnit.HOURS.toSeconds(12) -> "12 часов"
-                                else -> "${
-                                    settingsPreferences.getLong(
-                                        "timeCache",
-                                        TimeUnit.HOURS.toSeconds(3)
-                                    )
-                                } minutes"
+                                else -> "${AppSettings.timeCache} minutes"
                             }
                         }"
                     ) {
                         showSelectListDialog(mapOf(
                             "Отключить" to {
-                                settingsPreferences.edit().putLong("timeCache", 0L).apply()
-                                reloadSettingsScreen()
+                                AppSettings.timeCache = 0
                             },
                             "Пол часа" to {
-                                settingsPreferences.edit()
-                                    .putLong("timeCache", TimeUnit.MINUTES.toSeconds(30)).apply()
-                                reloadSettingsScreen()
+                                AppSettings.timeCache = TimeUnit.MINUTES.toSeconds(30)
                             },
                             "Час" to {
-                                settingsPreferences.edit()
-                                    .putLong("timeCache", TimeUnit.HOURS.toSeconds(1)).apply()
-                                reloadSettingsScreen()
+                                AppSettings.timeCache = TimeUnit.HOURS.toSeconds(1)
                             },
                             "3 часа" to {
-                                settingsPreferences.edit()
-                                    .putLong("timeCache", TimeUnit.HOURS.toSeconds(3)).apply()
-                                reloadSettingsScreen()
+                                AppSettings.timeCache = TimeUnit.HOURS.toSeconds(3)
                             },
                             "5 часов" to {
-                                settingsPreferences.edit()
-                                    .putLong("timeCache", TimeUnit.HOURS.toSeconds(5)).apply()
-                                reloadSettingsScreen()
+                                AppSettings.timeCache = TimeUnit.HOURS.toSeconds(5)
                             },
                             "12 часов" to {
-                                settingsPreferences.edit()
-                                    .putLong("timeCache", TimeUnit.HOURS.toSeconds(12)).apply()
-                                reloadSettingsScreen()
+                                AppSettings.timeCache = TimeUnit.HOURS.toSeconds(12)
                             }
                         ))
                     },
                     ClickableSettingsButton("Очистить кэш") {
                         cache.edit().clear().apply()
                         Toast.makeText(appContext!!, "Очищено!", Toast.LENGTH_LONG).show()
-                        reloadNews()
-                        reloadTimetable()
                     }
                 )
             )
-            if (settingsPreferences.getBoolean("filtration_on", false)
-                && settingsPreferences.getString("user", "student") == "student"
+            if (AppSettings.timetableFiltration
+                && AppSettings.whoIsUser == "student"
             ) {
                 SettingsChapter(title = "Настройки фильтрации расписания", buttons = listOf(
                     ClickableSettingsButton(
                         "Выбранная подгруппа: ${
-                            if (settingsPreferences.getInt(
-                                    "selected_subgroup",
-                                    0
-                                ) == 0
-                            )
+                            if (AppSettings.selectedSubgroup == 0)
                                 "нет"
                             else
-                                settingsPreferences.getInt(
-                                    "selected_subgroup",
-                                    0
-                                ).toString()
+                                AppSettings.selectedSubgroup.toString()
                         }"
                     ) {
                         selectInitialSubgroup()
@@ -229,7 +182,6 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                         "Очистить политику показа дисциплин по выбору"
                     ) {
                         selectableDisciplines.edit().clear().apply()
-                        reloadTimetable()
                         appContext!!.makeToast("Очищено!")
                     }
                 ))
@@ -237,17 +189,17 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
             SettingsChapter(
                 title = "Настройки внешнего вида", buttons = listOf(
                     ClickableSettingsButton(
-                        "${getThemeName(settingsPreferences.getString("theme", "light")!!)} тема"
+                        "${getThemeName(AppSettings.selectedTheme)} тема"
                     ) {
                         showSelectTheme()
                     },
                     SwitchableSettingsPreferenceButton(
                         "Цветной фон ячеек в расписании",
-                        "color_timetable"
+                        AppSettings.colorTimetable
                     ),
                     SwitchableSettingsPreferenceButton(
                         "Текст под иконками вкладок",
-                        "text_in_navbar"
+                        AppSettings.textInNavbar
                     )
                 )
             )
@@ -257,22 +209,22 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(5.dp))
-            Text(
-                "Версия приложения: $appVersion",
-                color = SurfaceTheme.text.color,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Left
-            )
-            Spacer(modifier = Modifier.height(5.dp))
-            if (appVersion!!.contains("alpha")) {
-                Text(
-                    "Приложение находится на этапе активной разработки и тестирования, в связи с этим в нём могут быть баги и ошибки",
-                    color = SurfaceTheme.text.color,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Left
-                )
-                Spacer(modifier = Modifier.height(5.dp))
-            }
+//            Text(
+//                "Версия приложения: $appVersion",
+//                color = SurfaceTheme.text.color,
+//                modifier = Modifier.fillMaxWidth(),
+//                textAlign = TextAlign.Left
+//            )
+//            Spacer(modifier = Modifier.height(5.dp))
+//            if (appVersion!!.contains("alpha")) {
+//                Text(
+//                    "Приложение находится на этапе активной разработки и тестирования, в связи с этим в нём могут быть баги и ошибки",
+//                    color = SurfaceTheme.text.color,
+//                    modifier = Modifier.fillMaxWidth(),
+//                    textAlign = TextAlign.Left
+//                )
+//                Spacer(modifier = Modifier.height(5.dp))
+//            }
             Text(
                 "Если встретились с ошибкой, сообщите разработчику",
                 color = SurfaceTheme.text.color,
@@ -291,7 +243,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                 textDecoration = TextDecoration.Underline
 
             )
-            if (settingsPreferences.getBoolean("debug_mode", false))
+            if (AppSettings.debugMode)
                 ClickableSettingsButton("Для разработчика") {
                     goToScreen(Terminal::class.java)
                 }.getContent()()
@@ -313,24 +265,8 @@ fun toggleTheme() {
 }
 
 fun setTheme(name: String) {
-    settingsPreferences.edit().putString("theme", name).apply()
+    AppSettings.selectedTheme = name
     updateTheme()
-    reloadSettingsScreen()
-}
-
-fun toggleBooleanSettingsPreference(name: String) {
-    settingsPreferences
-        .edit()
-        .putBoolean(
-            name,
-            !settingsPreferences
-                .getBoolean(name, getDefault(name))
-        )
-        .apply()
-//    appContext!!.makeToast(
-//        settingsPreferences
-//            .getBoolean(name, false).toString() + ": " + name
-//    )
 }
 
 fun getDefault(name: String): Boolean {

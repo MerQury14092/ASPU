@@ -53,7 +53,6 @@ fun NewsHeader(
                             if (newsLoaded)
                                 showFacultySelectModalWindow{
                                     selectedFaculty.value = it
-                                    reloadNews()
                                 }
                         },
                     contentScale = ContentScale.Fit,

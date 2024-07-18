@@ -44,9 +44,9 @@ import androidx.compose.ui.unit.sp
 import com.merqury.aspu.R
 import com.merqury.aspu.services.exam.getNameOfUser
 import com.merqury.aspu.services.exam.loginExamPlatform
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.ui.after
 import com.merqury.aspu.ui.async
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
@@ -212,10 +212,8 @@ fun showExamAuthModalWindow(msg: String = "", closure: () -> Unit = {}) {
                                 receivedResponse = true
                                 authSuccess = true
                                 getNameOfUser {
-                                    settingsPreferences.edit()
-                                        .putString("exam-first-name", it.split(" ")[0]).apply()
-                                    settingsPreferences.edit()
-                                        .putString("exam-last-name", it.split(" ")[1]).apply()
+                                    AppSettings.examFirstName = it.split(" ")[0]
+                                    AppSettings.examLastName = it.split(" ")[1]
                                 }
                                 async {
                                     Thread.sleep(1000)

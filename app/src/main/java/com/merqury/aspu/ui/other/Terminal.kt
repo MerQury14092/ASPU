@@ -25,11 +25,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.ui.magicState
 import com.merqury.aspu.ui.navfragments.profile.showEiosAuthModalWindow
-import com.merqury.aspu.ui.navfragments.settings.reloadSettingsScreen
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
-import com.merqury.aspu.ui.navfragments.settings.toggleBooleanSettingsPreference
 import com.merqury.aspu.ui.printlog
 import com.merqury.aspu.ui.routeTo
 import com.merqury.aspu.ui.theme.SurfaceTheme
@@ -184,8 +182,7 @@ private fun TerminalContent() {
 
 fun execCommand(command: String) {
     if (command.lowercase().trim() == "debug off") {
-        toggleBooleanSettingsPreference("debug_mode")
-        reloadSettingsScreen()
+        AppSettings.debugMode = !AppSettings.debugMode
         printlog("Отключено, можете выходить отсюда")
         updateOutput()
         magicState.intValue = 3
@@ -194,34 +191,8 @@ fun execCommand(command: String) {
     val args = command.lowercase().replace("\n", "").split(" ")
     when (args[0]) {
         "filter" -> filter(args[1])
-        "echo" -> {
-            if (args[1][0] == '$') {
-                val varName = args[1].substring(1)
-                if (varName == "all")
-                    printAllPreferences()
-                else printPreference(varName)
-            } else printlog(args[1])
-            updateOutput()
-        }
 
         "fatal" -> throw RuntimeException(args[1])
-        "set" -> {
-            val name = args[1]
-            val val_list = args.subList(2, args.size)
-            val builder = StringBuilder()
-            val_list.forEach {
-                builder.append(it)
-            }
-            setPreference(name, builder.toString())
-        }
-
-        "reset" -> {
-            val name = args[1]
-            if (name == "all")
-                settingsPreferences.edit().clear().apply()
-            else
-                settingsPreferences.edit().remove(name).apply()
-        }
 
         "exit" -> {
             closeTerminal()
@@ -262,21 +233,6 @@ fun helpMePlease() {
     updateOutput()
 }
 
-fun setPreference(name: String, value: String) {
-    settingsPreferences.edit().putString(name, value).apply()
-}
-
-fun printPreference(name: String) {
-    printlog(settingsPreferences.getString(name, "$name undeclared!"))
-    updateOutput()
-}
-
-fun printAllPreferences() {
-    settingsPreferences.all.forEach {
-        printlog("${it.key} = ${it.value}")
-    }
-    updateOutput()
-}
 
 fun filter(filter: String) {
     filteringString = when (filter) {

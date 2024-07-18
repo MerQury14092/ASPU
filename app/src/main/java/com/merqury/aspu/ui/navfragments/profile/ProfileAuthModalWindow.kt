@@ -42,10 +42,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.merqury.aspu.R
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.services.profile.getAuthToken
 import com.merqury.aspu.ui.after
-import com.merqury.aspu.ui.navBarUpdate
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
@@ -210,10 +209,7 @@ fun showEiosAuthModalWindow(msg: String = "", closure: () -> Unit = {}) {
                                         .putString("login", username.value)
                                         .putString("password", password.value)
                                         .apply()
-                                    settingsPreferences.edit()
-                                        .putBoolean("eios_logged", true)
-                                        .apply()
-                                    navBarUpdate()
+                                    AppSettings.eiosLogged = true
                                     closure()
                                 },
                                 {

@@ -29,6 +29,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.R
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.services.network.executeSqlQuery
 import com.merqury.aspu.services.timetable.getFacultiesAndThemGroups
 import com.merqury.aspu.services.timetable.getSearchResults
@@ -36,7 +37,6 @@ import com.merqury.aspu.services.timetable.models.FacultiesList
 import com.merqury.aspu.services.timetable.models.SearchContent
 import com.merqury.aspu.services.timetable.models.SearchContentElement
 import com.merqury.aspu.services.timetable.toInitials
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.showSelectListDialog
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
@@ -59,7 +59,7 @@ fun getButtonsFacultyAndGroups(
                             put(group) {
                                 onResultClick(SearchContentElement(group, "Group", 0, 0))
                                 it.value = false
-                                reloadTimetable()                            }
+                            }
                         }
                     })
             }
@@ -166,9 +166,9 @@ fun showSelectIdModalWindow(
                                         horizontalArrangement = Arrangement.SpaceAround,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Row (
+                                        Row(
                                             verticalAlignment = Alignment.CenterVertically
-                                        ){
+                                        ) {
                                             Image(
                                                 painter = painterResource(id = R.drawable.group),
                                                 contentDescription = null,
@@ -204,9 +204,9 @@ fun showSelectIdModalWindow(
                                         horizontalArrangement = Arrangement.SpaceAround,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Row (
+                                        Row(
                                             verticalAlignment = Alignment.CenterVertically
-                                        ){
+                                        ) {
                                             Image(
                                                 painter = painterResource(id = R.drawable.teacher),
                                                 contentDescription = null,
@@ -262,29 +262,17 @@ fun showSelectIdModalWindow(
                                 }
                             }
                     }
-                    if (selectedId.value != settingsPreferences.getString(
-                            "timetable_id",
-                            "ВМ-ИВТ-2-1"
-                        ) && filteredBy.lowercase() == "any" && textFieldValue.value.isEmpty()
+                    if (selectedId.value != AppSettings.timetableId && filteredBy.lowercase() == "any" && textFieldValue.value.isEmpty()
                     )
                         Card(
                             modifier = Modifier
                                 .padding(10.dp)
                                 .clickable {
-                                    selectedOwner.value = if (settingsPreferences.getString(
-                                            "user",
-                                            "student"
-                                        ) == "student"
-                                    )
+                                    selectedOwner.value = if (AppSettings.whoIsUser == "student")
                                         "GROUP"
                                     else
                                         "TEACHER"
-                                    selectedId.value =
-                                        settingsPreferences.getString(
-                                            "timetable_id",
-                                            "ВМ-ИВТ-2-1"
-                                        )!!
-                                    reloadTimetable()
+                                    selectedId.value = AppSettings.timetableId
                                     it.value = false
                                 },
                             colors = CardDefaults.cardColors(

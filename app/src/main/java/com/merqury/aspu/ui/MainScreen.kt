@@ -15,10 +15,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.Divider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -38,37 +39,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getSystemService
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
 import com.merqury.aspu.requestQueue
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.services.news.urlForCurrentFaculty
 import com.merqury.aspu.ui.navfragments.news.NewsScreen
 import com.merqury.aspu.ui.navfragments.other.OtherScreen
 import com.merqury.aspu.ui.navfragments.profile.ProfileScreen
 import com.merqury.aspu.ui.navfragments.settings.SettingsScreen
-import com.merqury.aspu.ui.navfragments.settings.reloadSettingsScreen
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
-import com.merqury.aspu.ui.navfragments.settings.toggleBooleanSettingsPreference
 import com.merqury.aspu.ui.navfragments.settings.toggleTheme
 import com.merqury.aspu.ui.navfragments.timetable.TimetableScreen
-import com.merqury.aspu.ui.navfragments.timetable.reloadTimetable
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 
 
 val topBarContent: MutableState<@Composable () -> Unit> = mutableStateOf({})
 val content: MutableState<@Composable () -> Unit> =
-    mutableStateOf(getContentByRoute(settingsPreferences.getString("initial_route", "news")!!))
+    mutableStateOf(getContentByRoute(AppSettings.initialRoute))
 val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
     when (selected_page.value) {
         "news" -> {
             aspuButtonLoading.value = true
-            val inBrowser = settingsPreferences.getBoolean("use_included_browser", true)
+            val inBrowser = AppSettings.useIncludedBrowser
             if (inBrowser)
                 showWebPage(urlForCurrentFaculty(), "http")
             else
@@ -83,7 +83,7 @@ val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
         "settings" -> toggleTheme()
         else -> {
             aspuButtonLoading.value = true
-            val inBrowser = settingsPreferences.getBoolean("use_included_browser", true)
+            val inBrowser = AppSettings.useIncludedBrowser
             if (inBrowser)
                 showWebPage("agpu.net", "http")
             else
@@ -98,19 +98,17 @@ val onASPUButtonLongClick: MutableState<() -> Unit> = mutableStateOf({
         }
 
         "timetable" -> {
-            reloadTimetable()
         }
 
         "settings" -> {
             val v = getSystemService(appContext!!, Vibrator::class.java)!!
-            if (magicState.intValue == 0 && !settingsPreferences.getBoolean("debug_mode", false)) {
-                toggleBooleanSettingsPreference("debug_mode")
+            if (magicState.intValue == 0 && !AppSettings.debugMode) {
+                AppSettings.debugMode = !AppSettings.debugMode
                 printlog("Если хотите отключить это, пропишите debug off")
-                reloadSettingsScreen()
                 appContext!!.makeToast("DEBUG MODE ON")
                 v.vibrate(100)
             }
-            if (magicState.intValue > 0 && !settingsPreferences.getBoolean("debug_mode", false)) {
+            if (magicState.intValue > 0 && !AppSettings.debugMode) {
                 v.vibrate(100)
                 magicState.intValue--
             }
@@ -130,7 +128,22 @@ fun MainScreen() {
                         .fillMaxHeight(.06f)
                         .fillMaxWidth()
                         .background(SurfaceTheme.appBars.color)
-                ) { topBarContent.value() }
+                ) {
+                    AnimatedContent(
+                        targetState = topBarContent.value,
+                        label = "",
+                        transitionSpec = {
+                            val direction = slideInDirection()
+                            slideInHorizontally(
+                                animationSpec = tween(durationMillis = 400)
+                            ) { (direction) * it } togetherWith slideOutHorizontally(
+                                animationSpec = tween(durationMillis = 400)
+                            ) { (-direction) * it }
+                        }
+                    ) { content ->
+                        content()
+                    }
+                }
                 Divider(
                     color = SurfaceTheme.divider.color,
                     modifier = Modifier.height(2.dp)
@@ -179,7 +192,7 @@ fun MainScreen() {
     }
 }
 
-private var lastRoute = settingsPreferences.getString("initial_route", "news")!!
+private var lastRoute = AppSettings.initialRoute
 private fun slideInDirection(): Int { // 1 - справа налево; -1 слева направо
     val route = selected_page.value
 
@@ -204,74 +217,81 @@ private fun slideInDirection(): Int { // 1 - справа налево; -1 сл�
 
 private val forNavBarUpdate = mutableStateOf(true)
 
-fun navBarUpdate() {
-    forNavBarUpdate.value = !forNavBarUpdate.value
-}
 
-var selected_page = mutableStateOf(settingsPreferences.getString("initial_route", "news")!!)
+var selected_page = mutableStateOf(AppSettings.initialRoute)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NavigationBar() {
-    Row(
-        modifier = Modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.Bottom
-    ) {
-        forNavBarUpdate.value
-        NavBarItem(title = "Новости", icon = R.drawable.news_icon, "news")
-        NavBarItem(
-            title = "Расписание",
-            icon = R.drawable.timetable_icon,
-            "timetable"
-        )
-        Box(
-            Modifier.fillMaxHeight(),
-            contentAlignment = Alignment.Center
+    val navBarItemWidth = LocalConfiguration.current.screenWidthDp.dp / 5
+    Box(modifier = Modifier.fillMaxSize()) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.Bottom
         ) {
-            Image(painter = painterResource(id = R.drawable.agpu_logo), contentDescription = null,
-                modifier = Modifier
-                    .combinedClickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = {
-                            onASPUButtonClick.value()
-                        },
-                        onLongClick = {
-                            onASPUButtonLongClick.value()
-                        }
-                    )
-                    .fillMaxHeight(
-                        animateFloatAsState(
-                            targetValue =
-                            if (aspuButtonLoading.value) .8f else 1f,
-                            label = "",
-                            animationSpec = tween(durationMillis = 100)
-                        ).value
-                    )
+            forNavBarUpdate.value
+            NavBarItem(title = "Новости", icon = R.drawable.news_icon, "news", navBarItemWidth)
+            NavBarItem(
+                title = "Расписание",
+                icon = R.drawable.timetable_icon,
+                "timetable",
+                navBarItemWidth
             )
+            Spacer(modifier = Modifier.size(navBarItemWidth))
+            NavBarItem(
+                title =
+                when (AppSettings.whoIsUser) {
+                    "student" -> "Студенту"
+                    "teacher" -> "Педагогу"
+                    else -> "Кому?"
+                }, icon = R.drawable.other_icon,
+                "other",
+                navBarItemWidth
+            )
+            if (!AppSettings.eiosLogged)
+                NavBarItem(
+                    title = "Настройки",
+                    icon = R.drawable.settings_icon,
+                    "settings",
+                    navBarItemWidth
+                )
+            else
+                NavBarItem(
+                    title = "Профиль",
+                    icon = R.drawable.profile,
+                    "account",
+                    navBarItemWidth
+                )
         }
-        NavBarItem(
-            title =
-            when (settingsPreferences.getString("user", "student")) {
-                "student" -> "Студенту"
-                "teacher" -> "Педагогу"
-                else -> "Кому?"
-            }, icon = R.drawable.other_icon,
-            "other"
-        )
-        if (!settingsPreferences.getBoolean("eios_logged", false))
-            NavBarItem(
-                title = "Настройки",
-                icon = R.drawable.settings_icon,
-                "settings"
-            )
-        else
-            NavBarItem(
-                title = "Профиль",
-                icon = R.drawable.profile,
-                "account",
-            )
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(
+                Modifier.fillMaxHeight(),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(painter = painterResource(id = R.drawable.agpu_logo),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .combinedClickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = {
+                                onASPUButtonClick.value()
+                            },
+                            onLongClick = {
+                                onASPUButtonLongClick.value()
+                            }
+                        )
+                        .fillMaxHeight(
+                            animateFloatAsState(
+                                targetValue =
+                                if (aspuButtonLoading.value) .8f else 1f,
+                                label = "",
+                                animationSpec = tween(durationMillis = 100)
+                            ).value
+                        )
+                )
+            }
+        }
     }
 }
 
@@ -285,21 +305,24 @@ fun routeTo(route: String) {
 fun NavBarItem(
     title: String,
     icon: Int,
-    route: String
+    route: String,
+    size: Dp
 ) {
     val selected = selected_page.value == route
     Box(
-        modifier = Modifier.clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null
-        ) {
-            routeTo(route)
-        }
+        modifier = Modifier
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                routeTo(route)
+            }
+            .width(size),
+        contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Image(
                 painter = painterResource(id = icon),
                 contentDescription = null,
@@ -333,7 +356,7 @@ fun NavBarItem(
                     SurfaceTheme.enable.color.copy(1f)
                 else
                     SurfaceTheme.disable.color.copy(
-                        if (settingsPreferences.getBoolean("text_in_navbar", true))
+                        if (AppSettings.textInNavbar)
                             1f
                         else
                             0f

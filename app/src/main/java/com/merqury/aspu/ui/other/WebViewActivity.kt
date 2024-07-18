@@ -39,8 +39,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
 import com.merqury.aspu.services.intents.FileOpener
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.ui.aspuButtonLoading
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.openInBrowser
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
@@ -199,13 +199,14 @@ class WebViewActivity : ComponentActivity() {
             window.navigationBarColor =
                 android.graphics.Color.rgb(foreground.red, foreground.green, foreground.blue)
 
-            if (settingsPreferences.getString("theme", "light")!! == "light")
+            if (AppSettings.selectedTheme == "light")
                 window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
             else
                 window.decorView.systemUiVisibility = 0
         }
     }
 
+    @SuppressLint("MissingSuperCall")
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (urlHistory.isEmpty())

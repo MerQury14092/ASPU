@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.merqury.aspu.ui.navBarUpdate
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 
@@ -26,7 +25,7 @@ abstract class SettingsButton(var text: String) {
     abstract fun getContent(): @Composable () -> Unit;
 }
 
-class SwitchableSettingsPreferenceButton(text: String, private val settingsPreferenceBooleanName: String) :
+class SwitchableSettingsPreferenceButton(text: String, private var settingsPreference: Boolean) :
     SettingsButton(text) {
     override fun getContent() = @Composable {
         Card(
@@ -50,13 +49,8 @@ class SwitchableSettingsPreferenceButton(text: String, private val settingsPrefe
                         .fillMaxWidth()
                         .padding(end = 10.dp), contentAlignment = Alignment.TopEnd) {
                     Switch(
-                        checked = settingsPreferences.getBoolean(
-                            settingsPreferenceBooleanName,
-                            getDefault(settingsPreferenceBooleanName)
-                        ), onCheckedChange = {
-                            toggleBooleanSettingsPreference(settingsPreferenceBooleanName)
-                            reloadSettingsScreen()
-                            navBarUpdate()
+                        checked = settingsPreference, onCheckedChange = {
+                            settingsPreference = !settingsPreference
                         },
                         modifier = Modifier.scale(.75f),
                         colors = SwitchDefaults.colors(

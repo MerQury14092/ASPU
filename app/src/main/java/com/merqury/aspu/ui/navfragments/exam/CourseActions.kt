@@ -1,6 +1,7 @@
 package com.merqury.aspu.ui.navfragments.exam
 
 import com.merqury.aspu.appContext
+import com.merqury.aspu.services.exam.getExamMembers
 import com.merqury.aspu.services.exam.getQuizzes
 import com.merqury.aspu.services.exam.logoutCourseById
 import com.merqury.aspu.services.exam.models.ExamCourse
@@ -29,7 +30,12 @@ fun showCourseActionsModalWindow(
             }
         },
         "Участники" to {
-
+            getExamMembers(course.id, {
+                appContext!!.makeToast("Error")
+            }) { members ->
+                it.value = true
+                showExamMembers(members)
+            }
         },
         "Результаты" to {
             getQuizzes(
@@ -45,7 +51,9 @@ fun showCourseActionsModalWindow(
         "Удалить из моих" to {
             logoutCourseById(
                 course.id,
-                {}
+                {
+                    appContext!!.makeToast("Error")
+                }
             ) {
                 it.value = true
                 myCourses = null

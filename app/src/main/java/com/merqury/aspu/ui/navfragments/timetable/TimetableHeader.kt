@@ -38,7 +38,6 @@ fun TimetableHeader(selectedDate: String) {
                         appContext!!,
                         { _, year, month, day ->
                             changeDate(day, month, year)
-                            reloadTimetable()
                         },
                         date.year,
                         date.monthValue - 1,
@@ -59,7 +58,6 @@ fun TimetableHeader(selectedDate: String) {
                     showSelectIdModalWindow {
                         selectedId.value = it.searchContent
                         selectedOwner.value = it.type.uppercase()
-                        reloadTimetable()
                     }
                 }, colors = ButtonDefaults.buttonColors(
                     containerColor = SurfaceTheme.button.color

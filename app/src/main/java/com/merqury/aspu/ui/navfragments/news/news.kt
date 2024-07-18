@@ -21,24 +21,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import com.merqury.aspu.enums.NewsCategoryEnum
+import com.merqury.aspu.services.appconfig.AppConfig
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.services.news.getNews
 import com.merqury.aspu.ui.TitleHeader
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.selected_page
 import com.merqury.aspu.ui.theme.SurfaceTheme
+import com.merqury.aspu.ui.theme.ThemeText
 import com.merqury.aspu.ui.theme.color
 import org.json.JSONObject
 
 val showArticleView = mutableStateOf(false)
 val clickedArticleId = mutableIntStateOf(0)
 val selectedFaculty = mutableStateOf(
-    NewsCategoryEnum.valueOf(
-        settingsPreferences.getString(
-            "news_category",
-            "agpu"
-        )!!
-    )
+    NewsCategoryEnum.valueOf(AppSettings.newsCategory)
 )
 
 
@@ -47,7 +45,26 @@ val selectedFaculty = mutableStateOf(
 fun NewsScreen(header: MutableState<@Composable () -> Unit>) {
     if (showArticleView.value)
         ArticleView()
-    NewsContent(header)
+    val useConfig = AppConfig.useNewsPageConfig()
+    if (useConfig.canUse)
+        NewsContent(header)
+    else
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(SurfaceTheme.background.color),
+            contentAlignment = Alignment.Center
+        ) {
+            header.value = {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                    TitleHeader(title = "Новости")
+                }
+            }
+            ThemeText(
+                text = useConfig.reason ?: "Новости пока не работают в данной версии",
+                textAlign = TextAlign.Center
+            )
+        }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -170,8 +187,4 @@ private fun NewsPage(
                 }
             }
     }
-}
-
-fun reloadNews() {
-    newsLoaded = false
 }

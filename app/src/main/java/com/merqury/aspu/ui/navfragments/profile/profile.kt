@@ -107,7 +107,7 @@ fun ProfileScreen(header: MutableState<@Composable () -> Unit>) {
                 forUpdate.toggle()
             }
     } else {
-        com.merqury.aspu.ui.navfragments.profile.ProfileInfo(info = profileInfo?.data!!)
+        ProfileInfo(info = profileInfo?.data!!)
     }
 }
 

@@ -42,15 +42,14 @@ import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
 import com.merqury.aspu.services.marks.getMarks
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.services.profile.getAvg
 import com.merqury.aspu.services.profile.getMarkStatsById
 import com.merqury.aspu.services.profile.models.Data
 import com.merqury.aspu.services.profile.models.MarkStat
 import com.merqury.aspu.ui.makeToast
-import com.merqury.aspu.ui.navBarUpdate
 import com.merqury.aspu.ui.navfragments.exam.startExamScreen
 import com.merqury.aspu.ui.navfragments.marks.MarksScreen
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.placeholder
 import com.merqury.aspu.ui.routeTo
 import com.merqury.aspu.ui.sp
@@ -373,12 +372,11 @@ fun ProfileInfo(info: Data) {
                             secretPreferences.edit().putString("exam-cookie", "none").apply()
                             appContext!!.makeToast("Randomized")
                         }
-                        ProfileCardButton("Методички", R.drawable.book){}
+                        ProfileCardButton("Методички", R.drawable.book){
+
+                        }
                         ProfileCardButton("Выйти", R.drawable.back){
-                            settingsPreferences.edit()
-                                .putBoolean("eios_logged", false)
-                                .apply()
-                            navBarUpdate()
+                            AppSettings.eiosLogged = false
                             routeTo("settings")
                             secretPreferences.edit()
                                 .remove("username")

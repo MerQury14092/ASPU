@@ -6,17 +6,17 @@ import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.apiDomain
 import com.merqury.aspu.requestQueue
-import com.merqury.aspu.services.cache
-import com.merqury.aspu.services.getEndDayOfWeekByDate
-import com.merqury.aspu.services.getStartDayOfWeekByDate
+import com.merqury.aspu.services.misc.AppSettings
+import com.merqury.aspu.services.misc.cache
+import com.merqury.aspu.services.misc.getEndDayOfWeekByDate
+import com.merqury.aspu.services.misc.getStartDayOfWeekByDate
+import com.merqury.aspu.services.misc.timestampDifference
+import com.merqury.aspu.services.misc.timestampNow
 import com.merqury.aspu.services.network.EncodingConverter
 import com.merqury.aspu.services.network.handleVolleyError
-import com.merqury.aspu.services.timestampDifference
-import com.merqury.aspu.services.timestampNow
 import com.merqury.aspu.services.timetable.models.TimetableDay
 import com.merqury.aspu.services.timetable.models.TimetableDay.Companion.toJson
 import com.merqury.aspu.ui.async
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.navfragments.timetable.selectedId
 import com.merqury.aspu.ui.navfragments.timetable.selectedOwner
 import com.merqury.aspu.ui.openInBrowser
@@ -28,7 +28,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.concurrent.TimeUnit
 
 fun getTimetableByDateRange(
     startDate: String,
@@ -66,7 +65,7 @@ fun getTimetableByDate(
     onSuccess: (TimetableDay) -> Unit
 ) {
     async {
-        val timeCache = settingsPreferences.getLong("timeCache", TimeUnit.HOURS.toSeconds(3))
+        val timeCache = AppSettings.timeCache
         if (timeCache != 0L && cache.getString("${selectedId.value} $date", "") != "") {
             val cacheTimetableDay = cache.getString("${selectedId.value} $date", "")
                 ?.let { JSONObject(it) }
@@ -136,7 +135,7 @@ fun showTimetableWebPageView(searchId: Long, searchType: String, date: String) {
             searchId +
             "&Type=$searchType&WeekId=${WeekIdService.weekIdByDate(date)}" +
             "&SearchString=${selectedId.value}"
-    val inBrowser = settingsPreferences.getBoolean("use_included_browser", true)
+    val inBrowser = AppSettings.useIncludedBrowser
     if (inBrowser)
         showWebPage(url, "https")
     else

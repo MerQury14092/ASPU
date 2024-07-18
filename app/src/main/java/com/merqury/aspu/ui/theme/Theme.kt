@@ -22,8 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
-import com.merqury.aspu.appContext
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
+import com.merqury.aspu.services.misc.AppSettings
 
 enum class SurfaceTheme {
     background,
@@ -98,7 +97,9 @@ private val aspuSiteTheme = mapOf(
     SurfaceTheme.button to Color(0xFF0AA3AD)
 )
 
-private var theme = mutableStateOf(
+private var theme = mutableStateOf(darkTheme)
+
+/*private var theme = mutableStateOf(
     byName(
         settingsPreferences.getString(
             "theme",
@@ -108,7 +109,7 @@ private var theme = mutableStateOf(
                 "light"
         )!!
     )
-)
+)*/
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -152,15 +153,7 @@ val SurfaceTheme.colorWithoutAnim
     get() = theme.value[this]!!
 
 fun updateTheme() {
-    theme.value = byName(
-        settingsPreferences.getString(
-            "theme",
-            if (appContext!!.isDarkThemeOn())
-                "dark"
-            else
-                "light"
-        )!!
-    )
+    theme.value = byName(AppSettings.selectedTheme)
 }
 
 fun Context.isDarkThemeOn(): Boolean {
