@@ -56,7 +56,7 @@ fun NewsScreen(header: MutableState<@Composable () -> Unit>) {
             contentAlignment = Alignment.Center
         ) {
             header.value = {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     TitleHeader(title = "Новости")
                 }
             }
@@ -76,11 +76,12 @@ private var newsLoaded by mutableStateOf(false)
 fun NewsContent(
     header: MutableState<@Composable () -> Unit>
 ) {
-    if (selectedNewsRoute)
-        header.value = {
-            TitleHeader(title = "Новости")
-            NewsHeader(selectedFaculty, newsLoaded)
-        }
+    val headerContent = @Composable {
+        TitleHeader(title = "Новости")
+        NewsHeader(selectedFaculty, newsLoaded)
+    }
+    if(header.value != headerContent)
+        header.value = headerContent
     var errorString by remember {
         mutableStateOf<String?>(null)
     }

@@ -69,7 +69,7 @@ fun TimetableScreen(header: MutableState<@Composable () -> Unit>) {
             contentAlignment = Alignment.Center
         ) {
             header.value = {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     TitleHeader(title = "Расписание")
                 }
             }
@@ -84,10 +84,9 @@ fun TimetableScreen(header: MutableState<@Composable () -> Unit>) {
 @Composable
 fun TimetableContent(header: MutableState<@Composable () -> Unit>) {
     Column {
-        if (selectedTimetableRoute)
-            header.value = {
-                TimetableHeader(getDateByPage(pagerState.currentPage))
-            }
+        val headerContent = @Composable { TimetableHeader(getDateByPage(pagerState.currentPage)) }
+        if(header.value != headerContent)
+            header.value = headerContent
 
         HorizontalPager(
             state = pagerState,

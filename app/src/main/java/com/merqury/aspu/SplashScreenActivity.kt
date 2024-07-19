@@ -10,10 +10,14 @@ import android.os.Bundle
 import android.view.animation.Animation
 import android.view.animation.ScaleAnimation
 import android.widget.ImageView
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.merqury.aspu.services.appconfig.AppConfig
+import com.merqury.aspu.services.appconfig.models.DatabaseConfig
+import com.merqury.aspu.ui.async
+
 
 @SuppressLint("CustomSplashScreen")
-class SplashScreenActivity: Activity() {
+class SplashScreenActivity : Activity() {
     private lateinit var imageView: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,8 +26,17 @@ class SplashScreenActivity: Activity() {
         setTheme(getThemeStyle())
         AppConfig.getConfig().fetchAndActivate().addOnSuccessListener {
             startActivity(Intent(this, MainActivity::class.java))
-            this.overridePendingTransition(0,0)
+            this.overridePendingTransition(0, 0)
             finish()
+            async {
+                AppConfig.setDatabaseConfig(
+                    AppConfig.getObjectMapper()
+                        .readValue<DatabaseConfig>(
+                            AppConfig.getConfig().getString("database_config")
+                        )
+                )
+
+            }
         }
         setContentView(R.layout.spash_screen_layout)
 
@@ -55,7 +68,7 @@ class SplashScreenActivity: Activity() {
             else
                 "light"
         )!!
-        return when (theme){
+        return when (theme) {
             "dark" -> R.style.Theme_ASPU_dark
             "sea" -> R.style.Theme_ASPU_sea
             else -> R.style.Theme_ASPU_light

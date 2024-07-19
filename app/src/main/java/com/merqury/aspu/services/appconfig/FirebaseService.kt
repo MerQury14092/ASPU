@@ -1,5 +1,6 @@
 package com.merqury.aspu.services.appconfig
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.firebase.Firebase
@@ -8,6 +9,7 @@ import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import com.merqury.aspu.appContext
 import com.merqury.aspu.services.appconfig.models.Announcement
+import com.merqury.aspu.services.appconfig.models.DatabaseConfig
 import com.merqury.aspu.services.appconfig.models.UseConfig
 
 private val remoteConfig by lazy {
@@ -21,23 +23,34 @@ private val remoteConfig by lazy {
 
 class AppConfig {
     companion object {
+        private var databaseConfig: DatabaseConfig? = null
+
+        fun setDatabaseConfig(config: DatabaseConfig) {
+            databaseConfig = config
+        }
+
         fun getConfig(): FirebaseRemoteConfig {
             return remoteConfig
+        }
+
+        fun getObjectMapper(): ObjectMapper {
+            return mapper
         }
 
         fun getDeveloperExamProfileId(): Long {
             return remoteConfig.getLong("developer_exam_profile_id")
         }
 
-        private fun getUseConfig(key: String): UseConfig{
+        private fun getUseConfig(key: String): UseConfig {
             val string = remoteConfig.getString(key)
             try {
                 mapper.readValue<List<UseConfig>>(string)
                     .forEach {
-                        if(versionCheck(it.versions))
+                        if (versionCheck(it.versions))
                             return it
                     }
-            } catch (ignored: MismatchedInputException){}
+            } catch (ignored: MismatchedInputException) {
+            }
             return UseConfig(0, "all", true, null)
         }
 
@@ -65,11 +78,16 @@ class AppConfig {
             return remoteConfig.getString("api_domain")
         }
 
+        fun getDatabaseConfig(): DatabaseConfig {
+            return databaseConfig!!
+        }
+
         fun getAnnouncements(): List<Announcement> {
             try {
                 return mapper.readValue<List<Announcement>>(remoteConfig.getString("announcements"))
                     .filter { versionCheck(it.versions) }
-            } catch (ignored: MismatchedInputException){}
+            } catch (ignored: MismatchedInputException) {
+            }
             return listOf()
         }
     }
@@ -88,7 +106,7 @@ private fun versionCheck(versions: String): Boolean {
         versions.split(",")
             .map { it.trim { char -> char.isWhitespace() } }
             .toList().forEach { version ->
-                if(version.lowercase() == "all")
+                if (version.lowercase() == "all")
                     return true
                 val versionInDouble = version
                     .replace(Regex("[^0-9<>.]"), "")

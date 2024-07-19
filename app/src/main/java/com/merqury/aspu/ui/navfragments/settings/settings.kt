@@ -42,11 +42,11 @@ val selectableDisciplines =
     appContext?.getSharedPreferences("selectable_disciplines", Context.MODE_PRIVATE)!!
 
 
-
-
 @Composable
 fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
-    header.value = { TitleHeader(title = "Настройки") }
+    val headerContent = @Composable { TitleHeader(title = "Настройки") }
+    if(header.value != headerContent)
+        header.value = headerContent
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -80,8 +80,9 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                         }"
                     ) { selectInitialRoute() },
                     SwitchableSettingsPreferenceButton(
-                        "Использовать встроенный браузер", AppSettings.useIncludedBrowser
-                    )
+                        "Использовать встроенный браузер",
+                        AppSettings.useIncludedBrowser
+                    ) { AppSettings.useIncludedBrowser = it }
                 )
             )
             SettingsChapter(
@@ -120,7 +121,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                     ) SwitchableSettingsPreferenceButton(
                         "Фильтрация пар",
                         AppSettings.timetableFiltration
-                    ) else null,
+                    ) { AppSettings.timetableFiltration = it } else null,
                     ClickableSettingsButton(
                         "Данные хранятся в кэше: ${
                             when (AppSettings.timeCache) {
@@ -196,11 +197,11 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                     SwitchableSettingsPreferenceButton(
                         "Цветной фон ячеек в расписании",
                         AppSettings.colorTimetable
-                    ),
+                    ) { AppSettings.colorTimetable = it },
                     SwitchableSettingsPreferenceButton(
                         "Текст под иконками вкладок",
                         AppSettings.textInNavbar
-                    )
+                    ) { AppSettings.textInNavbar = it }
                 )
             )
             Text(
@@ -251,13 +252,15 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
     }
 }
 
-fun showSelectTheme(){
-    showSelectListDialog(mapOf(
-        "Светлая тема" to { setTheme("light") },
-        "Тёмная тема" to { setTheme("dark") },
-        "Морская тема" to { setTheme("sea") },
+fun showSelectTheme() {
+    showSelectListDialog(
+        mapOf(
+            "Светлая тема" to { setTheme("light") },
+            "Тёмная тема" to { setTheme("dark") },
+            "Морская тема" to { setTheme("sea") },
 //                            "Лазурная тема" to { setTheme("site") }
-    ))
+        )
+    )
 }
 
 fun toggleTheme() {

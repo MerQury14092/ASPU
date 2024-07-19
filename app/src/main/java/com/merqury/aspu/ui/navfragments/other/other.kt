@@ -42,7 +42,7 @@ fun OtherPreview() {
 
 @Composable
 fun OtherScreen(header: MutableState<@Composable () -> Unit>) {
-    header.value = {
+    val headerContent = @Composable {
         TitleHeader(
             title = when (AppSettings.whoIsUser) {
                 "student" -> "Студенту"
@@ -51,6 +51,8 @@ fun OtherScreen(header: MutableState<@Composable () -> Unit>) {
             }
         )
     }
+    if(header.value != headerContent)
+        header.value = headerContent
     OtherScreenContent()
 }
 

@@ -97,19 +97,10 @@ private val aspuSiteTheme = mapOf(
     SurfaceTheme.button to Color(0xFF0AA3AD)
 )
 
-private var theme = mutableStateOf(darkTheme)
 
-/*private var theme = mutableStateOf(
-    byName(
-        settingsPreferences.getString(
-            "theme",
-            if (appContext?.isDarkThemeOn() != false)
-                "dark"
-            else
-                "light"
-        )!!
-    )
-)*/
+private var theme = mutableStateOf(
+    byName(AppSettings.selectedTheme)
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -147,7 +138,7 @@ fun getThemeName(name: String): String {
 }
 
 val SurfaceTheme.color: Color
-    @Composable get() = theme.value[this]!!.animatedColor()
+    @Composable get() = theme.value[this]!!/*.animatedColor()*/
 
 val SurfaceTheme.colorWithoutAnim
     get() = theme.value[this]!!

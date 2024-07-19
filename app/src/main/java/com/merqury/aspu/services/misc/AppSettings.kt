@@ -6,7 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.merqury.aspu.appContext
-import com.merqury.aspu.ui.theme.isDarkThemeOn
 import java.util.concurrent.TimeUnit
 
 private val settingsPreferences =
@@ -56,10 +55,7 @@ class AppSettings {
         var useIncludedBrowser by PermanentMutableState("use_included_browser", false)
         var textInNavbar by PermanentMutableState("text_in_navbar", true)
         var selectedSubgroup by PermanentMutableState("selected_subgroup", 0)
-        var selectedTheme by PermanentMutableState("theme", if (appContext!!.isDarkThemeOn())
-            "dark"
-        else
-            "light")
+        var selectedTheme by PermanentMutableState("theme", "light")
         var examFirstName by PermanentMutableState("exam-first-name", "Имя")
         var examLastName by PermanentMutableState("exam-last-name", "Фамилия")
         var firstLaunch by PermanentMutableState("first_launch", true)

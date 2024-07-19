@@ -44,7 +44,7 @@ var profileInfo: ProfileInfo? by mutableStateOf(null)
 
 @Composable
 fun ProfileScreen(header: MutableState<@Composable () -> Unit>) {
-    header.value = {
+    val headerContent = @Composable {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             TitleHeader(title = "Профиль")
         }
@@ -86,6 +86,8 @@ fun ProfileScreen(header: MutableState<@Composable () -> Unit>) {
             )
         }
     }
+    if(header.value != headerContent)
+        header.value = headerContent
     val forUpdate = remember {
         mutableStateOf(false)
     }

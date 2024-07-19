@@ -25,7 +25,11 @@ abstract class SettingsButton(var text: String) {
     abstract fun getContent(): @Composable () -> Unit;
 }
 
-class SwitchableSettingsPreferenceButton(text: String, private var settingsPreference: Boolean) :
+class SwitchableSettingsPreferenceButton(
+    text: String,
+    val checked: Boolean,
+    val onCheckedChange: (Boolean) -> Unit
+) :
     SettingsButton(text) {
     override fun getContent() = @Composable {
         Card(
@@ -47,10 +51,11 @@ class SwitchableSettingsPreferenceButton(text: String, private var settingsPrefe
                 Box(
                     Modifier
                         .fillMaxWidth()
-                        .padding(end = 10.dp), contentAlignment = Alignment.TopEnd) {
+                        .padding(end = 10.dp), contentAlignment = Alignment.TopEnd
+                ) {
                     Switch(
-                        checked = settingsPreference, onCheckedChange = {
-                            settingsPreference = !settingsPreference
+                        checked = checked, onCheckedChange = {
+                            onCheckedChange(it)
                         },
                         modifier = Modifier.scale(.75f),
                         colors = SwitchDefaults.colors(
@@ -69,7 +74,7 @@ class SwitchableSettingsPreferenceButton(text: String, private var settingsPrefe
 }
 
 @Composable
-fun SettingsButton(onClick: () -> Unit, content: @Composable () -> Unit){
+fun SettingsButton(onClick: () -> Unit, content: @Composable () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -130,7 +135,7 @@ fun SettingsChapter(title: String, buttons: List<SettingsButton?>) {
             title, color = SurfaceTheme.text.color
         )
         buttons.forEach {
-            if(it != null)
+            if (it != null)
                 it.getContent()()
         }
         Spacer(modifier = Modifier.padding(top = 10.dp))

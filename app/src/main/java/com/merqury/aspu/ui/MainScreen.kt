@@ -1,5 +1,6 @@
 package com.merqury.aspu.ui
 
+import android.annotation.SuppressLint
 import android.os.Vibrator
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -8,7 +9,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -46,6 +46,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
 import com.merqury.aspu.requestQueue
@@ -62,8 +67,6 @@ import com.merqury.aspu.ui.theme.color
 
 
 val topBarContent: MutableState<@Composable () -> Unit> = mutableStateOf({})
-val content: MutableState<@Composable () -> Unit> =
-    mutableStateOf(getContentByRoute(AppSettings.initialRoute))
 val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
     when (selected_page.value) {
         "news" -> {
@@ -117,9 +120,13 @@ val onASPUButtonLongClick: MutableState<() -> Unit> = mutableStateOf({
 })
 val aspuButtonLoading = mutableStateOf(false)
 
+@SuppressLint("StaticFieldLeak")
+private var optionalNavController: NavHostController? = null
+private inline val navController: NavHostController get() = optionalNavController!!
 
 @Composable
 fun MainScreen() {
+    optionalNavController = rememberNavController()
     Scaffold(
         topBar = {
             Column {
@@ -132,14 +139,6 @@ fun MainScreen() {
                     AnimatedContent(
                         targetState = topBarContent.value,
                         label = "",
-                        transitionSpec = {
-                            val direction = slideInDirection()
-                            slideInHorizontally(
-                                animationSpec = tween(durationMillis = 400)
-                            ) { (direction) * it } togetherWith slideOutHorizontally(
-                                animationSpec = tween(durationMillis = 400)
-                            ) { (-direction) * it }
-                        }
                     ) { content ->
                         content()
                     }
@@ -173,49 +172,39 @@ fun MainScreen() {
                 .fillMaxSize()
                 .background(SurfaceTheme.background.color)
         ) {
-            AnimatedContent(
-                targetState = selected_page.value,
-                label = "",
-                transitionSpec = {
-                    val direction = slideInDirection()
-                    slideInHorizontally(
-                        animationSpec = tween(durationMillis = 400)
-                    ) { (direction) * it } togetherWith slideOutHorizontally(
-                        animationSpec = tween(durationMillis = 400)
-                    ) { (-direction) * it }
+            NavHost(navController = navController, startDestination = AppSettings.initialRoute) {
+                animatedComposable("news") {
+                    NewsScreen(header = topBarContent)
                 }
-            ) { page ->
-                getContentByRoute(page)()
+                animatedComposable("timetable") {
+                    TimetableScreen(header = topBarContent)
+                }
+                animatedComposable("other") {
+                    OtherScreen(header = topBarContent)
+                }
+                animatedComposable("settings") {
+                    SettingsScreen(header = topBarContent)
+                }
+                animatedComposable("account") {
+                    ProfileScreen(header = topBarContent)
+                }
             }
         }
 
     }
 }
 
-private var lastRoute = AppSettings.initialRoute
-private fun slideInDirection(): Int { // 1 - справа налево; -1 слева направо
-    val route = selected_page.value
-
-    if (route == "settings" || route == "account")
-        return 1
-
-    if (route == "news")
-        return -1
-
-    if (route == "timetable") {
-        if (lastRoute == "news")
-            return 1
-        return -1
+private fun NavGraphBuilder.animatedComposable(route: String, content: @Composable () -> Unit){
+    composable(
+        route,
+        enterTransition = {slideInHorizontally{it} },
+        exitTransition = {slideOutHorizontally{-it} }
+    ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+            content()
+        }
     }
-    if (route == "other") {
-        if (lastRoute == "settings" || lastRoute == "account")
-            return -1
-        return 1
-    }
-    return -1
 }
-
-private val forNavBarUpdate = mutableStateOf(true)
 
 
 var selected_page = mutableStateOf(AppSettings.initialRoute)
@@ -229,8 +218,12 @@ fun NavigationBar() {
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.Bottom
         ) {
-            forNavBarUpdate.value
-            NavBarItem(title = "Новости", icon = R.drawable.news_icon, "news", navBarItemWidth)
+            NavBarItem(
+                title = "Новости",
+                icon = R.drawable.news_icon,
+                "news",
+                navBarItemWidth
+            )
             NavBarItem(
                 title = "Расписание",
                 icon = R.drawable.timetable_icon,
@@ -296,9 +289,11 @@ fun NavigationBar() {
 }
 
 fun routeTo(route: String) {
+    if(selected_page.value == route)
+        return
     requestQueue!!.cancelAll { true }
-    lastRoute = selected_page.value
     selected_page.value = route
+    navController.navigate(route)
 }
 
 @Composable
@@ -347,7 +342,6 @@ fun NavBarItem(
                 )
             )
 
-            forNavBarUpdate.value
             Text(
                 text = title,
                 fontSize = 10.sp,
@@ -363,20 +357,5 @@ fun NavBarItem(
                     )
             )
         }
-    }
-}
-
-fun getContentByRoute(route: String): @Composable () -> Unit {
-    val news: @Composable () -> Unit = { NewsScreen(topBarContent) }
-    val timetable: @Composable () -> Unit = { TimetableScreen(topBarContent) }
-    val settings: @Composable () -> Unit = { SettingsScreen(topBarContent) }
-    val other: @Composable () -> Unit = { OtherScreen(topBarContent) }
-    val profile: @Composable () -> Unit = { ProfileScreen(topBarContent) }
-    return when (route) {
-        "news" -> news
-        "timetable" -> timetable
-        "other" -> other
-        "account" -> profile
-        else -> settings
     }
 }

@@ -30,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.R
 import com.merqury.aspu.services.misc.AppSettings
+import com.merqury.aspu.services.network.DatabaseService
 import com.merqury.aspu.services.network.executeSqlQuery
 import com.merqury.aspu.services.timetable.getFacultiesAndThemGroups
 import com.merqury.aspu.services.timetable.getSearchResults
@@ -353,17 +354,25 @@ fun loadDepartmentsOnButtons(
     selectIdWindowVisibility: MutableState<Boolean>,
     onResultClick: (searchResult: SearchContentElement) -> Unit
 ) {
+    val tables = DatabaseService.config.tables
+    if(
+        !(tables.departmentTable.exists
+        && tables.teacherTable.exists)
+    ) {
+        buttons.value = mapOf(
+            "Нет данных..." to {}
+        )
+        return
+    }
     executeSqlQuery(
         """
-            SELECT * FROM departments
+            SELECT * FROM ${tables.departmentTable.name}
         """.trimIndent(),
         {
             val buttonEntries = HashMap<String, () -> Unit>()
             while (it.next()) {
-                val departmentId = it.getInt("id")
-                buttonEntries.put(
-                    it.getString("name")
-                ) {
+                val departmentId = it.getInt(tables.departmentTable.fields.id)
+                buttonEntries[it.getString(tables.departmentTable.fields.departmentName)] = {
                     showSelectTeacherWindow(departmentId, selectIdWindowVisibility, onResultClick)
                 }
             }
@@ -371,7 +380,7 @@ fun loadDepartmentsOnButtons(
         },
         {
             buttons.value = mapOf(
-                "Прозошла ошибка" to {}
+                "Произошла ошибка" to {}
             )
         }
     )
@@ -395,18 +404,21 @@ fun loadTeachersOnButtons(
     selectIdWindowVisibility: MutableState<Boolean>,
     onResultClick: (searchResult: SearchContentElement) -> Unit
 ) {
+    val config = DatabaseService.config
+    val teacherTable = config.tables.teacherTable
+    val linkTable = config.tables.teacherDepartmentLinkTable
     executeSqlQuery(
         """
-            SELECT * FROM teachers t 
-            JOIN lnk_teacher_department ltd ON t.id = ltd.teacher_id 
-            WHERE ltd.department_id = $departmentId
+            SELECT * FROM ${teacherTable.name} a 
+            JOIN ${linkTable.name} b ON a.${teacherTable.fields.id} = b.${linkTable.fields.teacher}
+            WHERE b.${linkTable.fields.department} = $departmentId
         """.trimIndent(),
         {
             val buttonEntries = HashMap<String, () -> Unit>()
             while (it.next()) {
-                val fio = "${it.getString("last_name")} " +
-                        "${it.getString("first_name")} " +
-                        it.getString("father_name")
+                val fio = "${it.getString(teacherTable.fields.lastName)} " +
+                        "${it.getString(teacherTable.fields.firstName)} " +
+                        it.getString(teacherTable.fields.fatherName)
                 buttonEntries[fio] = {
                     onResultClick(
                         SearchContentElement(
@@ -423,7 +435,7 @@ fun loadTeachersOnButtons(
         },
         {
             buttons.value = mapOf(
-                "Прозошла ошибка" to {}
+                "Произошла ошибка" to {}
             )
         }
     )
@@ -445,15 +457,25 @@ fun loadCorpsOnButtons(
     selectIdWindowVisibility: MutableState<Boolean>,
     onResultClick: (searchResult: SearchContentElement) -> Unit
 ) {
+    val tables = DatabaseService.config.tables
+    if(
+        !(tables.corpsTable.exists
+                && tables.audienceTable.exists)
+    ) {
+        buttons.value = mapOf(
+            "Нет данных..." to {}
+        )
+        return
+    }
     executeSqlQuery(
         """
-            SELECT * FROM corps
+            SELECT * FROM ${tables.corpsTable.name}
         """.trimIndent(),
         {
             val buttonEntries = HashMap<String, () -> Unit>()
             while (it.next()) {
-                val corpsId = it.getInt("id")
-                buttonEntries[it.getString("name")] = {
+                val corpsId = it.getInt(tables.corpsTable.fields.id)
+                buttonEntries[it.getString(tables.corpsTable.fields.corpsName)] = {
                     showSelectAudienceWindow(corpsId, selectIdWindowVisibility, onResultClick)
                 }
             }
@@ -461,7 +483,7 @@ fun loadCorpsOnButtons(
         },
         {
             buttons.value = mapOf(
-                "Прозошла ошибка" to {}
+                "Произошла ошибка" to {}
             )
         }
     )
@@ -485,16 +507,19 @@ fun loadAudiencesOnButtons(
     selectIdWindowVisibility: MutableState<Boolean>,
     onResultClick: (searchResult: SearchContentElement) -> Unit
 ) {
+    val tables = DatabaseService.config.tables
+    val corpsTable = tables.corpsTable
+    val audienceTable = tables.audienceTable
     executeSqlQuery(
         """
-            SELECT * FROM audiences a 
-            JOIN corps c ON a.corps_id = c.id 
-            WHERE c.id = $corpsId
+            SELECT * FROM ${audienceTable.name} a 
+            JOIN ${corpsTable.name} b ON a.${audienceTable.fields.corpsId} = b.${corpsTable.fields.id}
+            WHERE b.${corpsTable.fields.id} = $corpsId
         """.trimIndent(),
         {
             val buttonEntries = HashMap<String, () -> Unit>()
             while (it.next()) {
-                val audienceId = it.getString("name")
+                val audienceId = it.getString(audienceTable.fields.audienceName)
                 buttonEntries[audienceId] = {
                     onResultClick(
                         SearchContentElement(
@@ -515,7 +540,7 @@ fun loadAudiencesOnButtons(
         },
         {
             buttons.value = mapOf(
-                "Прозошла ошибка" to {}
+                "Произошла ошибка" to {}
             )
         }
     )
