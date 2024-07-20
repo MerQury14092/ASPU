@@ -12,9 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
+import com.canopas.lib.showcase.IntroShowcase
 import com.merqury.aspu.appContext
-import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
+import com.merqury.aspu.ui.training.TrainingCenter
+import com.merqury.aspu.ui.training.hintTargetModifier
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
@@ -30,44 +32,68 @@ fun TimetableHeader(selectedDate: String) {
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Button(
-                onClick = {
-                    val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-                    val date = LocalDate.parse(selectedDate, formatter)
-                    DatePickerDialog(
-                        appContext!!,
-                        { _, year, month, day ->
-                            changeDate(day, month, year)
-                        },
-                        date.year,
-                        date.monthValue - 1,
-                        date.dayOfMonth
-                    ).show()
-                }, colors = ButtonDefaults.buttonColors(
-                    containerColor = SurfaceTheme.button.color
-                )
-            ) {
-                Text(
-                    "${prettyDate(selectedDate)}, ${dayOfWeek(selectedDate)}",
-                    color = SurfaceTheme.text.color,
-                    fontSize = 11.sp
-                )
-            }
-            Button(
-                onClick = {
-                    showSelectIdModalWindow {
-                        selectedId.value = it.searchContent
-                        selectedOwner.value = it.type.uppercase()
+            IntroShowcase(
+                showIntroShowCase = TrainingCenter.timetableHeader,
+                onShowCaseCompleted = {
+                    TrainingCenter.timetableHeader = false
+                    TrainingCenter.timetable = true
+                }) {
+                Box(
+                    modifier = hintTargetModifier(
+                        0,
+                        "Выбор дня",
+                        "Кликнув на эту кнопку, вы можете вручную выбрать нужную " +
+                                "вам дату расписания"
+                    )
+                ) {
+                    Button(
+                        onClick = {
+                            val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+                            val date = LocalDate.parse(selectedDate, formatter)
+                            DatePickerDialog(
+                                appContext!!,
+                                { _, year, month, day ->
+                                    changeDate(day, month, year)
+                                },
+                                date.year,
+                                date.monthValue - 1,
+                                date.dayOfMonth
+                            ).show()
+                        }, colors = ButtonDefaults.buttonColors(
+                            containerColor = com.merqury.aspu.ui.theme.SurfaceTheme.button.color
+                        )
+                    ) {
+                        Text(
+                            "${prettyDate(selectedDate)}, ${dayOfWeek(selectedDate)}",
+                            color = com.merqury.aspu.ui.theme.SurfaceTheme.text.color,
+                            fontSize = 11.sp
+                        )
                     }
-                }, colors = ButtonDefaults.buttonColors(
-                    containerColor = SurfaceTheme.button.color
-                )
-            ) {
-                Text(
-                    text = selectedId.value,
-                    color = SurfaceTheme.text.color,
-                    fontSize = 11.sp
-                )
+                }
+                Box(
+                    modifier = hintTargetModifier(
+                        1,
+                        "Выбор субъекта расписания",
+                        "Кликнув на эту кнопку, вы можете выбрать для кого показать расписание"
+                    )
+                ) {
+                    Button(
+                        onClick = {
+                            showSelectIdModalWindow {
+                                selectedId.value = it.searchContent
+                                selectedOwner.value = it.type.uppercase()
+                            }
+                        }, colors = ButtonDefaults.buttonColors(
+                            containerColor = com.merqury.aspu.ui.theme.SurfaceTheme.button.color
+                        )
+                    ) {
+                        Text(
+                            text = selectedId.value,
+                            color = com.merqury.aspu.ui.theme.SurfaceTheme.text.color,
+                            fontSize = 11.sp
+                        )
+                    }
+                }
             }
         }
     }
@@ -107,7 +133,10 @@ fun humanDate(
 fun dayOfWeek(rawDate: String): String {
     val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
     val date = LocalDate.parse(rawDate, formatter)
-    return date.dayOfWeek.getDisplayName(TextStyle.SHORT, appContext!!.resources.configuration.locale)
+    return date.dayOfWeek.getDisplayName(
+        TextStyle.SHORT,
+        appContext!!.resources.configuration.locale
+    )
 }
 
 fun changeDate(

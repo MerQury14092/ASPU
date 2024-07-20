@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.canopas.lib.showcase.IntroShowcase
 import com.merqury.aspu.mainCoroutineScope
 import com.merqury.aspu.services.appconfig.AppConfig
 import com.merqury.aspu.services.misc.AppSettings
@@ -35,12 +36,15 @@ import com.merqury.aspu.services.timetable.models.TimetableDay
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.async
 import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
+import com.merqury.aspu.ui.printlog
 import com.merqury.aspu.ui.selected_page
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.ThemeText
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.theme.colorWithoutAnim
+import com.merqury.aspu.ui.training.TrainingCenter
+import com.merqury.aspu.ui.training.hintTargetModifier
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -58,6 +62,32 @@ private val pagerState = PagerState(
 
 @Composable
 fun TimetableScreen(header: MutableState<@Composable () -> Unit>) {
+    if (TrainingCenter.timetable) {
+        val onCompleted = {
+            TrainingCenter.aspuButtonDescription = "Короткое нажатие откроет неделю расписания, " +
+                    "содержащую этот день, в браузере. Длинное нажатие обновит вкладку"
+            TrainingCenter.aspuButtonHintClosure = {
+                TrainingCenter.otherNavItem = true
+            }
+            TrainingCenter.timetable = false
+            TrainingCenter.aspuButton = true
+        }
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterStart) {
+            IntroShowcase(
+                showIntroShowCase = true,
+                onShowCaseCompleted = onCompleted,
+                dismissOnClickOutside = true
+            ) {
+                Box(
+                    modifier = hintTargetModifier(
+                        0,
+                        "Навигация по экрану",
+                        "Для выбора дней используются свайпы"
+                    )
+                )
+            }
+        }
+    }
     val useConfig = AppConfig.useTimetablePageConfig()
     if (useConfig.canUse)
         TimetableContent(header)
@@ -103,6 +133,7 @@ fun TimetableContent(header: MutableState<@Composable () -> Unit>) {
 
 private inline val selectedTimetableRoute get() = selected_page.value == "timetable"
 
+private var loading = false
 @Composable
 private fun TimetableDay(
     page: Int
@@ -110,13 +141,10 @@ private fun TimetableDay(
     var disciplines by remember {
         mutableStateOf<List<Discipline>?>(null)
     }
-    var timetableLoaded by remember {
-        mutableStateOf(false)
-    }
     var errorString by remember {
         mutableStateOf<String?>(null)
     }
-    if (!timetableLoaded || !loaded) {
+    if (!loaded) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -126,25 +154,30 @@ private fun TimetableDay(
             TimetableItemLoadingPlaceholder()
             TimetableItemLoadingPlaceholder()
         }
-        getTimetableByDate(
-            getDateByPage(page),
-            {
-                errorString = it
-                timetableLoaded = true
-                loaded = true
-            }
-        ) {
-            async {
-                disciplines = if (
-                    AppSettings.timetableFiltration
-                    && AppSettings.whoIsUser == "student"
-                    && selectedId.value == AppSettings.timetableId
-                )
-                    filter(it)
-                else
-                    it.disciplines
-                timetableLoaded = true
-                loaded = true
+        if(!loading){
+            loading = true
+            getTimetableByDate(
+                getDateByPage(page),
+                {
+                    errorString = it
+                    loaded = true
+                    loading = false
+                }
+            ) {
+                async {
+                    disciplines = if (
+                        AppSettings.timetableFiltration
+                        && AppSettings.whoIsUser == "student"
+                        && selectedId.value == AppSettings.timetableId
+                    )
+                        filter(it)
+                    else
+                        it.disciplines
+                    loaded = true
+                    loading = false
+                    printlog(disciplines)
+                    printlog(it)
+                }
             }
         }
     } else {

@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.canopas.lib.showcase.IntroShowcase
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
 import com.merqury.aspu.services.profile.getProfileInfo
@@ -36,6 +37,8 @@ import com.merqury.aspu.ui.startActivity
 import com.merqury.aspu.ui.startTopBarActivity
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.toggle
+import com.merqury.aspu.ui.training.TrainingCenter
+import com.merqury.aspu.ui.training.hintTargetModifier
 
 val secretPreferences: SharedPreferences =
     appContext!!.getSharedPreferences("secret", Context.MODE_PRIVATE)
@@ -48,45 +51,65 @@ fun ProfileScreen(header: MutableState<@Composable () -> Unit>) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             TitleHeader(title = "Профиль")
         }
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.settings_icon),
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
+        IntroShowcase(
+            showIntroShowCase = TrainingCenter.accountHeader,
+            onShowCaseCompleted = {
+                TrainingCenter.aspuButtonDescription =
+                    "К сожалению пока функциональности не назначено"
+                TrainingCenter.aspuButtonHintClosure = {
+                    TrainingCenter.isTraining = false
+                }
+                TrainingCenter.aspuButton = true
+                TrainingCenter.accountHeader = false
+            }) {
+            Row(
                 modifier = Modifier
-                    .size(30.dp)
-                    .clickable {
-                        appContext!!.startActivity(SettingsActivity::class.java)
-                    },
-                colorFilter = ColorFilter.tint(
-                    com.merqury.aspu.ui.theme.SurfaceTheme.enable.color
-                )
-            )
-            Image(
-                Icons.Rounded.MailOutline,
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier
-                    .size(30.dp)
-                    .clickable {
-                        messagesLoaded = false
-                        appContext.startTopBarActivity{
-                            MessengerScreen(header = it)
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.settings_icon),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .size(30.dp)
+                        .clickable {
+                            appContext!!.startActivity(SettingsActivity::class.java)
                         }
-                    },
-                colorFilter = ColorFilter.tint(
-                    com.merqury.aspu.ui.theme.SurfaceTheme.enable.color
+                        .then(
+                            hintTargetModifier(
+                                0,
+                                "Настройки",
+                                "Настройки, которые были в панели навигации, вы теперь" +
+                                        " можете найти здесь"
+                            )
+                        ),
+                    colorFilter = ColorFilter.tint(
+                        com.merqury.aspu.ui.theme.SurfaceTheme.enable.color
+                    )
                 )
-            )
+                Image(
+                    Icons.Rounded.MailOutline,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .size(30.dp)
+                        .clickable {
+                            messagesLoaded = false
+                            appContext.startTopBarActivity {
+                                MessengerScreen(header = it)
+                            }
+                        },
+                    colorFilter = ColorFilter.tint(
+                        com.merqury.aspu.ui.theme.SurfaceTheme.enable.color
+                    )
+                )
+            }
         }
     }
-    if(header.value != headerContent)
+    if (header.value != headerContent)
         header.value = headerContent
     val forUpdate = remember {
         mutableStateOf(false)

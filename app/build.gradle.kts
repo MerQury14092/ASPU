@@ -49,6 +49,7 @@ android {
 
 dependencies {
     val nav_version = "2.7.7"
+    implementation("com.canopas.intro-showcase-view:introshowcaseview:2.0.1")
     implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation("com.google.firebase:firebase-config-ktx")
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))

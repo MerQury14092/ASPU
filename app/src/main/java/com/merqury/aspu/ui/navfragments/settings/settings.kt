@@ -15,11 +15,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import com.canopas.lib.showcase.IntroShowcase
 import com.merqury.aspu.appContext
 import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.services.intents.sendToDevEmail
@@ -36,6 +38,8 @@ import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.theme.getThemeName
 import com.merqury.aspu.ui.theme.updateTheme
+import com.merqury.aspu.ui.training.TrainingCenter
+import com.merqury.aspu.ui.training.hintTargetModifier
 import java.util.concurrent.TimeUnit
 
 val selectableDisciplines =
@@ -44,6 +48,34 @@ val selectableDisciplines =
 
 @Composable
 fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
+    if (TrainingCenter.settings) {
+        val onCompleted = {
+            TrainingCenter.aspuButtonDescription = "Короткое нажатие позволяет сменить тему"
+            TrainingCenter.aspuButtonHintClosure = {
+                TrainingCenter.isTraining = false
+                appContext!!.makeToast("Приятного использования ;)")
+            }
+            TrainingCenter.settings = false
+            TrainingCenter.aspuButton = true
+        }
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterStart) {
+            IntroShowcase(
+                showIntroShowCase = true,
+                onShowCaseCompleted = onCompleted,
+                dismissOnClickOutside = true
+            ) {
+                Box(
+                    modifier = hintTargetModifier(
+                        0,
+                        "Настройка данного приложения",
+                        "Здесь вы можете настроить приложение под себя: " +
+                                "кто использует приложение, что показывать при входе, после входа и " +
+                                "как это показывать и многое другое"
+                    )
+                )
+            }
+        }
+    }
     val headerContent = @Composable { TitleHeader(title = "Настройки") }
     if(header.value != headerContent)
         header.value = headerContent

@@ -3,12 +3,15 @@ package com.merqury.aspu.ui
 import android.annotation.SuppressLint
 import android.os.Vibrator
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -50,7 +53,10 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.canopas.lib.showcase.IntroShowcase
+import com.canopas.lib.showcase.IntroShowcaseScope
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
 import com.merqury.aspu.requestQueue
@@ -64,6 +70,8 @@ import com.merqury.aspu.ui.navfragments.settings.toggleTheme
 import com.merqury.aspu.ui.navfragments.timetable.TimetableScreen
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
+import com.merqury.aspu.ui.training.TrainingCenter
+import com.merqury.aspu.ui.training.hintTargetModifier
 
 
 val topBarContent: MutableState<@Composable () -> Unit> = mutableStateOf({})
@@ -123,6 +131,7 @@ val aspuButtonLoading = mutableStateOf(false)
 @SuppressLint("StaticFieldLeak")
 private var optionalNavController: NavHostController? = null
 private inline val navController: NavHostController get() = optionalNavController!!
+private val initialRoute = AppSettings.initialRoute
 
 @Composable
 fun MainScreen() {
@@ -136,12 +145,23 @@ fun MainScreen() {
                         .fillMaxWidth()
                         .background(SurfaceTheme.appBars.color)
                 ) {
-                    AnimatedContent(
-                        targetState = topBarContent.value,
-                        label = "",
-                    ) { content ->
-                        content()
-                    }
+                    if (TrainingCenter.isTraining)
+                        topBarContent.value()
+                    else
+                        AnimatedContent(
+                            targetState = topBarContent.value,
+                            label = "",
+                            transitionSpec = {
+                                val direction = slideInDirection()
+                                return@AnimatedContent slideInHorizontally(
+                                    animationSpec = tween(durationMillis = 400)
+                                ) { (direction) * it } togetherWith slideOutHorizontally(
+                                    animationSpec = tween(durationMillis = 400)
+                                ) { (-direction) * it }
+                            }
+                        ) { content ->
+                            content()
+                        }
                 }
                 Divider(
                     color = SurfaceTheme.divider.color,
@@ -172,7 +192,7 @@ fun MainScreen() {
                 .fillMaxSize()
                 .background(SurfaceTheme.background.color)
         ) {
-            NavHost(navController = navController, startDestination = AppSettings.initialRoute) {
+            NavHost(navController = navController, startDestination = initialRoute) {
                 animatedComposable("news") {
                     NewsScreen(header = topBarContent)
                 }
@@ -194,13 +214,23 @@ fun MainScreen() {
     }
 }
 
-private fun NavGraphBuilder.animatedComposable(route: String, content: @Composable () -> Unit){
+private fun NavGraphBuilder.animatedComposable(route: String, content: @Composable () -> Unit) {
     composable(
         route,
-        enterTransition = {slideInHorizontally{it} },
-        exitTransition = {slideOutHorizontally{-it} }
+        enterTransition = {
+            if (TrainingCenter.isTraining)
+                EnterTransition.None
+            else
+                slideInHorizontally(tween(400)) { slideInDirection() * it }
+        },
+        exitTransition = {
+            if (TrainingCenter.isTraining)
+                ExitTransition.None
+            else
+                slideOutHorizontally(tween(400)) { (-slideInDirection()) * it }
+        }
     ) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             content()
         }
     }
@@ -209,7 +239,6 @@ private fun NavGraphBuilder.animatedComposable(route: String, content: @Composab
 
 var selected_page = mutableStateOf(AppSettings.initialRoute)
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NavigationBar() {
     val navBarItemWidth = LocalConfiguration.current.screenWidthDp.dp / 5
@@ -218,101 +247,205 @@ fun NavigationBar() {
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.Bottom
         ) {
-            NavBarItem(
-                title = "Новости",
-                icon = R.drawable.news_icon,
-                "news",
-                navBarItemWidth
-            )
-            NavBarItem(
-                title = "Расписание",
-                icon = R.drawable.timetable_icon,
-                "timetable",
-                navBarItemWidth
-            )
-            Spacer(modifier = Modifier.size(navBarItemWidth))
-            NavBarItem(
-                title =
-                when (AppSettings.whoIsUser) {
-                    "student" -> "Студенту"
-                    "teacher" -> "Педагогу"
-                    else -> "Кому?"
-                }, icon = R.drawable.other_icon,
-                "other",
-                navBarItemWidth
-            )
-            if (!AppSettings.eiosLogged)
+            IntroShowcase(
+                showIntroShowCase = TrainingCenter.newsNavItem,
+                onShowCaseCompleted = {
+                    TrainingCenter.newsNavItem = false
+                    TrainingCenter.newsHeader = true
+                    routeTo("news")
+                }) {
                 NavBarItem(
-                    title = "Настройки",
-                    icon = R.drawable.settings_icon,
-                    "settings",
-                    navBarItemWidth
-                )
-            else
-                NavBarItem(
-                    title = "Профиль",
-                    icon = R.drawable.profile,
-                    "account",
-                    navBarItemWidth
-                )
-        }
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Box(
-                Modifier.fillMaxHeight(),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(painter = painterResource(id = R.drawable.agpu_logo),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .combinedClickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = {
-                                onASPUButtonClick.value()
-                            },
-                            onLongClick = {
-                                onASPUButtonLongClick.value()
-                            }
-                        )
-                        .fillMaxHeight(
-                            animateFloatAsState(
-                                targetValue =
-                                if (aspuButtonLoading.value) .8f else 1f,
-                                label = "",
-                                animationSpec = tween(durationMillis = 100)
-                            ).value
-                        )
+                    title = "Новости",
+                    icon = R.drawable.news_icon,
+                    "news",
+                    navBarItemWidth,
+                    "Здесь вы можете ознакомиться с самыми свежими новостями ВУЗа"
                 )
             }
+            IntroShowcase(
+                showIntroShowCase = TrainingCenter.timetableNavItem,
+                onShowCaseCompleted = {
+                    TrainingCenter.timetableNavItem = false
+                    TrainingCenter.timetableHeader = true
+                    routeTo("timetable")
+                }) {
+                NavBarItem(
+                    title = "Расписание",
+                    icon = R.drawable.timetable_icon,
+                    "timetable",
+                    navBarItemWidth,
+                    "Здесь вы можете ознакомиться с актуальным расписанием"
+                )
+            }
+            Spacer(modifier = Modifier.size(navBarItemWidth))
+            IntroShowcase(
+                showIntroShowCase = TrainingCenter.otherNavItem,
+                onShowCaseCompleted = {
+                    TrainingCenter.otherNavItem = false
+                    TrainingCenter.other = true
+                    routeTo("other")
+                }) {
+                NavBarItem(
+                    title =
+                    when (AppSettings.whoIsUser) {
+                        "student" -> "Студенту"
+                        "teacher" -> "Педагогу"
+                        else -> "Кому?"
+                    }, icon = R.drawable.other_icon,
+                    "other",
+                    navBarItemWidth,
+                    "Здесь расположены вкладки сайта и некоторая интересная функциональнотсь приложения"
+                )
+            }
+            if (!AppSettings.eiosLogged)
+                IntroShowcase(
+                    showIntroShowCase = TrainingCenter.settingsNavItem,
+                    onShowCaseCompleted = {
+                        TrainingCenter.settingsNavItem = false
+                        TrainingCenter.settings = true
+                        routeTo("settings")
+                    }) {
+                    NavBarItem(
+                        title = "Настройки",
+                        icon = R.drawable.settings_icon,
+                        "settings",
+                        navBarItemWidth,
+                        "Здесь можно настроить приложение под себя"
+                    )
+                }
+            else
+                IntroShowcase(
+                    showIntroShowCase = TrainingCenter.accountNavItem,
+                    onShowCaseCompleted = {
+                        TrainingCenter.accountNavItem = false
+                        TrainingCenter.accountHeader = true
+                        routeTo("account")
+                    }) {
+                    NavBarItem(
+                        title = "Профиль",
+                        icon = R.drawable.profile,
+                        "account",
+                        navBarItemWidth,
+                        "Это ваш мобильный аккаунт ЭИОС"
+                    )
+                }
+
+        }
+        if (TrainingCenter.aspuButton)
+            IntroShowcase(
+                showIntroShowCase = true,
+                onShowCaseCompleted = {
+                    TrainingCenter.aspuButton = false
+                    TrainingCenter.aspuButtonHintClosure()
+                }) {
+                AspuButton(
+                    modifier = hintTargetModifier(
+                        0,
+                        "Функциональность кнопки",
+                        TrainingCenter.aspuButtonDescription
+                    )
+                )
+            }
+        else
+            AspuButton()
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun AspuButton(modifier: Modifier = Modifier) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(
+            Modifier.fillMaxHeight(),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(painter = painterResource(id = R.drawable.agpu_logo),
+                contentDescription = null,
+                modifier = Modifier
+                    .combinedClickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = {
+                            onASPUButtonClick.value()
+                        },
+                        onLongClick = {
+                            onASPUButtonLongClick.value()
+                        }
+                    )
+                    .fillMaxHeight(
+                        animateFloatAsState(
+                            targetValue =
+                            if (aspuButtonLoading.value) .8f else 1f,
+                            label = "",
+                            animationSpec = tween(durationMillis = 100)
+                        ).value
+                    )
+                    .then(modifier)
+            )
         }
     }
 }
 
+private var lastRoute = AppSettings.initialRoute
+private fun slideInDirection(): Int { // 1 - справа налево; -1 слева направо
+    val route = selected_page.value
+
+    if (route == "settings" || route == "account")
+        return 1
+
+    if (route == "news")
+        return -1
+
+    if (route == "timetable") {
+        if (lastRoute == "news")
+            return 1
+        return -1
+    }
+    if (route == "other") {
+        if (lastRoute == "settings" || lastRoute == "account")
+            return -1
+        return 1
+    }
+    return -1
+}
+
+private var lastClicked = 0L
 fun routeTo(route: String) {
-    if(selected_page.value == route)
+    if (selected_page.value == route)
         return
     requestQueue!!.cancelAll { true }
+    lastRoute = selected_page.value
     selected_page.value = route
     navController.navigate(route)
 }
 
 @Composable
-fun NavBarItem(
+fun IntroShowcaseScope.NavBarItem(
     title: String,
     icon: Int,
     route: String,
-    size: Dp
+    size: Dp,
+    description: String
 ) {
-    val selected = selected_page.value == route
+    val selectedRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+    if (selectedRoute != null && selected_page.value != selectedRoute) {
+        lastRoute = selected_page.value
+        selected_page.value = selectedRoute
+    }
+    val selected = selectedRoute == route
     Box(
         modifier = Modifier
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) {
-                routeTo(route)
+                if (System.currentTimeMillis() - lastClicked > 500) {
+                    routeTo(route)
+                    lastClicked = System.currentTimeMillis()
+                }
             }
-            .width(size),
+            .width(size)
+            .then(hintTargetModifier(0, title, description)),
         contentAlignment = Alignment.Center
     ) {
         Column(

@@ -22,17 +22,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.canopas.lib.showcase.IntroShowcase
 import com.merqury.aspu.R
 import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.ui.TitleHeader
+import com.merqury.aspu.ui.navfragments.profile.showEiosAuthModalWindow
 import com.merqury.aspu.ui.openInBrowser
 import com.merqury.aspu.ui.showWebPage
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
+import com.merqury.aspu.ui.training.TrainingCenter
+import com.merqury.aspu.ui.training.hintTargetModifier
 
 @Preview
 @Composable
@@ -42,6 +45,34 @@ fun OtherPreview() {
 
 @Composable
 fun OtherScreen(header: MutableState<@Composable () -> Unit>) {
+    if (TrainingCenter.other) {
+        val onCompleted = {
+            TrainingCenter.aspuButtonDescription = "Короткое нажатие открывает мобильную версию" +
+                    "сайта в браузере"
+            TrainingCenter.aspuButtonHintClosure = {
+                TrainingCenter.settingsNavItem = true
+            }
+            TrainingCenter.other = false
+            TrainingCenter.aspuButton = true
+        }
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterStart) {
+            IntroShowcase(
+                showIntroShowCase = true,
+                onShowCaseCompleted = onCompleted,
+                dismissOnClickOutside = true
+            ) {
+                Box(
+                    modifier = hintTargetModifier(
+                        0,
+                        "Вкладка «Студенту/Педагогу»",
+                        "На данной вкладке вы можете открывать страницы сайта в браузере, " +
+                                "Войти в свой аккаунт ЭИОС в приложении или найти ВУЗ в социальных " +
+                                "сетях"
+                    )
+                )
+            }
+        }
+    }
     val headerContent = @Composable {
         TitleHeader(
             title = when (AppSettings.whoIsUser) {
@@ -66,12 +97,6 @@ fun OtherScreenContent() {
         Column(
             Modifier.verticalScroll(rememberScrollState())
         ) {
-            Text(
-                text = "Нажмите на кнопку «АГПУ», чтоб посетить мобильную версию сайта",
-                color = SurfaceTheme.text.color,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
             Divider(color = SurfaceTheme.divider.color)
             data class WebEntry(
                 val name: String,
@@ -130,6 +155,10 @@ fun OtherScreenContent() {
                     "Аккаунт ЭИОС",
                     R.drawable.account
                 ) {
+                  showEiosAuthModalWindow {
+                      TrainingCenter.isTraining = true
+                      TrainingCenter.accountNavItem = true
+                  }
                 },
                 WebEntry(
                     "Рабочие программы",
