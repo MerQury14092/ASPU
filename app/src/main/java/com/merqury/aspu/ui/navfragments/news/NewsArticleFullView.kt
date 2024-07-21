@@ -36,6 +36,7 @@ import coil.compose.SubcomposeAsyncImage
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
+import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.services.news.getNewsArticle
 import com.merqury.aspu.ui.ModalWindow
 import com.merqury.aspu.ui.navfragments.timetable.prettyDate
@@ -47,7 +48,7 @@ import net.engawapg.lib.zoomable.zoomable
 import org.json.JSONObject
 
 @Composable
-fun ArticleView() {
+fun ArticleView(selectedFaculty: NewsCategoryEnum) {
     ModalWindow(
         modifier = Modifier
             .fillMaxSize(.95f),
@@ -67,7 +68,7 @@ fun ArticleView() {
         }
         if (!articleLoaded.value) {
             getNewsArticle(
-                selectedFaculty.value,
+                selectedFaculty,
                 clickedArticleId.intValue,
                 articleJson,
                 articleLoaded,

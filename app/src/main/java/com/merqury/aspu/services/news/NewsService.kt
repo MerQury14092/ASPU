@@ -1,7 +1,6 @@
 package com.merqury.aspu.services.news
 
 import android.util.Log
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.MutableState
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
@@ -15,21 +14,19 @@ import com.merqury.aspu.services.misc.timestampNow
 import com.merqury.aspu.services.network.EncodingConverter
 import com.merqury.aspu.services.network.handleVolleyError
 import com.merqury.aspu.ui.async
-import com.merqury.aspu.ui.navfragments.news.pagerState
-import com.merqury.aspu.ui.navfragments.news.selectedFaculty
 import org.json.JSONObject
 
 fun getNews(
     pageNumber: Int,
+    selectedFaculty: NewsCategoryEnum,
     onError: (String) -> Unit,
     onSuccess: (JSONObject, Int) -> Unit
 ) {
     Thread.sleep(100)
-    val faculty = selectedFaculty.value
     val timeCache = AppSettings.timeCache
-    if (timeCache != 0L && cache.getString("${faculty.name} $pageNumber", "") != "") {
+    if (timeCache != 0L && cache.getString("${selectedFaculty.name} $pageNumber", "") != "") {
         async {
-            val cacheNewsPage = cache.getString("${faculty.name} $pageNumber", "")
+            val cacheNewsPage = cache.getString("${selectedFaculty.name} $pageNumber", "")
                 ?.let { JSONObject(it) }
             if (timestampDifference(timestampNow(), cacheNewsPage!!.getString("created")) < timeCache) {
 
@@ -42,8 +39,8 @@ fun getNews(
         }
     } else {
         var url = "https://$apiDomain/api/news"
-        if (faculty != NewsCategoryEnum.agpu)
-            url = "$url/${faculty.name}"
+        if (selectedFaculty != NewsCategoryEnum.agpu)
+            url = "$url/${selectedFaculty.name}"
         url = "$url?page=$pageNumber"
         val request = StringRequest(
             Request.Method.GET,
@@ -51,13 +48,13 @@ fun getNews(
             { response ->
                 async {
                     val convertedResponse = EncodingConverter.translateISO8859_1toUTF_8(response)
-                    val res = JSONObject(convertedResponse)
+                    val res = JSONObject(convertedResponse).put("category", selectedFaculty.name)
                     onSuccess(
                         res,
                         res.getInt("countPages")
                     )
                     cache.edit().putString(
-                        "${faculty.name} $pageNumber",
+                        "${selectedFaculty.name} $pageNumber",
                         JSONObject().apply {
                             put("created", timestampNow())
                             put("value", res)
@@ -102,12 +99,12 @@ fun getNewsArticle(
     requestQueue!!.add(request)
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-fun urlForCurrentFaculty(): String {
-    return when (selectedFaculty.value.name) {
-        "agpu" -> "agpu.net/news.php?PAGEN_1=${pagerState.value.currentPage}"
-        "educationaltechnopark" -> "www.agpu.net/struktura-vuza/educationaltechnopark/news/news.php?PAGEN_1=${pagerState.value.currentPage}"
-        "PedagogicalQuantorium" -> "www.agpu.net/struktura-vuza/PedagogicalQuantorium/news/news.php?PAGEN_1=${pagerState.value.currentPage}"
-        else -> "agpu.net/struktura-vuza/faculties/${selectedFaculty.value.name}/news/news.php?PAGEN_1=${pagerState.value.currentPage}"
-    }
-}
+//@OptIn(ExperimentalFoundationApi::class)
+//fun urlForCurrentFaculty(): String {
+//    return when (selectedFaculty.value.name) {
+//        "agpu" -> "agpu.net/news.php?PAGEN_1=${pagerState.value.currentPage}"
+//        "educationaltechnopark" -> "www.agpu.net/struktura-vuza/educationaltechnopark/news/news.php?PAGEN_1=${pagerState.value.currentPage}"
+//        "PedagogicalQuantorium" -> "www.agpu.net/struktura-vuza/PedagogicalQuantorium/news/news.php?PAGEN_1=${pagerState.value.currentPage}"
+//        else -> "agpu.net/struktura-vuza/faculties/${selectedFaculty.value.name}/news/news.php?PAGEN_1=${pagerState.value.currentPage}"
+//    }
+//}

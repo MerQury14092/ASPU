@@ -31,7 +31,7 @@ import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 
 @Composable
-fun TimetableItem(discipline: Discipline) {
+fun TimetableItem(discipline: Discipline, timetableId: String, timetableOwner: String) {
     val type = TimetableDisciplineType.valueOf(discipline.type)
     Card(
         modifier = Modifier
@@ -72,7 +72,7 @@ fun TimetableItem(discipline: Discipline) {
                 Row(
                     modifier = Modifier.padding(bottom = 10.dp)
                 ) {
-                    if (selectedOwner.value.lowercase() != "classroom") {
+                    if (timetableOwner.lowercase() != "classroom") {
                         if (!discipline.distant) {
                             Row {
                                 Text(
@@ -99,7 +99,7 @@ fun TimetableItem(discipline: Discipline) {
                             )
                         }
                     } else
-                        if (selectedOwner.value.lowercase() != "group")
+                        if (timetableOwner.lowercase() != "group")
                             Text(
                                 multiplyGroupFilter(discipline.groupName),
                                 color = if (AppSettings.colorTimetable
@@ -107,7 +107,7 @@ fun TimetableItem(discipline: Discipline) {
                                 textAlign = TextAlign.Start,
                                 modifier = Modifier.padding(start = 10.dp)
                             )
-                    if (selectedOwner.value.lowercase() != "teacher")
+                    if (timetableOwner.lowercase() != "teacher")
                         Text(
                             discipline.teacherName,
                             color = if (AppSettings.colorTimetable
@@ -117,7 +117,7 @@ fun TimetableItem(discipline: Discipline) {
                                 .padding(end = 10.dp),
                             textAlign = TextAlign.End,
                         )
-                    if (selectedOwner.value.lowercase() == "teacher")
+                    if (timetableOwner.lowercase() == "teacher")
                         Text(
                             multiplyGroupFilter(discipline.groupName),
                             color = if (AppSettings.colorTimetable
@@ -131,7 +131,7 @@ fun TimetableItem(discipline: Discipline) {
                 }
                 if (!AppSettings.timetableFiltration ||
                     (AppSettings.selectedSubgroup == 0
-                            || AppSettings.timetableId != selectedId.value)
+                            || AppSettings.timetableId != timetableId)
                 ) {
                     if (discipline.subgroup != 0)
                         Text(
@@ -168,7 +168,7 @@ fun TimetableItem(discipline: Discipline) {
                             )
                     }
                 }
-                if (discipline.distant && selectedOwner.value.lowercase() == "classroom") {
+                if (discipline.distant && timetableOwner.lowercase() == "classroom") {
                     Divider(color = SurfaceTheme.divider.color)
                     Text(
                         text = "ДИСТАНЦИОННО",
@@ -253,8 +253,7 @@ fun TimetableItemLoadingPlaceholder() {
                     }
                 }
                 if (!AppSettings.timetableFiltration ||
-                    (AppSettings.selectedSubgroup == 0
-                            || AppSettings.timetableId != selectedId.value)
+                    (AppSettings.selectedSubgroup == 0)
                 ) {
                     Text(
                         "Place 4",

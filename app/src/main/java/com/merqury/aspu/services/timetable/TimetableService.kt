@@ -17,13 +17,6 @@ import com.merqury.aspu.services.network.handleVolleyError
 import com.merqury.aspu.services.timetable.models.TimetableDay
 import com.merqury.aspu.services.timetable.models.TimetableDay.Companion.toJson
 import com.merqury.aspu.ui.async
-import com.merqury.aspu.ui.navfragments.timetable.selectedId
-import com.merqury.aspu.ui.navfragments.timetable.selectedOwner
-import com.merqury.aspu.ui.openInBrowser
-import com.merqury.aspu.ui.showWebPage
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
@@ -32,12 +25,14 @@ import java.time.format.DateTimeFormatter
 fun getTimetableByDateRange(
     startDate: String,
     endDate: String,
+    timetableId: String,
+    timetableIdOwner: String,
     onLoad: (result: List<TimetableDay>) -> Unit,
     onError: (e: VolleyError) -> Unit
 ) {
     val url = "https://$apiDomain/api/v2/timetable/days?" +
-            "id=${selectedId.value}" +
-            "&owner=${selectedOwner.value}" +
+            "id=$timetableId" +
+            "&owner=$timetableIdOwner" +
             "&startDate=$startDate" +
             "&endDate=$endDate"
     val request = StringRequest(
@@ -61,13 +56,15 @@ fun getTimetableByDateRange(
 
 fun getTimetableByDate(
     date: String,
+    timetableId: String,
+    timetableIdOwner: String,
     onError: (String) -> Unit,
     onSuccess: (TimetableDay) -> Unit
 ) {
     async {
         val timeCache = AppSettings.timeCache
-        if (timeCache != 0L && cache.getString("${selectedId.value} $date", "") != "") {
-            val cacheTimetableDay = cache.getString("${selectedId.value} $date", "")
+        if (timeCache != 0L && cache.getString("$timetableId $date", "") != "") {
+            val cacheTimetableDay = cache.getString("$timetableId $date", "")
                 ?.let { JSONObject(it) }
             if (timestampDifference(
                     timestampNow(),
@@ -96,13 +93,15 @@ fun getTimetableByDate(
         getTimetableByDateRange(
             startWeekDate,
             endWeekDate,
+            timetableId,
+            timetableIdOwner,
             { ttList ->
                 ttList.forEach {
                     if (it.date == date) {
                         onSuccess(it)
                     }
                     cache.edit().putString(
-                        "${selectedId.value} ${it.date}",
+                        "$timetableId ${it.date}",
                         JSONObject().apply {
                             put("created", timestampNow())
                             put("value", it.toJson())
@@ -121,26 +120,26 @@ fun getTimetableByDate(
     }
 }
 
-@OptIn(DelicateCoroutinesApi::class)
-fun showTimetableWebPageView(date: String) {
-    getSearchId(selectedId.value) { id, type ->
-        GlobalScope.launch {
-            showTimetableWebPageView(id, type, date)
-        }
-    }
-}
+//@OptIn(DelicateCoroutinesApi::class)
+//fun showTimetableWebPageView(date: String) {
+//    getSearchId(selectedId.value) { id, type ->
+//        GlobalScope.launch {
+//            showTimetableWebPageView(id, type, date)
+//        }
+//    }
+//}
 
-fun showTimetableWebPageView(searchId: Long, searchType: String, date: String) {
-    val url = "www.it-institut.ru/Raspisanie/SearchedRaspisanie?OwnerId=118&SearchId=" +
-            searchId +
-            "&Type=$searchType&WeekId=${WeekIdService.weekIdByDate(date)}" +
-            "&SearchString=${selectedId.value}"
-    val inBrowser = AppSettings.useIncludedBrowser
-    if (inBrowser)
-        showWebPage(url, "https")
-    else
-        openInBrowser(url, "https")
-}
+//fun showTimetableWebPageView(searchId: Long, searchType: String, date: String) {
+//    val url = "www.it-institut.ru/Raspisanie/SearchedRaspisanie?OwnerId=118&SearchId=" +
+//            searchId +
+//            "&Type=$searchType&WeekId=${WeekIdService.weekIdByDate(date)}" +
+//            "&SearchString=${selectedId.value}"
+//    val inBrowser = AppSettings.useIncludedBrowser
+//    if (inBrowser)
+//        showWebPage(url, "https")
+//    else
+//        openInBrowser(url, "https")
+//}
 
 fun getTodayDate(): String {
     val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")

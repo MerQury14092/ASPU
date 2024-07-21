@@ -70,9 +70,17 @@ fun ProfileInfo(info: Data) {
     ) {
         info.apply {
             if (marksStat == null) {
-                getMarkStatsById(studentID!!, onError = {
-                }) {
-                    marksStat = it
+                var loading by remember {
+                    mutableStateOf(false)
+                }
+                if(!loading){
+                    loading = true
+                    getMarkStatsById(studentID!!, onError = {
+                        loading = false
+                    }) {
+                        marksStat = it
+                        loading = false
+                    }
                 }
             }
             Column(

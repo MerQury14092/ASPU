@@ -69,7 +69,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                         0,
                         "Настройка данного приложения",
                         "Здесь вы можете настроить приложение под себя: " +
-                                "кто использует приложение, что показывать при входе, после входа и " +
+                                "кто использует приложение, что показывать при входе, после входа, " +
                                 "как это показывать и многое другое"
                     )
                 )
@@ -138,6 +138,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                         }: ${AppSettings.timetableId}"
                     ) {
                         showSelectIdModalWindow(
+                            timetableId = AppSettings.timetableId,
                             filteredBy = when (AppSettings.whoIsUser) {
                                 "student" -> "group"
                                 "teacher" -> "teacher"

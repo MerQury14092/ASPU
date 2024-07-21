@@ -9,6 +9,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
@@ -22,7 +23,11 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 
 @Composable
-fun TimetableHeader(selectedDate: String) {
+fun TimetableHeader(
+    selectedDate: String,
+    timetableId: MutableState<String>,
+    timetableIdOwner: MutableState<String>
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -79,16 +84,16 @@ fun TimetableHeader(selectedDate: String) {
                 ) {
                     Button(
                         onClick = {
-                            showSelectIdModalWindow {
-                                selectedId.value = it.searchContent
-                                selectedOwner.value = it.type.uppercase()
+                            showSelectIdModalWindow(timetableId = timetableId.value) {
+                                timetableId.value = it.searchContent
+                                timetableIdOwner.value = it.type.uppercase()
                             }
                         }, colors = ButtonDefaults.buttonColors(
                             containerColor = com.merqury.aspu.ui.theme.SurfaceTheme.button.color
                         )
                     ) {
                         Text(
-                            text = selectedId.value,
+                            text = timetableId.value,
                             color = com.merqury.aspu.ui.theme.SurfaceTheme.text.color,
                             fontSize = 11.sp
                         )

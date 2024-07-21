@@ -38,10 +38,6 @@ import org.json.JSONObject
 
 val showArticleView = mutableStateOf(false)
 val clickedArticleId = mutableIntStateOf(0)
-val selectedFaculty = mutableStateOf(
-    NewsCategoryEnum.valueOf(AppSettings.newsCategory)
-)
-private var loaded by mutableStateOf(false)
 
 
 @SuppressLint("UnrememberedMutableState")
@@ -73,11 +69,16 @@ fun NewsScreen(header: MutableState<@Composable () -> Unit>) {
             }
         }
     }
+    val selectedFaculty = remember {
+        mutableStateOf(
+            NewsCategoryEnum.valueOf(AppSettings.newsCategory)
+        )
+    }
     if (showArticleView.value)
-        ArticleView()
+        ArticleView(selectedFaculty.value)
     val useConfig = AppConfig.useNewsPageConfig()
     if (useConfig.canUse)
-        NewsContent(header)
+        NewsContent(header, selectedFaculty)
     else
         Box(
             modifier = Modifier
@@ -100,13 +101,18 @@ fun NewsScreen(header: MutableState<@Composable () -> Unit>) {
 @OptIn(ExperimentalFoundationApi::class)
 internal val pagerState = mutableStateOf(PagerState { 1 })
 
-private var loading = false
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NewsContent(
-    header: MutableState<@Composable () -> Unit>
+    header: MutableState<@Composable () -> Unit>,
+    selectedFaculty: MutableState<NewsCategoryEnum>
 ) {
-
+    var loaded by remember {
+        mutableStateOf(false)
+    }
+    var loading by remember {
+        mutableStateOf(false)
+    }
     val headerContent = @Composable {
         TitleHeader(title = "Новости")
         NewsHeader(selectedFaculty, loaded)
@@ -127,9 +133,9 @@ fun NewsContent(
             NewsItemLoadingPlaceholder()
             NewsItemLoadingPlaceholder()
         }
-        if(!loading){
+        if (!loading) {
             loading = true
-            getNews(1, {
+            getNews(1, selectedFaculty.value, {
                 errorString = it
                 loaded = true
                 loading = false
@@ -141,7 +147,7 @@ fun NewsContent(
                 loading = false
             }
         }
-    } else if (loaded) {
+    } else {
         if (errorString != null)
             Box(
                 modifier = Modifier
@@ -152,13 +158,7 @@ fun NewsContent(
                 Text(text = errorString!!, color = SurfaceTheme.text.color)
             }
         else
-            HorizontalPager(
-                state = pagerState.value,
-                modifier = Modifier.background(SurfaceTheme.background.color),
-                outOfBoundsPageCount = 1
-            ) {
-                NewsPage(pageNumber = it)
-            }
+            NewsPager(selectedFaculty.value)
     }
 
 }
@@ -166,29 +166,46 @@ fun NewsContent(
 private inline val selectedNewsRoute get() = selected_page.value == "news"
 
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun NewsPager(selectedFaculty: NewsCategoryEnum){
+    HorizontalPager(
+        state = pagerState.value,
+        modifier = Modifier.background(SurfaceTheme.background.color),
+        outOfBoundsPageCount = 1
+    ) {
+        NewsPage(pageNumber = it, selectedFaculty)
+    }
+}
+
 @Composable
 private fun NewsPage(
-    pageNumber: Int
+    pageNumber: Int,
+    selectedFaculty: NewsCategoryEnum
 ) {
-    var loaded by remember {
-        mutableStateOf(false)
-    }
     var json by remember {
         mutableStateOf<JSONObject?>(null)
     }
     var errorString by remember {
         mutableStateOf<String?>(null)
     }
-    if (!loaded) {
-        getNews(
-            pageNumber + 1,
-            {
-                errorString = it
-                loaded = true
+    if (json == null || json?.getString("category") != selectedFaculty.name) {
+        var loading by remember {
+            mutableStateOf(false)
+        }
+        if (!loading) {
+            loading = true
+            getNews(
+                pageNumber + 1,
+                selectedFaculty = selectedFaculty,
+                {
+                    errorString = it
+                    loading = false
+                }
+            ) { response, _ ->
+                json = response
+                loading = false
             }
-        ) { response, _ ->
-            json = response
-            loaded = true
         }
         Column(
             Modifier

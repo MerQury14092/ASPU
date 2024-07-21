@@ -71,6 +71,7 @@ fun getButtonsFacultyAndGroups(
 @SuppressLint("MutableCollectionMutableState")
 fun showSelectIdModalWindow(
     filteredBy: String = "any",
+    timetableId: String,
     onResultClick: (searchResult: SearchContentElement) -> Unit
 ) {
     showSimpleModalWindow(containerColor = SurfaceTheme.background.colorWithoutAnim) {
@@ -263,17 +264,12 @@ fun showSelectIdModalWindow(
                                 }
                             }
                     }
-                    if (selectedId.value != AppSettings.timetableId && filteredBy.lowercase() == "any" && textFieldValue.value.isEmpty()
+                    if (timetableId != AppSettings.timetableId && filteredBy.lowercase() == "any" && textFieldValue.value.isEmpty()
                     )
                         Card(
                             modifier = Modifier
                                 .padding(10.dp)
                                 .clickable {
-                                    selectedOwner.value = if (AppSettings.whoIsUser == "student")
-                                        "GROUP"
-                                    else
-                                        "TEACHER"
-                                    selectedId.value = AppSettings.timetableId
                                     it.value = false
                                 },
                             colors = CardDefaults.cardColors(

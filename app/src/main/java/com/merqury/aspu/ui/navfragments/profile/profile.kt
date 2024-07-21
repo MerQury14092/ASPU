@@ -114,22 +114,30 @@ fun ProfileScreen(header: MutableState<@Composable () -> Unit>) {
     val forUpdate = remember {
         mutableStateOf(false)
     }
+    var loading by remember {
+        mutableStateOf(false)
+    }
     forUpdate.value
     if ((profileInfo?.state ?: -1) != 1L) {
         ProfileInfoPlaceholder()
-        if (secretPreferences.contains("authToken"))
-            getProfileInfo(
-                secretPreferences.getString("authToken", null)!!,
-                secretPreferences.getInt("userId", 0),
-                onClosure = {
+        if (secretPreferences.contains("authToken")) {
+            if (!loading) {
+                loading = true
+                getProfileInfo(
+                    secretPreferences.getString("authToken", null)!!,
+                    secretPreferences.getInt("userId", 0),
+                    onClosure = {
+                        forUpdate.toggle()
+                        loading = false
+                    }
+                ) {
+                    profileInfo = it
+                }
+            }
+        } else {
+                showEiosAuthModalWindow {
                     forUpdate.toggle()
                 }
-            ) {
-                profileInfo = it
-            }
-        else
-            showEiosAuthModalWindow {
-                forUpdate.toggle()
             }
     } else {
         ProfileInfo(info = profileInfo?.data!!)

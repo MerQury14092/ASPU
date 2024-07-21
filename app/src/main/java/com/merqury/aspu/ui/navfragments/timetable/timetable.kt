@@ -36,8 +36,6 @@ import com.merqury.aspu.services.timetable.models.TimetableDay
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.async
 import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
-import com.merqury.aspu.ui.printlog
-import com.merqury.aspu.ui.selected_page
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.ThemeText
@@ -49,10 +47,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-val selectedId = mutableStateOf(AppSettings.timetableId)
-val selectedOwner = mutableStateOf(AppSettings.timetableIdOwner)
 private val pointDate = getTodayDate()
-private var loaded by mutableStateOf(false)
 
 @OptIn(ExperimentalFoundationApi::class)
 private val pagerState = PagerState(
@@ -114,8 +109,16 @@ fun TimetableScreen(header: MutableState<@Composable () -> Unit>) {
 @Composable
 fun TimetableContent(header: MutableState<@Composable () -> Unit>) {
     Column {
-        val headerContent = @Composable { TimetableHeader(getDateByPage(pagerState.currentPage)) }
-        if(header.value != headerContent)
+        val timetableId = remember {
+            mutableStateOf(AppSettings.timetableId)
+        }
+        val timetableIdOwner = remember {
+            mutableStateOf(AppSettings.timetableIdOwner)
+        }
+        val headerContent = @Composable {
+            TimetableHeader(getDateByPage(pagerState.currentPage), timetableId, timetableIdOwner)
+        }
+        if (header.value != headerContent)
             header.value = headerContent
 
         HorizontalPager(
@@ -126,17 +129,20 @@ fun TimetableContent(header: MutableState<@Composable () -> Unit>) {
             verticalAlignment = Alignment.Top,
             outOfBoundsPageCount = 1
         ) {
-            TimetableDay(page = it)
+            TimetableDay(
+                page = it,
+                timetableId = timetableId.value,
+                timetableIdOwner = timetableIdOwner.value
+            )
         }
     }
 }
 
-private inline val selectedTimetableRoute get() = selected_page.value == "timetable"
-
-private var loading = false
 @Composable
 private fun TimetableDay(
-    page: Int
+    page: Int,
+    timetableId: String,
+    timetableIdOwner: String
 ) {
     var disciplines by remember {
         mutableStateOf<List<Discipline>?>(null)
@@ -144,7 +150,11 @@ private fun TimetableDay(
     var errorString by remember {
         mutableStateOf<String?>(null)
     }
-    if (!loaded) {
+    var loading by remember {
+        mutableStateOf(false)
+    }
+
+    if (disciplines == null) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -154,13 +164,14 @@ private fun TimetableDay(
             TimetableItemLoadingPlaceholder()
             TimetableItemLoadingPlaceholder()
         }
-        if(!loading){
+        if (!loading) {
             loading = true
             getTimetableByDate(
                 getDateByPage(page),
+                timetableId,
+                timetableIdOwner,
                 {
                     errorString = it
-                    loaded = true
                     loading = false
                 }
             ) {
@@ -168,15 +179,12 @@ private fun TimetableDay(
                     disciplines = if (
                         AppSettings.timetableFiltration
                         && AppSettings.whoIsUser == "student"
-                        && selectedId.value == AppSettings.timetableId
+                        && timetableId == AppSettings.timetableId
                     )
                         filter(it)
                     else
                         it.disciplines
-                    loaded = true
                     loading = false
-                    printlog(disciplines)
-                    printlog(it)
                 }
             }
         }
@@ -203,7 +211,9 @@ private fun TimetableDay(
             LazyColumn {
                 items(count = disciplines!!.size) {
                     TimetableItem(
-                        discipline = disciplines!![it]
+                        discipline = disciplines!![it],
+                        timetableId,
+                        timetableIdOwner
                     )
                 }
 
@@ -313,7 +323,7 @@ fun answerShowingSelectableDiscipline(name: String) {
                                 .putBoolean(name, true)
                                 .apply()
                             it.value = false
-                            loaded = false
+//                            loaded = false
                         }
                         .padding(5.dp),
                     colors = CardDefaults.cardColors(
@@ -338,7 +348,7 @@ fun answerShowingSelectableDiscipline(name: String) {
                                 .putBoolean(name, false)
                                 .apply()
                             it.value = false
-                            loaded = false
+//                            loaded = false
                         }
                         .padding(5.dp),
                     colors = CardDefaults.cardColors(

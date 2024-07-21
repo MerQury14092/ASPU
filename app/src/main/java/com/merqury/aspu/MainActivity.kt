@@ -95,6 +95,7 @@ fun FirstStart() {
     if (userSelected.value && !idSelectShow.value) {
         idSelectShow.value = true
         showSelectIdModalWindow(
+            timetableId = AppSettings.timetableId,
             filteredBy = when (AppSettings.whoIsUser) {
                 "student" -> "group"
                 "teacher" -> "teacher"

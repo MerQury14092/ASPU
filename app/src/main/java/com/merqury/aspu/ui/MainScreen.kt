@@ -61,7 +61,6 @@ import com.merqury.aspu.R
 import com.merqury.aspu.appContext
 import com.merqury.aspu.requestQueue
 import com.merqury.aspu.services.misc.AppSettings
-import com.merqury.aspu.services.news.urlForCurrentFaculty
 import com.merqury.aspu.ui.navfragments.news.NewsScreen
 import com.merqury.aspu.ui.navfragments.other.OtherScreen
 import com.merqury.aspu.ui.navfragments.profile.ProfileScreen
@@ -80,10 +79,10 @@ val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
         "news" -> {
             aspuButtonLoading.value = true
             val inBrowser = AppSettings.useIncludedBrowser
-            if (inBrowser)
-                showWebPage(urlForCurrentFaculty(), "http")
-            else
-                openInBrowser(urlForCurrentFaculty(), "http")
+//            if (inBrowser)
+//                showWebPage(urlForCurrentFaculty(), "http")
+//            else TODO
+//                openInBrowser(urlForCurrentFaculty(), "http")
         }
 
         "timetable" -> {
@@ -439,10 +438,10 @@ fun IntroShowcaseScope.NavBarItem(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) {
-                if (System.currentTimeMillis() - lastClicked > 500) {
+//                if (System.currentTimeMillis() - lastClicked > 500) {
                     routeTo(route)
-                    lastClicked = System.currentTimeMillis()
-                }
+//                    lastClicked = System.currentTimeMillis()
+//                }
             }
             .width(size)
             .then(hintTargetModifier(0, title, description)),
