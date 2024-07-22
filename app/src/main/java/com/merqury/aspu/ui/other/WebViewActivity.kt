@@ -40,7 +40,6 @@ import com.merqury.aspu.R
 import com.merqury.aspu.appContext
 import com.merqury.aspu.services.intents.FileOpener
 import com.merqury.aspu.services.misc.AppSettings
-import com.merqury.aspu.ui.aspuButtonLoading
 import com.merqury.aspu.ui.openInBrowser
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
@@ -157,7 +156,6 @@ class WebViewActivity : ComponentActivity() {
                                                 request: WebResourceRequest?
                                             ): WebResourceResponse? {
                                                 if (request!!.isForMainFrame) {
-                                                    aspuButtonLoading.value = false
                                                     loading.value = true
                                                 }
                                                 return super.shouldInterceptRequest(view, request)

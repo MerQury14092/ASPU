@@ -13,6 +13,8 @@ import android.widget.ImageView
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.merqury.aspu.services.appconfig.AppConfig
 import com.merqury.aspu.services.appconfig.models.DatabaseConfig
+import com.merqury.aspu.ui.greetings.GreetingsPager
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.ui.async
 
 
@@ -25,7 +27,10 @@ class SplashScreenActivity : Activity() {
         appContext = this
         setTheme(getThemeStyle())
         AppConfig.getConfig().fetchAndActivate().addOnSuccessListener {
-            startActivity(Intent(this, MainActivity::class.java))
+            if (AppSettings.firstLaunch)
+                startActivity(Intent(this, GreetingsPager::class.java))
+            else
+                startActivity(Intent(this, MainActivity::class.java))
             this.overridePendingTransition(0, 0)
             finish()
             async {

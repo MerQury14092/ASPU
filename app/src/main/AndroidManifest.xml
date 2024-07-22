@@ -23,6 +23,9 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".ui.greetings.GreetingsPager"
+            android:exported="true"/>
+        <activity
             android:name=".MainActivity"
             android:exported="true">
         </activity>

@@ -1,6 +1,6 @@
 package com.merqury.aspu.ui.navfragments.settings
 
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -87,7 +87,7 @@ fun SettingsButton(onClick: () -> Unit, content: @Composable () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp)
-                .clickable {
+                .bounceClick {
                     onClick()
                 },
             colors = CardDefaults.cardColors(
@@ -105,7 +105,7 @@ class ClickableSettingsButton(text: String, val onClick: () -> Unit) : SettingsB
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(3.dp)
-                .clickable {
+                .bounceClick {
                     onClick()
                 },
             colors = CardDefaults.cardColors(

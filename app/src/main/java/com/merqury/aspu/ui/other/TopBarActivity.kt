@@ -7,7 +7,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -29,6 +28,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.appContext
 import com.merqury.aspu.services.misc.AppSettings
+import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.contentList
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
@@ -114,7 +114,7 @@ fun ImageVectorButton(
         contentScale = ContentScale.Fit,
         modifier = Modifier
             .fillMaxHeight()
-            .clickable {
+            .bounceClick {
                 onClick()
             },
         colorFilter = ColorFilter.tint(color),

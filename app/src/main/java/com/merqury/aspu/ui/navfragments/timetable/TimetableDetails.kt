@@ -1,7 +1,7 @@
 package com.merqury.aspu.ui.navfragments.timetable
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -97,7 +97,7 @@ private fun DisciplineDetails(discipline: Discipline) {
                         contentScale = ContentScale.Fit,
                         modifier = Modifier
                             .size(25.dp)
-                            .clickable {
+                            .bounceClick {
                                 openMapWithMarker(corps.lat, corps.lon, corps.name)
                             },
                         colorFilter = ColorFilter.tint(SurfaceTheme.text.color)

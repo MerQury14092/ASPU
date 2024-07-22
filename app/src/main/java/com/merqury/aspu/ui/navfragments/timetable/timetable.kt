@@ -2,7 +2,7 @@ package com.merqury.aspu.ui.navfragments.timetable
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,12 +36,15 @@ import com.merqury.aspu.services.timetable.models.TimetableDay
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.async
 import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
+import com.merqury.aspu.ui.navfragments.timetable.TimetableStates.pagerState
+import com.merqury.aspu.ui.navfragments.timetable.TimetableStates.timetableId
+import com.merqury.aspu.ui.navfragments.timetable.TimetableStates.timetableIdOwner
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.ThemeText
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.theme.colorWithoutAnim
-import com.merqury.aspu.ui.training.TrainingCenter
+import com.merqury.aspu.ui.training.TrainingStates
 import com.merqury.aspu.ui.training.hintTargetModifier
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -49,23 +52,28 @@ import java.time.format.DateTimeFormatter
 
 private val pointDate = getTodayDate()
 
-@OptIn(ExperimentalFoundationApi::class)
-private val pagerState = PagerState(
-    currentPage = Int.MAX_VALUE / 2,
-    pageCount = { Int.MAX_VALUE }
-)
+
+object TimetableStates {
+    @OptIn(ExperimentalFoundationApi::class)
+    val pagerState = PagerState(
+        currentPage = Int.MAX_VALUE / 2,
+        pageCount = { Int.MAX_VALUE }
+    )
+    var timetableId by mutableStateOf(AppSettings.timetableId)
+    var timetableIdOwner by mutableStateOf(AppSettings.timetableIdOwner)
+}
 
 @Composable
 fun TimetableScreen(header: MutableState<@Composable () -> Unit>) {
-    if (TrainingCenter.timetable) {
+    if (TrainingStates.timetable) {
         val onCompleted = {
-            TrainingCenter.aspuButtonDescription = "Короткое нажатие откроет неделю расписания, " +
-                    "содержащую этот день, в браузере. Длинное нажатие обновит вкладку"
-            TrainingCenter.aspuButtonHintClosure = {
-                TrainingCenter.otherNavItem = true
+            TrainingStates.aspuButtonDescription = "Открывает неделю расписания, " +
+                    "содержащую этот день, в браузере"
+            TrainingStates.aspuButtonHintClosure = {
+                TrainingStates.otherNavItem = true
             }
-            TrainingCenter.timetable = false
-            TrainingCenter.aspuButton = true
+            TrainingStates.timetable = false
+            TrainingStates.aspuButton = true
         }
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterStart) {
             IntroShowcase(
@@ -77,7 +85,7 @@ fun TimetableScreen(header: MutableState<@Composable () -> Unit>) {
                     modifier = hintTargetModifier(
                         0,
                         "Навигация по экрану",
-                        "Для выбора дней используются свайпы"
+                        "Свайп вправо - следующий день. Свайп влево - предыдущий день"
                     )
                 )
             }
@@ -99,7 +107,7 @@ fun TimetableScreen(header: MutableState<@Composable () -> Unit>) {
                 }
             }
             ThemeText(
-                text = useConfig.reason ?: "Раснисание пока не работает в данной версии",
+                text = useConfig.reason ?: "Расписание пока не работает в данной версии",
                 textAlign = TextAlign.Center
             )
         }
@@ -109,14 +117,8 @@ fun TimetableScreen(header: MutableState<@Composable () -> Unit>) {
 @Composable
 fun TimetableContent(header: MutableState<@Composable () -> Unit>) {
     Column {
-        val timetableId = remember {
-            mutableStateOf(AppSettings.timetableId)
-        }
-        val timetableIdOwner = remember {
-            mutableStateOf(AppSettings.timetableIdOwner)
-        }
         val headerContent = @Composable {
-            TimetableHeader(getDateByPage(pagerState.currentPage), timetableId, timetableIdOwner)
+            TimetableHeader(getDateByPage(pagerState.currentPage))
         }
         if (header.value != headerContent)
             header.value = headerContent
@@ -131,8 +133,8 @@ fun TimetableContent(header: MutableState<@Composable () -> Unit>) {
         ) {
             TimetableDay(
                 page = it,
-                timetableId = timetableId.value,
-                timetableIdOwner = timetableIdOwner.value
+                timetableId = timetableId,
+                timetableIdOwner = timetableIdOwner
             )
         }
     }
@@ -211,9 +213,7 @@ private fun TimetableDay(
             LazyColumn {
                 items(count = disciplines!!.size) {
                     TimetableItem(
-                        discipline = disciplines!![it],
-                        timetableId,
-                        timetableIdOwner
+                        discipline = disciplines!![it]
                     )
                 }
 
@@ -317,7 +317,7 @@ fun answerShowingSelectableDiscipline(name: String) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth(.5f)
-                        .clickable {
+                        .bounceClick {
                             selectableDisciplines
                                 .edit()
                                 .putBoolean(name, true)
@@ -342,7 +342,7 @@ fun answerShowingSelectableDiscipline(name: String) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable {
+                        .bounceClick {
                             selectableDisciplines
                                 .edit()
                                 .putBoolean(name, false)

@@ -9,10 +9,18 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.util.Linkify
 import android.util.TypedValue
+import android.view.View
+import android.view.Window
 import android.widget.TextView
 import android.widget.Toast
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,17 +42,23 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -67,6 +81,7 @@ import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.appContext
 import com.merqury.aspu.close
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.show
 import com.merqury.aspu.ui.other.TopBarActivity
 import com.merqury.aspu.ui.other.WebViewActivity
@@ -130,6 +145,44 @@ fun ModalWindow(
             content()
         }
     }
+}
+
+enum class ButtonState { Pressed, Idle }
+
+@OptIn(ExperimentalFoundationApi::class)
+@SuppressLint("ReturnFromAwaitPointerEventScope")
+fun Modifier.bounceClick(
+    onLongClick: () -> Unit = {},
+    onClick: () -> Unit
+) = composed {
+    var buttonState by remember { mutableStateOf(ButtonState.Idle) }
+    val scale by animateFloatAsState(
+        if (buttonState == ButtonState.Pressed) 0.85f else 1f,
+        label = ""
+    )
+
+    this
+        .graphicsLayer {
+            scaleX = scale
+            scaleY = scale
+        }
+        .combinedClickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+            onClick = onClick,
+            onLongClick = onLongClick
+        )
+        .pointerInput(buttonState) {
+            awaitPointerEventScope {
+                buttonState = if (buttonState == ButtonState.Pressed) {
+                    waitForUpOrCancellation()
+                    ButtonState.Idle
+                } else {
+                    awaitFirstDown(false)
+                    ButtonState.Pressed
+                }
+            }
+        }
 }
 
 fun showSimpleModalWindow(
@@ -216,6 +269,42 @@ fun after(duration: Duration, runnable: () -> Unit) {
     }
 }
 
+// dp(Dp) → px(Float)
+@Composable
+internal fun Dp.toPx(): Float {
+    return this.value * LocalDensity.current.density
+}
+
+// dp(Dp) → sp(TextUnit)
+@Composable
+internal fun Dp.toSp(): TextUnit {
+    return (this.value * LocalDensity.current.density / LocalDensity.current.fontScale).sp
+}
+
+// px(Float) → dp(Dp)
+@Composable
+internal fun Float.toDp(): Dp {
+    return (this / LocalDensity.current.density).dp
+}
+
+// px(Float) → sp(TextUnit)
+@Composable
+internal fun Float.toSp(): TextUnit {
+    return (this / LocalDensity.current.fontScale).sp
+}
+
+// sp(TextUnit) → dp(Dp)
+@Composable
+internal fun TextUnit.toDp(): Dp {
+    return (this.value * LocalDensity.current.fontScale / LocalDensity.current.density).dp
+}
+
+// sp(TextUnit) → px(Float)
+@Composable
+internal fun TextUnit.toPx(): Float {
+    return this.value * LocalDensity.current.fontScale
+}
+
 fun showSelectListDialog(
     buttons: Map<String, () -> Unit>,
     sortedByAlphabet: Boolean = false
@@ -224,6 +313,19 @@ fun showSelectListDialog(
         mutableStateOf(buttons),
         sortedByAlphabet
     )
+}
+
+@Composable
+fun ColorizeAppBars(window: Window, color: Color) {
+    window.statusBarColor =
+        android.graphics.Color.rgb(color.red, color.green, color.blue)
+    window.navigationBarColor =
+        android.graphics.Color.rgb(color.red, color.green, color.blue)
+    if (AppSettings.selectedTheme == "light")
+        window.decorView.systemUiVisibility =
+            View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+    else
+        window.decorView.systemUiVisibility = 0
 }
 
 fun showSelectListDialog(
@@ -255,7 +357,7 @@ fun showSelectListDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(10.dp)
-                                .clickable {
+                                .bounceClick {
                                     it.value()
                                     modalWindowVisibility.value = false
                                 },
@@ -321,7 +423,7 @@ fun showSelectListDialogWithClickAnimation(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(10.dp)
-                                .clickable {
+                                .bounceClick {
                                     it.value(isDone)
                                     isLoading.add(it.key)
                                 },
@@ -406,8 +508,8 @@ fun showLoadingModalWindow(
             async {
                 after(2.seconds) {
                     it.value = false
-                    after(Random.nextDouble(0.0, 0.5).seconds){
-                        if(!loadingWindowClosed) {
+                    after(Random.nextDouble(0.0, 0.5).seconds) {
+                        if (!loadingWindowClosed) {
                             afterClosing()
                             loadingWindowClosed = true
                         }
@@ -537,7 +639,6 @@ fun openInBrowser(url: String, scheme: String) {
     } catch (e: ActivityNotFoundException) {
         appContext!!.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://$url")))
     }
-    aspuButtonLoading.value = false
 }
 
 fun MutableState<Boolean>.toggle() {

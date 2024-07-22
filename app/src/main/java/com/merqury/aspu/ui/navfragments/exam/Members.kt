@@ -2,7 +2,6 @@ package com.merqury.aspu.ui.navfragments.exam
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,9 +28,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
+import com.merqury.aspu.services.appconfig.AppConfig
 import com.merqury.aspu.services.exam.models.ExamMemberModel
 import com.merqury.aspu.services.exam.moodleCookie
-import com.merqury.aspu.services.appconfig.AppConfig
+import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.navfragments.exam.profile.startProfileScreen
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
@@ -57,7 +57,7 @@ fun showExamMembers(
                         colors = CardDefaults.cardColors(
                             containerColor = SurfaceTheme.foreground.color
                         ),
-                        modifier = Modifier.padding(5.dp).clickable {
+                        modifier = Modifier.padding(5.dp).bounceClick {
                             startProfileScreen(model.id.toInt())
                             it.value = false
                         }

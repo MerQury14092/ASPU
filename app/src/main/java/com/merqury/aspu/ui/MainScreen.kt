@@ -7,7 +7,6 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -16,7 +15,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -69,7 +67,7 @@ import com.merqury.aspu.ui.navfragments.settings.toggleTheme
 import com.merqury.aspu.ui.navfragments.timetable.TimetableScreen
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
-import com.merqury.aspu.ui.training.TrainingCenter
+import com.merqury.aspu.ui.training.TrainingStates
 import com.merqury.aspu.ui.training.hintTargetModifier
 
 
@@ -77,7 +75,6 @@ val topBarContent: MutableState<@Composable () -> Unit> = mutableStateOf({})
 val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
     when (selected_page.value) {
         "news" -> {
-            aspuButtonLoading.value = true
             val inBrowser = AppSettings.useIncludedBrowser
 //            if (inBrowser)
 //                showWebPage(urlForCurrentFaculty(), "http")
@@ -86,13 +83,11 @@ val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
         }
 
         "timetable" -> {
-            aspuButtonLoading.value = true
 //            showTimetableWebPageView() TODO
         }
 
         "settings" -> toggleTheme()
         else -> {
-            aspuButtonLoading.value = true
             val inBrowser = AppSettings.useIncludedBrowser
             if (inBrowser)
                 showWebPage("agpu.net", "http")
@@ -125,7 +120,6 @@ val onASPUButtonLongClick: MutableState<() -> Unit> = mutableStateOf({
         }
     }
 })
-val aspuButtonLoading = mutableStateOf(false)
 
 @SuppressLint("StaticFieldLeak")
 private var optionalNavController: NavHostController? = null
@@ -144,7 +138,7 @@ fun MainScreen() {
                         .fillMaxWidth()
                         .background(SurfaceTheme.appBars.color)
                 ) {
-                    if (TrainingCenter.isTraining)
+                    if (TrainingStates.isTraining)
                         topBarContent.value()
                     else
                         AnimatedContent(
@@ -217,13 +211,13 @@ private fun NavGraphBuilder.animatedComposable(route: String, content: @Composab
     composable(
         route,
         enterTransition = {
-            if (TrainingCenter.isTraining)
+            if (TrainingStates.isTraining)
                 EnterTransition.None
             else
                 slideInHorizontally(tween(400)) { slideInDirection() * it }
         },
         exitTransition = {
-            if (TrainingCenter.isTraining)
+            if (TrainingStates.isTraining)
                 ExitTransition.None
             else
                 slideOutHorizontally(tween(400)) { (-slideInDirection()) * it }
@@ -247,10 +241,10 @@ fun NavigationBar() {
             verticalAlignment = Alignment.Bottom
         ) {
             IntroShowcase(
-                showIntroShowCase = TrainingCenter.newsNavItem,
+                showIntroShowCase = TrainingStates.newsNavItem,
                 onShowCaseCompleted = {
-                    TrainingCenter.newsNavItem = false
-                    TrainingCenter.newsHeader = true
+                    TrainingStates.newsNavItem = false
+                    TrainingStates.newsHeader = true
                     routeTo("news")
                 }) {
                 NavBarItem(
@@ -262,10 +256,10 @@ fun NavigationBar() {
                 )
             }
             IntroShowcase(
-                showIntroShowCase = TrainingCenter.timetableNavItem,
+                showIntroShowCase = TrainingStates.timetableNavItem,
                 onShowCaseCompleted = {
-                    TrainingCenter.timetableNavItem = false
-                    TrainingCenter.timetableHeader = true
+                    TrainingStates.timetableNavItem = false
+                    TrainingStates.timetableHeader = true
                     routeTo("timetable")
                 }) {
                 NavBarItem(
@@ -278,10 +272,10 @@ fun NavigationBar() {
             }
             Spacer(modifier = Modifier.size(navBarItemWidth))
             IntroShowcase(
-                showIntroShowCase = TrainingCenter.otherNavItem,
+                showIntroShowCase = TrainingStates.otherNavItem,
                 onShowCaseCompleted = {
-                    TrainingCenter.otherNavItem = false
-                    TrainingCenter.other = true
+                    TrainingStates.otherNavItem = false
+                    TrainingStates.other = true
                     routeTo("other")
                 }) {
                 NavBarItem(
@@ -298,10 +292,10 @@ fun NavigationBar() {
             }
             if (!AppSettings.eiosLogged)
                 IntroShowcase(
-                    showIntroShowCase = TrainingCenter.settingsNavItem,
+                    showIntroShowCase = TrainingStates.settingsNavItem,
                     onShowCaseCompleted = {
-                        TrainingCenter.settingsNavItem = false
-                        TrainingCenter.settings = true
+                        TrainingStates.settingsNavItem = false
+                        TrainingStates.settings = true
                         routeTo("settings")
                     }) {
                     NavBarItem(
@@ -314,10 +308,10 @@ fun NavigationBar() {
                 }
             else
                 IntroShowcase(
-                    showIntroShowCase = TrainingCenter.accountNavItem,
+                    showIntroShowCase = TrainingStates.accountNavItem,
                     onShowCaseCompleted = {
-                        TrainingCenter.accountNavItem = false
-                        TrainingCenter.accountHeader = true
+                        TrainingStates.accountNavItem = false
+                        TrainingStates.accountHeader = true
                         routeTo("account")
                     }) {
                     NavBarItem(
@@ -330,18 +324,18 @@ fun NavigationBar() {
                 }
 
         }
-        if (TrainingCenter.aspuButton)
+        if (TrainingStates.aspuButton)
             IntroShowcase(
                 showIntroShowCase = true,
                 onShowCaseCompleted = {
-                    TrainingCenter.aspuButton = false
-                    TrainingCenter.aspuButtonHintClosure()
+                    TrainingStates.aspuButton = false
+                    TrainingStates.aspuButtonHintClosure()
                 }) {
                 AspuButton(
                     modifier = hintTargetModifier(
                         0,
                         "Функциональность кнопки",
-                        TrainingCenter.aspuButtonDescription
+                        TrainingStates.aspuButtonDescription
                     )
                 )
             }
@@ -361,9 +355,7 @@ fun AspuButton(modifier: Modifier = Modifier) {
             Image(painter = painterResource(id = R.drawable.agpu_logo),
                 contentDescription = null,
                 modifier = Modifier
-                    .combinedClickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
+                    .bounceClick(
                         onClick = {
                             onASPUButtonClick.value()
                         },
@@ -371,14 +363,7 @@ fun AspuButton(modifier: Modifier = Modifier) {
                             onASPUButtonLongClick.value()
                         }
                     )
-                    .fillMaxHeight(
-                        animateFloatAsState(
-                            targetValue =
-                            if (aspuButtonLoading.value) .8f else 1f,
-                            label = "",
-                            animationSpec = tween(durationMillis = 100)
-                        ).value
-                    )
+                    .fillMaxHeight()
                     .then(modifier)
             )
         }

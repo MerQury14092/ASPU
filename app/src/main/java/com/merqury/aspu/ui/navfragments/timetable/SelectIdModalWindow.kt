@@ -2,7 +2,7 @@ package com.merqury.aspu.ui.navfragments.timetable
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -146,7 +146,7 @@ fun showSelectIdModalWindow(
                                 Card(
                                     modifier = Modifier
                                         .padding(10.dp)
-                                        .clickable {
+                                        .bounceClick {
                                             getFacultiesAndThemGroups(
                                                 facultiesList,
                                                 facultiesLoaded,
@@ -192,7 +192,7 @@ fun showSelectIdModalWindow(
                                 Card(
                                     modifier = Modifier
                                         .padding(10.dp)
-                                        .clickable {
+                                        .bounceClick {
                                             showSelectDepartmentForTeacherWindow(it, onResultClick)
                                         },
                                     colors = CardDefaults.cardColors(
@@ -230,7 +230,7 @@ fun showSelectIdModalWindow(
                                 Card(
                                     modifier = Modifier
                                         .padding(10.dp)
-                                        .clickable {
+                                        .bounceClick {
                                             showSelectCorpsForAudiencesWindow(it, onResultClick)
                                         },
                                     colors = CardDefaults.cardColors(
@@ -269,7 +269,7 @@ fun showSelectIdModalWindow(
                         Card(
                             modifier = Modifier
                                 .padding(10.dp)
-                                .clickable {
+                                .bounceClick {
                                     it.value = false
                                 },
                             colors = CardDefaults.cardColors(
@@ -310,7 +310,7 @@ fun showSelectIdModalWindow(
                     Card(
                         modifier = Modifier
                             .padding(10.dp)
-                            .clickable {
+                            .bounceClick {
                                 onResultClick(it)
                                 thisWindowVisibility.value = false
                             },

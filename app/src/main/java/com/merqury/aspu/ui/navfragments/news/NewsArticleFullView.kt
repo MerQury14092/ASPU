@@ -2,7 +2,7 @@ package com.merqury.aspu.ui.navfragments.news
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,9 +36,9 @@ import coil.compose.SubcomposeAsyncImage
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
-import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.services.news.getNewsArticle
 import com.merqury.aspu.ui.ModalWindow
+import com.merqury.aspu.ui.navfragments.news.NewsStates.selectedFaculty
 import com.merqury.aspu.ui.navfragments.timetable.prettyDate
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
@@ -48,7 +48,7 @@ import net.engawapg.lib.zoomable.zoomable
 import org.json.JSONObject
 
 @Composable
-fun ArticleView(selectedFaculty: NewsCategoryEnum) {
+fun ArticleView() {
     ModalWindow(
         modifier = Modifier
             .fillMaxSize(.95f),
@@ -154,7 +154,7 @@ private fun ArticleViewContent(articleJson: JSONObject) {
                         },
                         modifier = Modifier
                             .padding(top = 20.dp)
-                            .clickable {
+                            .bounceClick {
                                 showSimpleModalWindow(
                                     containerColor = Color.Transparent
                                 ) {

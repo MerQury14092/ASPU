@@ -9,14 +9,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 import com.canopas.lib.showcase.IntroShowcase
 import com.merqury.aspu.appContext
+import com.merqury.aspu.ui.navfragments.timetable.TimetableStates.timetableId
+import com.merqury.aspu.ui.navfragments.timetable.TimetableStates.timetableIdOwner
 import com.merqury.aspu.ui.theme.color
-import com.merqury.aspu.ui.training.TrainingCenter
+import com.merqury.aspu.ui.training.TrainingStates
 import com.merqury.aspu.ui.training.hintTargetModifier
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -25,8 +26,6 @@ import java.time.format.TextStyle
 @Composable
 fun TimetableHeader(
     selectedDate: String,
-    timetableId: MutableState<String>,
-    timetableIdOwner: MutableState<String>
 ) {
     Box(
         modifier = Modifier
@@ -38,10 +37,10 @@ fun TimetableHeader(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IntroShowcase(
-                showIntroShowCase = TrainingCenter.timetableHeader,
+                showIntroShowCase = TrainingStates.timetableHeader,
                 onShowCaseCompleted = {
-                    TrainingCenter.timetableHeader = false
-                    TrainingCenter.timetable = true
+                    TrainingStates.timetableHeader = false
+                    TrainingStates.timetable = true
                 }) {
                 Box(
                     modifier = hintTargetModifier(
@@ -84,16 +83,16 @@ fun TimetableHeader(
                 ) {
                     Button(
                         onClick = {
-                            showSelectIdModalWindow(timetableId = timetableId.value) {
-                                timetableId.value = it.searchContent
-                                timetableIdOwner.value = it.type.uppercase()
+                            showSelectIdModalWindow(timetableId = timetableId) {
+                                timetableId = it.searchContent
+                                timetableIdOwner = it.type.uppercase()
                             }
                         }, colors = ButtonDefaults.buttonColors(
                             containerColor = com.merqury.aspu.ui.theme.SurfaceTheme.button.color
                         )
                     ) {
                         Text(
-                            text = timetableId.value,
+                            text = timetableId,
                             color = com.merqury.aspu.ui.theme.SurfaceTheme.text.color,
                             fontSize = 11.sp
                         )

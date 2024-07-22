@@ -2,7 +2,7 @@ package com.merqury.aspu.ui.navfragments.messenger
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -82,7 +82,7 @@ fun Inbox(
                 modifier = Modifier
                     .size(60.dp)
                     .background(SurfaceTheme.button.color, RoundedCornerShape(20.dp))
-                    .clickable {
+                    .bounceClick {
                         appContext!!.startTopBarActivityWithActivityLink() { header, activity ->
                             SendMessageScreen(header = header, onBack = {
                                 activity!!.finish()
@@ -135,7 +135,7 @@ fun MessageElement(message: MessageElement, type: InboxType, clickable: Boolean)
         Modifier
             .padding(5.dp)
             .conditional(clickable) {
-                clickable {
+                bounceClick {
                     appContext.startTopBarActivityWithActivityLink { it, activity ->
                         MessageDetailsScreen(
                             header = it,

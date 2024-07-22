@@ -1,7 +1,6 @@
 package com.merqury.aspu.ui.navfragments.exam
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +15,7 @@ import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.services.exam.models.ExamCourse
+import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.ThemeText
 import com.merqury.aspu.ui.theme.color
@@ -24,7 +24,7 @@ import com.merqury.aspu.ui.theme.color
 fun CourseItem(item: ExamCourse, isMyCourse: Boolean) {
     Box(modifier = Modifier
         .padding(5.dp)
-        .clickable {
+        .bounceClick {
             if (!isMyCourse) {
                 showCourseAuthModalWindow(course = item){
                     showCourseActionsModalWindow(item)

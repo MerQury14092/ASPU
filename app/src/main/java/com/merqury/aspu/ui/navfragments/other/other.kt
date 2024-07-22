@@ -2,7 +2,7 @@ package com.merqury.aspu.ui.navfragments.other
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.canopas.lib.showcase.IntroShowcase
@@ -34,26 +33,24 @@ import com.merqury.aspu.ui.openInBrowser
 import com.merqury.aspu.ui.showWebPage
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
-import com.merqury.aspu.ui.training.TrainingCenter
+import com.merqury.aspu.ui.training.TrainingStates
 import com.merqury.aspu.ui.training.hintTargetModifier
 
-@Preview
-@Composable
-fun OtherPreview() {
-    OtherScreenContent()
-}
 
 @Composable
 fun OtherScreen(header: MutableState<@Composable () -> Unit>) {
-    if (TrainingCenter.other) {
+    if (TrainingStates.other) {
         val onCompleted = {
-            TrainingCenter.aspuButtonDescription = "Короткое нажатие открывает мобильную версию" +
+            TrainingStates.aspuButtonDescription = "Открывает мобильную версию " +
                     "сайта в браузере"
-            TrainingCenter.aspuButtonHintClosure = {
-                TrainingCenter.settingsNavItem = true
+            TrainingStates.aspuButtonHintClosure = {
+                if (AppSettings.eiosLogged)
+                    TrainingStates.accountNavItem = true
+                else
+                    TrainingStates.settingsNavItem = true
             }
-            TrainingCenter.other = false
-            TrainingCenter.aspuButton = true
+            TrainingStates.other = false
+            TrainingStates.aspuButton = true
         }
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterStart) {
             IntroShowcase(
@@ -64,9 +61,16 @@ fun OtherScreen(header: MutableState<@Composable () -> Unit>) {
                 Box(
                     modifier = hintTargetModifier(
                         0,
-                        "Вкладка «Студенту/Педагогу»",
-                        "На данной вкладке вы можете открывать страницы сайта в браузере, " +
-                                "Войти в свой аккаунт ЭИОС в приложении или найти ВУЗ в социальных " +
+                        "Вкладка «${
+                            if (AppSettings.whoIsUser == "student")
+                                "Студенту"
+                            else "Педагогу"
+                        }»",
+                        "На данной вкладке вы можете открывать страницы сайта в браузере" +
+                                (if (AppSettings.whoIsUser == "student")
+                                    ", войти в свой аккаунт ЭИОС в приложении или"
+                                else " и") +
+                                " найти ВУЗ в социальных " +
                                 "сетях"
                     )
                 )
@@ -82,7 +86,7 @@ fun OtherScreen(header: MutableState<@Composable () -> Unit>) {
             }
         )
     }
-    if(header.value != headerContent)
+    if (header.value != headerContent)
         header.value = headerContent
     OtherScreenContent()
 }
@@ -105,12 +109,13 @@ fun OtherScreenContent() {
                 val scheme: String = "http",
                 val inBrowser: Boolean = false
             )
+
             data class ActionEntry(
                 val name: String,
                 val icon: Int,
                 val action: () -> Unit
             )
-            listOf(
+            listOfNotNull(
                 WebEntry(
                     "Сведения об образовательной организации",
                     R.drawable.info,
@@ -151,15 +156,16 @@ fun OtherScreenContent() {
                     R.drawable.study_plan,
                     "plany.agpu.net/Plans/"
                 ),
-                ActionEntry(
-                    "Аккаунт ЭИОС",
-                    R.drawable.account
-                ) {
-                  showEiosAuthModalWindow {
-                      TrainingCenter.isTraining = true
-                      TrainingCenter.accountNavItem = true
-                  }
-                },
+                if (AppSettings.whoIsUser == "student")
+                    ActionEntry(
+                        "Аккаунт ЭИОС",
+                        R.drawable.account
+                    ) {
+                        showEiosAuthModalWindow {
+                            TrainingStates.isTraining = true
+                            TrainingStates.accountNavItem = true
+                        }
+                    } else null,
                 WebEntry(
                     "Рабочие программы",
                     R.drawable.programs,
@@ -198,7 +204,7 @@ fun OtherScreenContent() {
                     "vnd.youtube"
                 ),
             ).forEach {
-                if(it is WebEntry){
+                if (it is WebEntry) {
                     ActionButton(
                         name = it.name,
                         icon = it.icon
@@ -211,7 +217,7 @@ fun OtherScreenContent() {
                         else
                             openInBrowser(it.url, it.scheme)
                     }
-                } else if (it is ActionEntry){
+                } else if (it is ActionEntry) {
                     ActionButton(name = it.name, icon = it.icon, action = it.action)
                 }
             }
@@ -230,7 +236,7 @@ fun ActionButton(
         modifier = Modifier
             .fillMaxWidth()
             .padding(3.dp)
-            .clickable {
+            .bounceClick {
                 action()
             },
         colors = CardDefaults.cardColors(

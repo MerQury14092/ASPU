@@ -1,7 +1,6 @@
 package com.merqury.aspu.ui.training
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.canopas.lib.showcase.IntroShowcase
 import com.canopas.lib.showcase.IntroShowcaseScope
 import com.canopas.lib.showcase.component.ShowcaseStyle
 import com.merqury.aspu.ui.theme.SurfaceTheme
@@ -34,7 +32,7 @@ fun IntroShowcaseScope.hintTargetModifier(
 }
 
 private val showcaseStyle = ShowcaseStyle.Default.copy(
-    backgroundColor = SurfaceTheme.foreground.colorWithoutAnim,
+    backgroundColor = SurfaceTheme.trainingBackground.colorWithoutAnim,
     backgroundAlpha = 0.98f,
     targetCircleColor = SurfaceTheme.text.colorWithoutAnim
 )

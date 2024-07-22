@@ -3,7 +3,7 @@ package com.merqury.aspu.ui.navfragments.profile
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -37,7 +37,7 @@ import com.merqury.aspu.ui.startActivity
 import com.merqury.aspu.ui.startTopBarActivity
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.toggle
-import com.merqury.aspu.ui.training.TrainingCenter
+import com.merqury.aspu.ui.training.TrainingStates
 import com.merqury.aspu.ui.training.hintTargetModifier
 
 val secretPreferences: SharedPreferences =
@@ -52,15 +52,16 @@ fun ProfileScreen(header: MutableState<@Composable () -> Unit>) {
             TitleHeader(title = "Профиль")
         }
         IntroShowcase(
-            showIntroShowCase = TrainingCenter.accountHeader,
+            showIntroShowCase = TrainingStates.accountHeader,
             onShowCaseCompleted = {
-                TrainingCenter.aspuButtonDescription =
-                    "К сожалению пока функциональности не назначено"
-                TrainingCenter.aspuButtonHintClosure = {
-                    TrainingCenter.isTraining = false
+                TrainingStates.aspuButtonDescription =
+                    "Открывает мобильную версию ЭИОС. Если используете встроенный браузер, то " +
+                            "откроется сразу авторизованная страница"
+                TrainingStates.aspuButtonHintClosure = {
+                    TrainingStates.isTraining = false
                 }
-                TrainingCenter.aspuButton = true
-                TrainingCenter.accountHeader = false
+                TrainingStates.aspuButton = true
+                TrainingStates.accountHeader = false
             }) {
             Row(
                 modifier = Modifier
@@ -75,15 +76,14 @@ fun ProfileScreen(header: MutableState<@Composable () -> Unit>) {
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
                         .size(30.dp)
-                        .clickable {
+                        .bounceClick {
                             appContext!!.startActivity(SettingsActivity::class.java)
                         }
                         .then(
                             hintTargetModifier(
                                 0,
                                 "Настройки",
-                                "Настройки, которые были в панели навигации, вы теперь" +
-                                        " можете найти здесь"
+                                "Настройки приложения"
                             )
                         ),
                     colorFilter = ColorFilter.tint(
@@ -96,7 +96,7 @@ fun ProfileScreen(header: MutableState<@Composable () -> Unit>) {
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
                         .size(30.dp)
-                        .clickable {
+                        .bounceClick {
                             messagesLoaded = false
                             appContext.startTopBarActivity {
                                 MessengerScreen(header = it)

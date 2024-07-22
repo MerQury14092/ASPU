@@ -3,7 +3,6 @@ package com.merqury.aspu.ui.navfragments.quiz
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,6 +51,7 @@ import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.services.exam.moodleCookie
 import com.merqury.aspu.services.quiz.models.AnswerType
 import com.merqury.aspu.services.quiz.models.QuestionModel
+import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.printlog
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
@@ -86,7 +86,7 @@ fun Question(
                         onError = { error ->
                             printlog("error: ${error.result.throwable.message}")
                         },
-                        modifier = Modifier.clickable {
+                        modifier = Modifier.bounceClick {
                             showSimpleModalWindow(
                                 containerColor = Color.Transparent
                             ) {
@@ -225,7 +225,7 @@ fun Question(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable {
+                    .bounceClick {
                         when (answer.type) {
                             AnswerType.radio -> {
                                 selectedRadio = answer.inputValue!!.toInt()

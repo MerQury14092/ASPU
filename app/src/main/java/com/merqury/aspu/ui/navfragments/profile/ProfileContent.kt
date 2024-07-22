@@ -2,7 +2,7 @@ package com.merqury.aspu.ui.navfragments.profile
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -231,7 +231,7 @@ fun ProfileInfo(info: Data) {
                                 )
                                 .padding(10.dp)
                                 .width(70.dp)
-                                .clickable {
+                                .bounceClick {
                                     collapsing = !collapsing
                                 }
                         ) {
@@ -320,7 +320,7 @@ fun ProfileInfo(info: Data) {
                                     shape = RoundedCornerShape(20.dp)
                                 )
                                 .size(profileCardButtonSize.vw)
-                                .clickable {
+                                .bounceClick {
                                     action()
                                 },
                             contentAlignment = Alignment.Center

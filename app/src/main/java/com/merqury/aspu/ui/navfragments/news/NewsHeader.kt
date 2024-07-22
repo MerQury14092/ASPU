@@ -2,7 +2,7 @@ package com.merqury.aspu.ui.navfragments.news
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -21,23 +20,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.canopas.lib.showcase.IntroShowcase
-import com.merqury.aspu.enums.NewsCategoryEnum
+import com.merqury.aspu.ui.navfragments.news.NewsStates.pagerState
+import com.merqury.aspu.ui.navfragments.news.NewsStates.selectedFaculty
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
-import com.merqury.aspu.ui.training.TrainingCenter
+import com.merqury.aspu.ui.training.TrainingStates
 import com.merqury.aspu.ui.training.hintTargetModifier
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun NewsHeader(
-    selectedFaculty: MutableState<NewsCategoryEnum>,
-    newsLoaded: Boolean
-) {
+fun NewsHeader() {
     IntroShowcase(
-        showIntroShowCase = TrainingCenter.newsHeader,
+        showIntroShowCase = TrainingStates.newsHeader,
         onShowCaseCompleted = {
-            TrainingCenter.newsHeader = false
-            TrainingCenter.news = true
+            TrainingStates.newsHeader = false
+            TrainingStates.news = true
         }) {
         Box(
             modifier = Modifier
@@ -53,15 +50,14 @@ fun NewsHeader(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
-                        painter = painterResource(id = selectedFaculty.value.logo),
+                        painter = painterResource(id = selectedFaculty.logo),
                         contentDescription = "",
                         modifier = Modifier
                             .size(60.dp)
-                            .clickable {
-                                if (newsLoaded)
-                                    showFacultySelectModalWindow {
-                                        selectedFaculty.value = it
-                                    }
+                            .bounceClick {
+                                showFacultySelectModalWindow {
+                                    selectedFaculty = it
+                                }
                             }
                             .then(
                                 hintTargetModifier(
@@ -78,9 +74,8 @@ fun NewsHeader(
                         Modifier
                             .fillMaxHeight()
                             .fillMaxWidth(0.3f)
-                            .clickable {
-                                if (newsLoaded)
-                                    showPageSelectModalWindow()
+                            .bounceClick {
+                                showPageSelectModalWindow()
                             }
                     ) {
                         Column(
@@ -97,7 +92,7 @@ fun NewsHeader(
                             verticalArrangement = Arrangement.SpaceAround
                         ) {
                             Text(
-                                text = "${pagerState.value.currentPage + 1} из ${pagerState.value.pageCount}",
+                                text = "${pagerState.currentPage + 1} из ${pagerState.pageCount}",
                                 textAlign = TextAlign.Center,
                                 color = SurfaceTheme.text.color
                             )

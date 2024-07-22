@@ -2,7 +2,7 @@ package com.merqury.aspu.ui.navfragments.messenger.message
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -189,7 +189,7 @@ fun MessageDetailsScreen(
                     Icons.Outlined.KeyboardArrowDown,
                     contentDescription = null,
                     colorFilter = ColorFilter.tint(SurfaceTheme.text.color),
-                    modifier = Modifier.clickable {
+                    modifier = Modifier.bounceClick {
                         detailsInfoShow = !detailsInfoShow
                     }
                 )

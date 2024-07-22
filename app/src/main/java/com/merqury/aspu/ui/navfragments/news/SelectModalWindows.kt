@@ -2,7 +2,7 @@ package com.merqury.aspu.ui.navfragments.news
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.merqury.aspu.enums.NewsCategoryEnum
+import com.merqury.aspu.ui.navfragments.news.NewsStates.pagerState
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
@@ -44,10 +45,10 @@ fun showFacultySelectModalWindow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(5.dp)
-                    .clickable {
+                    .bounceClick {
                         onSelectFaculty(entry)
                         coroutineScope.launch {
-                            pagerState.value.animateScrollToPage(1)
+                            pagerState.animateScrollToPage(1)
                         }
                         it.value = false
                     }
@@ -100,14 +101,14 @@ fun showPageSelectModalWindow() {
     ) { pageSelectDialogVisible ->
         val coroutineScope = rememberCoroutineScope()
         LazyColumn {
-            items(count = pagerState.value.pageCount) {
+            items(count = pagerState.pageCount) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp)
-                        .clickable {
+                        .bounceClick {
                             coroutineScope.launch {
-                                pagerState.value.scrollToPage(it)
+                                pagerState.scrollToPage(it)
                             }
                             pageSelectDialogVisible.value = false
                         }

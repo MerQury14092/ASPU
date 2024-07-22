@@ -28,11 +28,12 @@ import com.merqury.aspu.services.appconfig.AppConfig
 import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.services.news.getNews
 import com.merqury.aspu.ui.TitleHeader
-import com.merqury.aspu.ui.selected_page
+import com.merqury.aspu.ui.navfragments.news.NewsStates.pagerState
+import com.merqury.aspu.ui.navfragments.news.NewsStates.selectedFaculty
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.ThemeText
 import com.merqury.aspu.ui.theme.color
-import com.merqury.aspu.ui.training.TrainingCenter
+import com.merqury.aspu.ui.training.TrainingStates
 import com.merqury.aspu.ui.training.hintTargetModifier
 import org.json.JSONObject
 
@@ -40,18 +41,27 @@ val showArticleView = mutableStateOf(false)
 val clickedArticleId = mutableIntStateOf(0)
 
 
+object NewsStates {
+    var selectedFaculty by mutableStateOf(
+        NewsCategoryEnum.valueOf(AppSettings.newsCategory)
+    )
+
+    @OptIn(ExperimentalFoundationApi::class)
+    var pagerState by mutableStateOf(PagerState { 1 })
+}
+
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun NewsScreen(header: MutableState<@Composable () -> Unit>) {
-    if (TrainingCenter.news) {
+    if (TrainingStates.news) {
         val onCompleted = {
-            TrainingCenter.aspuButtonDescription = "Короткое нажатие откроет данную страницу " +
-                    "новостей через браузер. Длинное нажатие обновит вкладку в приложении"
-            TrainingCenter.aspuButtonHintClosure = {
-                TrainingCenter.timetableNavItem = true
+            TrainingStates.aspuButtonDescription = "Открывает данную страницу " +
+                    "новостей через браузер"
+            TrainingStates.aspuButtonHintClosure = {
+                TrainingStates.timetableNavItem = true
             }
-            TrainingCenter.news = false
-            TrainingCenter.aspuButton = true
+            TrainingStates.news = false
+            TrainingStates.aspuButton = true
         }
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterStart) {
             IntroShowcase(
@@ -63,22 +73,17 @@ fun NewsScreen(header: MutableState<@Composable () -> Unit>) {
                     modifier = hintTargetModifier(
                         0,
                         "Навигация по экрану",
-                        "Для листания страниц используются свайпы"
+                        "Свайп вправо - следующая страница. Свайп влево - предыдущая страница"
                     )
                 )
             }
         }
     }
-    val selectedFaculty = remember {
-        mutableStateOf(
-            NewsCategoryEnum.valueOf(AppSettings.newsCategory)
-        )
-    }
     if (showArticleView.value)
-        ArticleView(selectedFaculty.value)
+        ArticleView()
     val useConfig = AppConfig.useNewsPageConfig()
     if (useConfig.canUse)
-        NewsContent(header, selectedFaculty)
+        NewsContent(header)
     else
         Box(
             modifier = Modifier
@@ -98,90 +103,33 @@ fun NewsScreen(header: MutableState<@Composable () -> Unit>) {
         }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-internal val pagerState = mutableStateOf(PagerState { 1 })
-
+@SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NewsContent(
-    header: MutableState<@Composable () -> Unit>,
-    selectedFaculty: MutableState<NewsCategoryEnum>
+    header: MutableState<@Composable () -> Unit>
 ) {
-    var loaded by remember {
-        mutableStateOf(false)
-    }
-    var loading by remember {
-        mutableStateOf(false)
-    }
     val headerContent = @Composable {
         TitleHeader(title = "Новости")
-        NewsHeader(selectedFaculty, loaded)
+        NewsHeader()
     }
     if (header.value != headerContent)
         header.value = headerContent
-    var errorString by remember {
-        mutableStateOf<String?>(null)
-    }
-    if (!loaded) {
-        Column(
-            Modifier
-                .verticalScroll(rememberScrollState())
-                .background(SurfaceTheme.background.color)
+
+
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.background(SurfaceTheme.background.color),
+            outOfBoundsPageCount = 1
         ) {
-            NewsItemLoadingPlaceholder()
-            NewsItemLoadingPlaceholder()
-            NewsItemLoadingPlaceholder()
-            NewsItemLoadingPlaceholder()
+            NewsPage(pageNumber = it)
         }
-        if (!loading) {
-            loading = true
-            getNews(1, selectedFaculty.value, {
-                errorString = it
-                loaded = true
-                loading = false
-            }) { _, pageCount ->
-                pagerState.value = PagerState {
-                    pageCount
-                }
-                loaded = true
-                loading = false
-            }
-        }
-    } else {
-        if (errorString != null)
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(SurfaceTheme.background.color),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = errorString!!, color = SurfaceTheme.text.color)
-            }
-        else
-            NewsPager(selectedFaculty.value)
-    }
-
 }
-
-private inline val selectedNewsRoute get() = selected_page.value == "news"
-
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun NewsPager(selectedFaculty: NewsCategoryEnum){
-    HorizontalPager(
-        state = pagerState.value,
-        modifier = Modifier.background(SurfaceTheme.background.color),
-        outOfBoundsPageCount = 1
-    ) {
-        NewsPage(pageNumber = it, selectedFaculty)
-    }
-}
-
-@Composable
 private fun NewsPage(
-    pageNumber: Int,
-    selectedFaculty: NewsCategoryEnum
+    pageNumber: Int
 ) {
     var json by remember {
         mutableStateOf<JSONObject?>(null)
@@ -202,7 +150,9 @@ private fun NewsPage(
                     errorString = it
                     loading = false
                 }
-            ) { response, _ ->
+            ) { response, pageCount ->
+                if (pagerState.pageCount != pageCount)
+                    pagerState = PagerState { pageCount }
                 json = response
                 loading = false
             }

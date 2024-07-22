@@ -3,7 +3,6 @@ package com.merqury.aspu.ui.navfragments.settings
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +27,7 @@ import com.merqury.aspu.services.intents.sendToDevEmail
 import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.services.misc.cache
 import com.merqury.aspu.ui.TitleHeader
+import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.goToScreen
 import com.merqury.aspu.ui.makeToast
 import com.merqury.aspu.ui.navfragments.news.showFacultySelectModalWindow
@@ -37,8 +37,7 @@ import com.merqury.aspu.ui.showSelectListDialog
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.theme.getThemeName
-import com.merqury.aspu.ui.theme.updateTheme
-import com.merqury.aspu.ui.training.TrainingCenter
+import com.merqury.aspu.ui.training.TrainingStates
 import com.merqury.aspu.ui.training.hintTargetModifier
 import java.util.concurrent.TimeUnit
 
@@ -48,15 +47,14 @@ val selectableDisciplines =
 
 @Composable
 fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
-    if (TrainingCenter.settings) {
+    if (TrainingStates.settings) {
         val onCompleted = {
-            TrainingCenter.aspuButtonDescription = "Короткое нажатие позволяет сменить тему"
-            TrainingCenter.aspuButtonHintClosure = {
-                TrainingCenter.isTraining = false
-                appContext!!.makeToast("Приятного использования ;)")
+            TrainingStates.aspuButtonDescription = "Открывает окно смены темы"
+            TrainingStates.aspuButtonHintClosure = {
+                TrainingStates.isTraining = false
             }
-            TrainingCenter.settings = false
-            TrainingCenter.aspuButton = true
+            TrainingStates.settings = false
+            TrainingStates.aspuButton = true
         }
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterStart) {
             IntroShowcase(
@@ -270,7 +268,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                 color = Color.Blue,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable {
+                    .bounceClick {
                         sendToDevEmail()
                     },
                 textAlign = TextAlign.Left,
@@ -302,7 +300,6 @@ fun toggleTheme() {
 
 fun setTheme(name: String) {
     AppSettings.selectedTheme = name
-    updateTheme()
 }
 
 fun getDefault(name: String): Boolean {

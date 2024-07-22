@@ -3,7 +3,6 @@ package com.merqury.aspu
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.Text
@@ -16,6 +15,7 @@ import com.android.volley.RequestQueue
 import com.android.volley.toolbox.Volley
 import com.merqury.aspu.services.appconfig.AppConfig
 import com.merqury.aspu.services.misc.AppSettings
+import com.merqury.aspu.ui.ColorizeAppBars
 import com.merqury.aspu.ui.MainScreen
 import com.merqury.aspu.ui.contentList
 import com.merqury.aspu.ui.navfragments.settings.selectUser
@@ -50,16 +50,7 @@ class MainActivity : ComponentActivity() {
             if (AppSettings.firstLaunch)
                 FirstStart()
             MainScreen()
-            val foreground = SurfaceTheme.foreground.color
-            window.statusBarColor =
-                android.graphics.Color.rgb(foreground.red, foreground.green, foreground.blue)
-            window.navigationBarColor =
-                android.graphics.Color.rgb(foreground.red, foreground.green, foreground.blue)
-
-            if (AppSettings.selectedTheme == "light")
-                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-            else
-                window.decorView.systemUiVisibility = 0
+            ColorizeAppBars(window = window, SurfaceTheme.foreground.color)
         }
     }
 }

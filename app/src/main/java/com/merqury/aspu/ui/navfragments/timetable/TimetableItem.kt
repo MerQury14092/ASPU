@@ -1,6 +1,6 @@
 package com.merqury.aspu.ui.navfragments.timetable
 
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,17 +27,19 @@ import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.enums.TimetableDisciplineType
 import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.services.timetable.models.Discipline
+import com.merqury.aspu.ui.navfragments.timetable.TimetableStates.timetableId
+import com.merqury.aspu.ui.navfragments.timetable.TimetableStates.timetableIdOwner
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 
 @Composable
-fun TimetableItem(discipline: Discipline, timetableId: String, timetableOwner: String) {
+fun TimetableItem(discipline: Discipline) {
     val type = TimetableDisciplineType.valueOf(discipline.type)
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 4.dp, vertical = 2.dp)
-            .clickable {
+            .bounceClick {
                 showDisciplineDetails(discipline)
             },
         colors = CardDefaults.cardColors(
@@ -72,7 +74,7 @@ fun TimetableItem(discipline: Discipline, timetableId: String, timetableOwner: S
                 Row(
                     modifier = Modifier.padding(bottom = 10.dp)
                 ) {
-                    if (timetableOwner.lowercase() != "classroom") {
+                    if (timetableIdOwner.lowercase() != "classroom") {
                         if (!discipline.distant) {
                             Row {
                                 Text(
@@ -99,7 +101,7 @@ fun TimetableItem(discipline: Discipline, timetableId: String, timetableOwner: S
                             )
                         }
                     } else
-                        if (timetableOwner.lowercase() != "group")
+                        if (timetableIdOwner.lowercase() != "group")
                             Text(
                                 multiplyGroupFilter(discipline.groupName),
                                 color = if (AppSettings.colorTimetable
@@ -107,7 +109,7 @@ fun TimetableItem(discipline: Discipline, timetableId: String, timetableOwner: S
                                 textAlign = TextAlign.Start,
                                 modifier = Modifier.padding(start = 10.dp)
                             )
-                    if (timetableOwner.lowercase() != "teacher")
+                    if (timetableIdOwner.lowercase() != "teacher")
                         Text(
                             discipline.teacherName,
                             color = if (AppSettings.colorTimetable
@@ -117,7 +119,7 @@ fun TimetableItem(discipline: Discipline, timetableId: String, timetableOwner: S
                                 .padding(end = 10.dp),
                             textAlign = TextAlign.End,
                         )
-                    if (timetableOwner.lowercase() == "teacher")
+                    if (timetableIdOwner.lowercase() == "teacher")
                         Text(
                             multiplyGroupFilter(discipline.groupName),
                             color = if (AppSettings.colorTimetable
@@ -168,7 +170,7 @@ fun TimetableItem(discipline: Discipline, timetableId: String, timetableOwner: S
                             )
                     }
                 }
-                if (discipline.distant && timetableOwner.lowercase() == "classroom") {
+                if (discipline.distant && timetableIdOwner.lowercase() == "classroom") {
                     Divider(color = SurfaceTheme.divider.color)
                     Text(
                         text = "ДИСТАНЦИОННО",

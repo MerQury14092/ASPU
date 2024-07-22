@@ -3,7 +3,7 @@ package com.merqury.aspu.ui.navfragments.messenger
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -116,7 +116,7 @@ fun SendMessageScreen(header: MutableState<@Composable () -> Unit>, onBack: () -
         }
         Column(modifier = Modifier
             .fillMaxWidth()
-            .clickable {
+            .bounceClick {
                 expandedDropdown = !expandedDropdown
             }) {
             Row(
@@ -170,7 +170,7 @@ fun SendMessageScreen(header: MutableState<@Composable () -> Unit>, onBack: () -
                                 .padding(5.dp)
                                 .background(SurfaceTheme.button.color, RoundedCornerShape(5.dp))
                                 .fillMaxWidth()
-                                .clickable {
+                                .bounceClick {
                                     userClassTo = 1
                                     expandedDropdown = false
                                     fioResults.clear()
@@ -186,7 +186,7 @@ fun SendMessageScreen(header: MutableState<@Composable () -> Unit>, onBack: () -
                                 .padding(5.dp)
                                 .background(SurfaceTheme.button.color, RoundedCornerShape(5.dp))
                                 .fillMaxWidth()
-                                .clickable {
+                                .bounceClick {
                                     userClassTo = 2
                                     expandedDropdown = false
                                     fioResults.clear()
@@ -283,7 +283,7 @@ fun SendMessageScreen(header: MutableState<@Composable () -> Unit>, onBack: () -
                             RoundedCornerShape(5.dp)
                         )
                         .padding(10.dp)
-                        .clickable {
+                        .bounceClick {
                             FileOpener.open(
                                 appContext!!,
                                 "http://plany.agpu.net${it.fileName}"
@@ -304,7 +304,7 @@ fun FioElement(fio: String, selected: Boolean, onClick: () -> Unit = {}) {
     Box(
         Modifier
             .padding(5.dp)
-            .clickable {
+            .bounceClick {
                 onClick()
             }
     ) {

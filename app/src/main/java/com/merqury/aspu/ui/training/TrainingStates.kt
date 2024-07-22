@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
-class TrainingCenter {
+class TrainingStates {
     companion object {
         var isTraining by mutableStateOf(false)
 
