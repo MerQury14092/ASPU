@@ -1,6 +1,6 @@
 package com.merqury.aspu.ui.navfragments.timetable
 
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,8 +25,10 @@ import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.enums.TimetableDisciplineType
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.services.timetable.models.Discipline
+import com.merqury.aspu.ui.navfragments.timetable.TimetableStates.timetableId
+import com.merqury.aspu.ui.navfragments.timetable.TimetableStates.timetableIdOwner
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 
@@ -37,12 +39,12 @@ fun TimetableItem(discipline: Discipline) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 4.dp, vertical = 2.dp)
-            .clickable {
+            .bounceClick {
                 showDisciplineDetails(discipline)
             },
         colors = CardDefaults.cardColors(
             containerColor =
-            if (settingsPreferences.getBoolean("color_timetable", true))
+            if (AppSettings.colorTimetable)
                 Color(type.colorInt)
             else
                 SurfaceTheme.foreground.color
@@ -55,10 +57,7 @@ fun TimetableItem(discipline: Discipline) {
                     discipline.time,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
-                    color = if (settingsPreferences.getBoolean(
-                            "color_timetable",
-                            true
-                        )
+                    color = if (AppSettings.colorTimetable
                     ) Color.Black else SurfaceTheme.text.color
                 )
                 Text(
@@ -69,24 +68,18 @@ fun TimetableItem(discipline: Discipline) {
                     textAlign = TextAlign.Center,
                     fontSize = 20.sp,
                     fontStyle = FontStyle.Italic,
-                    color = if (settingsPreferences.getBoolean(
-                            "color_timetable",
-                            true
-                        )
+                    color = if (AppSettings.colorTimetable
                     ) Color.Black else SurfaceTheme.text.color
                 )
                 Row(
                     modifier = Modifier.padding(bottom = 10.dp)
                 ) {
-                    if (selectedOwner.value.lowercase() != "classroom") {
+                    if (timetableIdOwner.lowercase() != "classroom") {
                         if (!discipline.distant) {
                             Row {
                                 Text(
                                     "Аудитория: ",
-                                    color = if (settingsPreferences.getBoolean(
-                                            "color_timetable",
-                                            true
-                                        )
+                                    color = if (AppSettings.colorTimetable
                                     ) Color.Black else SurfaceTheme.text.color,
                                     modifier = Modifier.padding(start = 10.dp)
                                 )
@@ -94,10 +87,7 @@ fun TimetableItem(discipline: Discipline) {
                                 Text(
                                     text = discipline.audienceID,
                                     fontWeight = FontWeight.Bold,
-                                    color = if (settingsPreferences.getBoolean(
-                                            "color_timetable",
-                                            true
-                                        )
+                                    color = if (AppSettings.colorTimetable
                                     ) Color.Black else SurfaceTheme.enable.color
                                 )
                             }
@@ -106,45 +96,33 @@ fun TimetableItem(discipline: Discipline) {
                                 text = "Дистанционно",
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(start = 10.dp),
-                                color = if (settingsPreferences.getBoolean(
-                                        "color_timetable",
-                                        true
-                                    )
+                                color = if (AppSettings.colorTimetable
                                 ) Color.Black else SurfaceTheme.enable.color
                             )
                         }
                     } else
-                        if (selectedOwner.value.lowercase() != "group")
+                        if (timetableIdOwner.lowercase() != "group")
                             Text(
                                 multiplyGroupFilter(discipline.groupName),
-                                color = if (settingsPreferences.getBoolean(
-                                        "color_timetable",
-                                        true
-                                    )
+                                color = if (AppSettings.colorTimetable
                                 ) Color.Black else SurfaceTheme.text.color,
                                 textAlign = TextAlign.Start,
                                 modifier = Modifier.padding(start = 10.dp)
                             )
-                    if (selectedOwner.value.lowercase() != "teacher")
+                    if (timetableIdOwner.lowercase() != "teacher")
                         Text(
                             discipline.teacherName,
-                            color = if (settingsPreferences.getBoolean(
-                                    "color_timetable",
-                                    true
-                                )
+                            color = if (AppSettings.colorTimetable
                             ) Color.Black else SurfaceTheme.text.color,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(end = 10.dp),
                             textAlign = TextAlign.End,
                         )
-                    if (selectedOwner.value.lowercase() == "teacher")
+                    if (timetableIdOwner.lowercase() == "teacher")
                         Text(
                             multiplyGroupFilter(discipline.groupName),
-                            color = if (settingsPreferences.getBoolean(
-                                    "color_timetable",
-                                    true
-                                )
+                            color = if (AppSettings.colorTimetable
                             ) Color.Black else SurfaceTheme.text.color,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -153,20 +131,14 @@ fun TimetableItem(discipline: Discipline) {
 
                             )
                 }
-                if (!settingsPreferences.getBoolean("filtration_on", true) ||
-                    (settingsPreferences.getInt("selected_subgroup", 0) == 0
-                            || settingsPreferences.getString(
-                        "timetable_id",
-                        "ВМ-ИВТ-2-1"
-                    ) != selectedId.value)
+                if (!AppSettings.timetableFiltration ||
+                    (AppSettings.selectedSubgroup == 0
+                            || AppSettings.timetableId != timetableId)
                 ) {
                     if (discipline.subgroup != 0)
                         Text(
                             "Подгруппа: ${discipline.subgroup}",
-                            color = if (settingsPreferences.getBoolean(
-                                    "color_timetable",
-                                    true
-                                )
+                            color = if (AppSettings.colorTimetable
                             ) Color.Black else SurfaceTheme.text.color,
                             modifier = Modifier.padding(start = 10.dp)
                         )
@@ -180,10 +152,7 @@ fun TimetableItem(discipline: Discipline) {
                             getDisciplineNumberByTime(discipline.time).toString(),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (settingsPreferences.getBoolean(
-                                    "color_timetable",
-                                    true
-                                )
+                            color = if (AppSettings.colorTimetable
                             ) Color.Black else SurfaceTheme.text.color
 
                         )
@@ -193,10 +162,7 @@ fun TimetableItem(discipline: Discipline) {
                         if (type != TimetableDisciplineType.none)
                             Text(
                                 type.localizedName,
-                                color = if (settingsPreferences.getBoolean(
-                                        "color_timetable",
-                                        true
-                                    )
+                                color = if (AppSettings.colorTimetable
                                 ) Color.Black else SurfaceTheme.text.color,
                                 modifier = Modifier.fillMaxWidth(),
                                 textAlign = TextAlign.Center,
@@ -204,16 +170,13 @@ fun TimetableItem(discipline: Discipline) {
                             )
                     }
                 }
-                if (discipline.distant && selectedOwner.value.lowercase() == "classroom") {
+                if (discipline.distant && timetableIdOwner.lowercase() == "classroom") {
                     Divider(color = SurfaceTheme.divider.color)
                     Text(
                         text = "ДИСТАНЦИОННО",
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
-                        color = if (settingsPreferences.getBoolean(
-                                "color_timetable",
-                                true
-                            )
+                        color = if (AppSettings.colorTimetable
                         ) Color.Black else SurfaceTheme.text.color
                     )
                 }
@@ -249,10 +212,7 @@ fun TimetableItemLoadingPlaceholder() {
                                 shape = RoundedCornerShape(15.dp)
                             ),
                         textAlign = TextAlign.Center,
-                        color = if (settingsPreferences.getBoolean(
-                                "color_timetable",
-                                true
-                            )
+                        color = if (AppSettings.colorTimetable
                         ) Color.Black else SurfaceTheme.text.color
                     )
                 }
@@ -273,10 +233,7 @@ fun TimetableItemLoadingPlaceholder() {
                         textAlign = TextAlign.Center,
                         fontSize = 18.sp,
                         fontStyle = FontStyle.Italic,
-                        color = if (settingsPreferences.getBoolean(
-                                "color_timetable",
-                                true
-                            )
+                        color = if (AppSettings.colorTimetable
                         ) Color.Black else SurfaceTheme.text.color
                     )
                 }
@@ -297,19 +254,12 @@ fun TimetableItemLoadingPlaceholder() {
                         )
                     }
                 }
-                if (!settingsPreferences.getBoolean("filtration_on", true) ||
-                    (settingsPreferences.getInt("selected_subgroup", 0) == 0
-                            || settingsPreferences.getString(
-                        "timetable_id",
-                        "ВМ-ИВТ-2-1"
-                    ) != selectedId.value)
+                if (!AppSettings.timetableFiltration ||
+                    (AppSettings.selectedSubgroup == 0)
                 ) {
                     Text(
                         "Place 4",
-                        color = if (settingsPreferences.getBoolean(
-                                "color_timetable",
-                                true
-                            )
+                        color = if (AppSettings.colorTimetable
                         ) Color.Black else SurfaceTheme.text.color,
                         modifier = Modifier
                             .padding(start = 10.dp)
@@ -330,10 +280,7 @@ fun TimetableItemLoadingPlaceholder() {
                             "1",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (settingsPreferences.getBoolean(
-                                    "color_timetable",
-                                    true
-                                )
+                            color = if (AppSettings.colorTimetable
                             ) Color.Black else SurfaceTheme.text.color,
                             modifier = Modifier.placeholder(
                                 visible = true,
@@ -351,10 +298,7 @@ fun TimetableItemLoadingPlaceholder() {
                         ) {
                             Text(
                                 "Лаб. работа",
-                                color = if (settingsPreferences.getBoolean(
-                                        "color_timetable",
-                                        true
-                                    )
+                                color = if (AppSettings.colorTimetable
                                 ) Color.Black else SurfaceTheme.text.color,
                                 modifier = Modifier.placeholder(
                                     visible = true,

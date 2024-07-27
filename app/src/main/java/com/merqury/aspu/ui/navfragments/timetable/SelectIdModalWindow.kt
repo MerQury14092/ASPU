@@ -2,7 +2,7 @@ package com.merqury.aspu.ui.navfragments.timetable
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,14 +29,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.R
+import com.merqury.aspu.services.misc.AppSettings
+import com.merqury.aspu.services.network.DatabaseService
 import com.merqury.aspu.services.network.executeSqlQuery
 import com.merqury.aspu.services.timetable.getFacultiesAndThemGroups
 import com.merqury.aspu.services.timetable.getSearchResults
-import com.merqury.aspu.services.timetable.toInitials
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.services.timetable.models.FacultiesList
 import com.merqury.aspu.services.timetable.models.SearchContent
 import com.merqury.aspu.services.timetable.models.SearchContentElement
+import com.merqury.aspu.services.timetable.toInitials
 import com.merqury.aspu.ui.showSelectListDialog
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
@@ -59,7 +60,6 @@ fun getButtonsFacultyAndGroups(
                             put(group) {
                                 onResultClick(SearchContentElement(group, "Group", 0, 0))
                                 it.value = false
-                                timetableLoaded.value = false
                             }
                         }
                     })
@@ -71,6 +71,7 @@ fun getButtonsFacultyAndGroups(
 @SuppressLint("MutableCollectionMutableState")
 fun showSelectIdModalWindow(
     filteredBy: String = "any",
+    timetableId: String,
     onResultClick: (searchResult: SearchContentElement) -> Unit
 ) {
     showSimpleModalWindow(containerColor = SurfaceTheme.background.colorWithoutAnim) {
@@ -145,7 +146,7 @@ fun showSelectIdModalWindow(
                                 Card(
                                     modifier = Modifier
                                         .padding(10.dp)
-                                        .clickable {
+                                        .bounceClick {
                                             getFacultiesAndThemGroups(
                                                 facultiesList,
                                                 facultiesLoaded,
@@ -167,9 +168,9 @@ fun showSelectIdModalWindow(
                                         horizontalArrangement = Arrangement.SpaceAround,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Row (
+                                        Row(
                                             verticalAlignment = Alignment.CenterVertically
-                                        ){
+                                        ) {
                                             Image(
                                                 painter = painterResource(id = R.drawable.group),
                                                 contentDescription = null,
@@ -191,7 +192,7 @@ fun showSelectIdModalWindow(
                                 Card(
                                     modifier = Modifier
                                         .padding(10.dp)
-                                        .clickable {
+                                        .bounceClick {
                                             showSelectDepartmentForTeacherWindow(it, onResultClick)
                                         },
                                     colors = CardDefaults.cardColors(
@@ -205,9 +206,9 @@ fun showSelectIdModalWindow(
                                         horizontalArrangement = Arrangement.SpaceAround,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Row (
+                                        Row(
                                             verticalAlignment = Alignment.CenterVertically
-                                        ){
+                                        ) {
                                             Image(
                                                 painter = painterResource(id = R.drawable.teacher),
                                                 contentDescription = null,
@@ -229,7 +230,7 @@ fun showSelectIdModalWindow(
                                 Card(
                                     modifier = Modifier
                                         .padding(10.dp)
-                                        .clickable {
+                                        .bounceClick {
                                             showSelectCorpsForAudiencesWindow(it, onResultClick)
                                         },
                                     colors = CardDefaults.cardColors(
@@ -263,29 +264,12 @@ fun showSelectIdModalWindow(
                                 }
                             }
                     }
-                    if (selectedId.value != settingsPreferences.getString(
-                            "timetable_id",
-                            "ВМ-ИВТ-2-1"
-                        ) && filteredBy.lowercase() == "any" && textFieldValue.value.isEmpty()
+                    if (timetableId != AppSettings.timetableId && filteredBy.lowercase() == "any" && textFieldValue.value.isEmpty()
                     )
                         Card(
                             modifier = Modifier
                                 .padding(10.dp)
-                                .clickable {
-                                    selectedOwner.value = if (settingsPreferences.getString(
-                                            "user",
-                                            "student"
-                                        ) == "student"
-                                    )
-                                        "GROUP"
-                                    else
-                                        "TEACHER"
-                                    selectedId.value =
-                                        settingsPreferences.getString(
-                                            "timetable_id",
-                                            "ВМ-ИВТ-2-1"
-                                        )!!
-                                    timetableLoaded.value = false
+                                .bounceClick {
                                     it.value = false
                                 },
                             colors = CardDefaults.cardColors(
@@ -326,7 +310,7 @@ fun showSelectIdModalWindow(
                     Card(
                         modifier = Modifier
                             .padding(10.dp)
-                            .clickable {
+                            .bounceClick {
                                 onResultClick(it)
                                 thisWindowVisibility.value = false
                             },
@@ -366,17 +350,25 @@ fun loadDepartmentsOnButtons(
     selectIdWindowVisibility: MutableState<Boolean>,
     onResultClick: (searchResult: SearchContentElement) -> Unit
 ) {
+    val tables = DatabaseService.config.tables
+    if(
+        !(tables.departmentTable.exists
+        && tables.teacherTable.exists)
+    ) {
+        buttons.value = mapOf(
+            "Нет данных..." to {}
+        )
+        return
+    }
     executeSqlQuery(
         """
-            SELECT * FROM departments
+            SELECT * FROM ${tables.departmentTable.name}
         """.trimIndent(),
         {
             val buttonEntries = HashMap<String, () -> Unit>()
             while (it.next()) {
-                val departmentId = it.getInt("id")
-                buttonEntries.put(
-                    it.getString("name")
-                ) {
+                val departmentId = it.getInt(tables.departmentTable.fields.id)
+                buttonEntries[it.getString(tables.departmentTable.fields.departmentName)] = {
                     showSelectTeacherWindow(departmentId, selectIdWindowVisibility, onResultClick)
                 }
             }
@@ -384,7 +376,7 @@ fun loadDepartmentsOnButtons(
         },
         {
             buttons.value = mapOf(
-                "Прозошла ошибка" to {}
+                "Произошла ошибка" to {}
             )
         }
     )
@@ -408,21 +400,22 @@ fun loadTeachersOnButtons(
     selectIdWindowVisibility: MutableState<Boolean>,
     onResultClick: (searchResult: SearchContentElement) -> Unit
 ) {
+    val config = DatabaseService.config
+    val teacherTable = config.tables.teacherTable
+    val linkTable = config.tables.teacherDepartmentLinkTable
     executeSqlQuery(
         """
-            SELECT * FROM teachers t 
-            JOIN lnk_teacher_department ltd ON t.id = ltd.teacher_id 
-            WHERE ltd.department_id = $departmentId
+            SELECT * FROM ${teacherTable.name} a 
+            JOIN ${linkTable.name} b ON a.${teacherTable.fields.id} = b.${linkTable.fields.teacher}
+            WHERE b.${linkTable.fields.department} = $departmentId
         """.trimIndent(),
         {
             val buttonEntries = HashMap<String, () -> Unit>()
             while (it.next()) {
-                val fio = "${it.getString("last_name")} " +
-                        "${it.getString("first_name")} " +
-                        it.getString("father_name")
-                buttonEntries.put(
-                    fio
-                ) {
+                val fio = "${it.getString(teacherTable.fields.lastName)} " +
+                        "${it.getString(teacherTable.fields.firstName)} " +
+                        it.getString(teacherTable.fields.fatherName)
+                buttonEntries[fio] = {
                     onResultClick(
                         SearchContentElement(
                             fio.toInitials(),
@@ -438,7 +431,7 @@ fun loadTeachersOnButtons(
         },
         {
             buttons.value = mapOf(
-                "Прозошла ошибка" to {}
+                "Произошла ошибка" to {}
             )
         }
     )
@@ -460,15 +453,25 @@ fun loadCorpsOnButtons(
     selectIdWindowVisibility: MutableState<Boolean>,
     onResultClick: (searchResult: SearchContentElement) -> Unit
 ) {
+    val tables = DatabaseService.config.tables
+    if(
+        !(tables.corpsTable.exists
+                && tables.audienceTable.exists)
+    ) {
+        buttons.value = mapOf(
+            "Нет данных..." to {}
+        )
+        return
+    }
     executeSqlQuery(
         """
-            SELECT * FROM corps
+            SELECT * FROM ${tables.corpsTable.name}
         """.trimIndent(),
         {
             val buttonEntries = HashMap<String, () -> Unit>()
             while (it.next()) {
-                val corpsId = it.getInt("id")
-                buttonEntries[it.getString("name")] = {
+                val corpsId = it.getInt(tables.corpsTable.fields.id)
+                buttonEntries[it.getString(tables.corpsTable.fields.corpsName)] = {
                     showSelectAudienceWindow(corpsId, selectIdWindowVisibility, onResultClick)
                 }
             }
@@ -476,7 +479,7 @@ fun loadCorpsOnButtons(
         },
         {
             buttons.value = mapOf(
-                "Прозошла ошибка" to {}
+                "Произошла ошибка" to {}
             )
         }
     )
@@ -500,16 +503,19 @@ fun loadAudiencesOnButtons(
     selectIdWindowVisibility: MutableState<Boolean>,
     onResultClick: (searchResult: SearchContentElement) -> Unit
 ) {
+    val tables = DatabaseService.config.tables
+    val corpsTable = tables.corpsTable
+    val audienceTable = tables.audienceTable
     executeSqlQuery(
         """
-            SELECT * FROM audiences a 
-            JOIN corps c ON a.corps_id = c.id 
-            WHERE c.id = $corpsId
+            SELECT * FROM ${audienceTable.name} a 
+            JOIN ${corpsTable.name} b ON a.${audienceTable.fields.corpsId} = b.${corpsTable.fields.id}
+            WHERE b.${corpsTable.fields.id} = $corpsId
         """.trimIndent(),
         {
             val buttonEntries = HashMap<String, () -> Unit>()
             while (it.next()) {
-                val audienceId = it.getString("name")
+                val audienceId = it.getString(audienceTable.fields.audienceName)
                 buttonEntries[audienceId] = {
                     onResultClick(
                         SearchContentElement(
@@ -530,7 +536,7 @@ fun loadAudiencesOnButtons(
         },
         {
             buttons.value = mapOf(
-                "Прозошла ошибка" to {}
+                "Произошла ошибка" to {}
             )
         }
     )

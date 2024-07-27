@@ -42,26 +42,27 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.merqury.aspu.R
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.services.profile.getAuthToken
 import com.merqury.aspu.ui.after
-import com.merqury.aspu.ui.navBarUpdate
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 import kotlin.time.Duration.Companion.seconds
 
+@Volatile
+private var isAuthModalWindowShowing = false
+
 @OptIn(ExperimentalMaterial3Api::class)
 fun showEiosAuthModalWindow(msg: String = "", closure: () -> Unit = {}) {
+    if(isAuthModalWindowShowing)
+        return
+    isAuthModalWindowShowing = true
     showSimpleModalWindow(
         closeable = false
     ) {
         val username = remember {
             mutableStateOf("")
-        }
-
-        fun String.hide(): String {
-            return "•".repeat(length);
         }
 
         val password = remember {
@@ -83,6 +84,7 @@ fun showEiosAuthModalWindow(msg: String = "", closure: () -> Unit = {}) {
         if (receivedResponse) {
             after(2.seconds) {
                 if (authSuccess) {
+                    isAuthModalWindowShowing = false
                     it.value = false
                     return@after
                 }
@@ -180,8 +182,10 @@ fun showEiosAuthModalWindow(msg: String = "", closure: () -> Unit = {}) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
                     Button(
                         onClick = {
-                            if (!requesting)
+                            if (!requesting) {
                                 it.value = false
+                                isAuthModalWindowShowing = false
+                            }
                         }, colors = ButtonDefaults.buttonColors(
                             containerColor = SurfaceTheme.button.color
                         )
@@ -214,16 +218,18 @@ fun showEiosAuthModalWindow(msg: String = "", closure: () -> Unit = {}) {
                                         .putString("login", username.value)
                                         .putString("password", password.value)
                                         .apply()
-                                    settingsPreferences.edit()
-                                        .putBoolean("eios_logged", true)
-                                        .apply()
-                                    navBarUpdate()
+                                    AppSettings.eiosLogged = true
+                                    if(AppSettings.initialRoute == "settings")
+                                        AppSettings.initialRoute = "account"
                                     closure()
                                 },
                                 {
                                     receivedResponse = true
                                     authSuccess = false
-                                    authMessage = it
+                                    authMessage = if (it.contains("NoConnectionError"))
+                                        "Нет подключения к инетрнету!"
+                                    else
+                                        it
                                 }
                             )
                         }, colors = ButtonDefaults.buttonColors(

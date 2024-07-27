@@ -3,6 +3,7 @@ package com.merqury.aspu.services.profile
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.requestQueue
 import com.merqury.aspu.services.profile.models.ProfileInfo
+import com.merqury.aspu.ui.async
 
 fun getProfileInfo(
     token: String,
@@ -15,7 +16,9 @@ fun getProfileInfo(
         Method.GET,
         url,
         {
-            onResult(ProfileInfo.fromJson(it))
+            async {
+                onResult(ProfileInfo.fromJson(it))
+            }
         },
         {
             reauthorization(onClosure)

@@ -1,8 +1,8 @@
 package com.merqury.aspu.ui.navfragments.settings
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.merqury.aspu.ui.navBarUpdate
+import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 
@@ -26,7 +26,11 @@ abstract class SettingsButton(var text: String) {
     abstract fun getContent(): @Composable () -> Unit;
 }
 
-class SwitchableSettingsPreferenceButton(text: String, private val settingsPreferenceBooleanName: String) :
+class SwitchableSettingsPreferenceButton(
+    text: String,
+    val checked: Boolean,
+    val onCheckedChange: (Boolean) -> Unit
+) :
     SettingsButton(text) {
     override fun getContent() = @Composable {
         Card(
@@ -38,7 +42,7 @@ class SwitchableSettingsPreferenceButton(text: String, private val settingsPrefe
             )
         ) {
             Box(contentAlignment = Alignment.CenterStart) {
-                Box(modifier = Modifier.padding(10.dp)) {
+                Row(modifier = Modifier.fillMaxWidth(.9f).padding(10.dp)) {
                     Text(
                         text = text,
                         fontSize = 16.sp,
@@ -48,15 +52,11 @@ class SwitchableSettingsPreferenceButton(text: String, private val settingsPrefe
                 Box(
                     Modifier
                         .fillMaxWidth()
-                        .padding(end = 10.dp), contentAlignment = Alignment.TopEnd) {
+                        .padding(end = 10.dp), contentAlignment = Alignment.TopEnd
+                ) {
                     Switch(
-                        checked = settingsPreferences.getBoolean(
-                            settingsPreferenceBooleanName,
-                            getDefault(settingsPreferenceBooleanName)
-                        ), onCheckedChange = {
-                            toggleBooleanSettingsPreference(settingsPreferenceBooleanName)
-                            reloadSettingsScreen()
-                            navBarUpdate()
+                        checked = checked, onCheckedChange = {
+                            onCheckedChange(it)
                         },
                         modifier = Modifier.scale(.75f),
                         colors = SwitchDefaults.colors(
@@ -75,7 +75,7 @@ class SwitchableSettingsPreferenceButton(text: String, private val settingsPrefe
 }
 
 @Composable
-fun SettingsButton(onClick: () -> Unit, content: @Composable () -> Unit){
+fun SettingsButton(onClick: () -> Unit, content: @Composable () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -88,7 +88,7 @@ fun SettingsButton(onClick: () -> Unit, content: @Composable () -> Unit){
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp)
-                .clickable {
+                .bounceClick {
                     onClick()
                 },
             colors = CardDefaults.cardColors(
@@ -106,7 +106,7 @@ class ClickableSettingsButton(text: String, val onClick: () -> Unit) : SettingsB
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(3.dp)
-                .clickable {
+                .bounceClick {
                     onClick()
                 },
             colors = CardDefaults.cardColors(
@@ -136,7 +136,7 @@ fun SettingsChapter(title: String, buttons: List<SettingsButton?>) {
             title, color = SurfaceTheme.text.color
         )
         buttons.forEach {
-            if(it != null)
+            if (it != null)
                 it.getContent()()
         }
         Spacer(modifier = Modifier.padding(top = 10.dp))

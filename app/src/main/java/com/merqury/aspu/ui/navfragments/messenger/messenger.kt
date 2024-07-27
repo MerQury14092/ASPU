@@ -3,9 +3,7 @@ package com.merqury.aspu.ui.navfragments.messenger
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.merqury.aspu.services.mailbox.inbox.InboxType
 import com.merqury.aspu.ui.TitleHeader
+import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.vw
@@ -72,7 +71,7 @@ fun MessengerScreen(header: MutableState<@Composable () -> Unit>) {
         ) {
             Image(
                 Icons.Outlined.Menu, contentDescription = null, modifier = Modifier
-                    .clickable {
+                    .bounceClick {
                         scope.launch {
                             if (swipeableState.currentValue == 0)
                                 swipeableState.animateTo(-1, tween(200))
@@ -123,7 +122,7 @@ fun MessengerScreen(header: MutableState<@Composable () -> Unit>) {
                 type: InboxType
             ) {
                 Column(
-                    Modifier.clickable {
+                    Modifier.bounceClick {
                         scope.launch {
                             swipeableState.animateTo(0, tween(200))
                         }
@@ -161,10 +160,7 @@ fun MessengerScreen(header: MutableState<@Composable () -> Unit>) {
 
         //main content
         Box(modifier = Modifier.offset((swipeableState.offset.value.toInt() / density).vw)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {
+            .bounceClick {
                 if (swipeableState.currentValue == -1) {
                     scope.launch {
                         swipeableState.animateTo(0, tween(200))

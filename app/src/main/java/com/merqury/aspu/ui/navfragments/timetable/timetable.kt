@@ -1,7 +1,7 @@
 package com.merqury.aspu.ui.navfragments.timetable
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,182 +9,262 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material.Text
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.canopas.lib.showcase.IntroShowcase
+import com.merqury.aspu.mainCoroutineScope
+import com.merqury.aspu.services.appconfig.AppConfig
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.services.timetable.getTimetableByDate
 import com.merqury.aspu.services.timetable.getTodayDate
-import com.merqury.aspu.ui.SwipeableBox
-import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
 import com.merqury.aspu.services.timetable.models.Discipline
 import com.merqury.aspu.services.timetable.models.TimetableDay
+import com.merqury.aspu.ui.TitleHeader
+import com.merqury.aspu.ui.async
+import com.merqury.aspu.ui.bounceClick
+import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
+import com.merqury.aspu.ui.navfragments.timetable.TimetableStates.pagerState
+import com.merqury.aspu.ui.navfragments.timetable.TimetableStates.timetableId
+import com.merqury.aspu.ui.navfragments.timetable.TimetableStates.timetableIdOwner
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
+import com.merqury.aspu.ui.theme.ThemeText
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.theme.colorWithoutAnim
+import com.merqury.aspu.ui.training.TrainingStates
+import com.merqury.aspu.ui.training.hintTargetModifier
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-val selectedId = mutableStateOf(settingsPreferences.getString("timetable_id", "ВМ-ИВТ-2-1")!!)
-val selectedSearchId = mutableIntStateOf(0)
-val selectedOwner = mutableStateOf(settingsPreferences.getString("timetable_id_owner", "GROUP")!!)
-val selectedDate = mutableStateOf(getTodayDate())
-val timetableLoaded = mutableStateOf(false)
-val timetableDay = mutableStateOf(TimetableDay("","", "", listOf()))
-val timetableLoadSuccess = mutableStateOf(true)
-val timetableLoadStatusText = mutableStateOf("")
+private val pointDate = getTodayDate()
 
+
+object TimetableStates {
+    @OptIn(ExperimentalFoundationApi::class)
+    val pagerState = PagerState(
+        currentPage = Int.MAX_VALUE / 2,
+        pageCount = { Int.MAX_VALUE }
+    )
+    var timetableId by mutableStateOf(AppSettings.timetableId)
+    var timetableIdOwner by mutableStateOf(AppSettings.timetableIdOwner)
+}
 
 @Composable
 fun TimetableScreen(header: MutableState<@Composable () -> Unit>) {
-    TimetableScreenContent(header)
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun TimetableScreenContent(header: MutableState<@Composable () -> Unit>) {
-    Column {
-        header.value = {
-            TimetableHeader()
-        }
-        val pullRefreshState = rememberPullRefreshState(
-            refreshing = !timetableLoaded.value,
-            onRefresh = {
-                timetableLoaded.value = false
+    if (TrainingStates.timetable) {
+        val onCompleted = {
+            TrainingStates.aspuButtonDescription = "Открывает неделю расписания, " +
+                    "содержащую этот день, в браузере"
+            TrainingStates.aspuButtonHintClosure = {
+                TrainingStates.otherNavItem = true
             }
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(SurfaceTheme.background.color)
-        ) {
-            if (!timetableLoaded.value) {
-                getTimetableByDate(
-                    selectedId.value,
-                    selectedOwner.value,
-                    selectedDate.value,
-                    timetableDay,
-                    timetableLoaded,
-                    timetableLoadSuccess,
-                    timetableLoadStatusText
+            TrainingStates.timetable = false
+            TrainingStates.aspuButton = true
+        }
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterStart) {
+            IntroShowcase(
+                showIntroShowCase = true,
+                onShowCaseCompleted = onCompleted,
+                dismissOnClickOutside = true
+            ) {
+                Box(
+                    modifier = hintTargetModifier(
+                        0,
+                        "Навигация по экрану",
+                        "Свайп вправо - следующий день. Свайп влево - предыдущий день"
+                    )
                 )
-                SwipeableBox(
-                    onSwipeLeft = {
-                        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-                        var currentDate = LocalDate.parse(selectedDate.value, formatter)
-                        currentDate = currentDate.plusDays(-1)
-                        selectedDate.value = currentDate.format(formatter)
-                        timetableLoaded.value = false
-                    },
-                    onSwipeRight = {
-                        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-                        var currentDate = LocalDate.parse(selectedDate.value, formatter)
-                        currentDate = currentDate.plusDays(1)
-                        selectedDate.value = currentDate.format(formatter)
-                        timetableLoaded.value = false
-                    },
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(color = SurfaceTheme.background.color)
-                ) {
-                    Column {
-                        TimetableItemLoadingPlaceholder()
-                        TimetableItemLoadingPlaceholder()
-                        TimetableItemLoadingPlaceholder()
-                    }
-                }
-            } else {
-                if (timetableLoadSuccess.value)
-                    SwipeableBox(
-                        onSwipeLeft = {
-                            val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-                            var currentDate = LocalDate.parse(selectedDate.value, formatter)
-                            currentDate = currentDate.plusDays(-1)
-                            selectedDate.value = currentDate.format(formatter)
-                            timetableLoaded.value = false
-                        },
-                        onSwipeRight = {
-                            val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-                            var currentDate = LocalDate.parse(selectedDate.value, formatter)
-                            currentDate = currentDate.plusDays(1)
-                            selectedDate.value = currentDate.format(formatter)
-                            timetableLoaded.value = false
-                        },
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(color = SurfaceTheme.background.color)
-                    ) {
-                        if (timetableDay.value.disciplines.isEmpty())
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(text = "Нет пар", color = SurfaceTheme.text.color)
-                            }
-                        else {
-                            val disciplines = if (
-                                settingsPreferences.getBoolean("filtration_on", false)
-                                && settingsPreferences.getString("user", "student") == "student"
-                                && selectedId.value == settingsPreferences.getString(
-                                    "timetable_id",
-                                    "ВМ-ИВТ-2-1"
-                                )
-                            )
-                                filter(timetableDay.value)
-                            else
-                                timetableDay.value.disciplines
-
-                            LazyColumn {
-                                items(count = disciplines.size) {
-                                    TimetableItem(
-                                        discipline = disciplines[it]
-                                    )
-                                }
-
-                            }
-                        }
-                    }
-                else
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .pullRefresh(pullRefreshState)
-                            .verticalScroll(rememberScrollState())
-                            .background(color = SurfaceTheme.background.color),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = timetableLoadStatusText.value,
-                            color = SurfaceTheme.text.color,
-                            textAlign = TextAlign.Center
-                        )
-                    }
             }
         }
     }
+    val useConfig = AppConfig.useTimetableConfig()
+    if (useConfig.canUse)
+        TimetableContent(header)
+    else
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(SurfaceTheme.background.color),
+            contentAlignment = Alignment.Center
+        ) {
+            val headerContent = @Composable {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    TitleHeader(title = "Расписание")
+                }
+            }
+            if(header.value != headerContent)
+                header.value = headerContent
+            ThemeText(
+                text = useConfig.reason ?: ("Расписание было отключено разработчиком по " +
+                        "неизвестной причине"),
+                textAlign = TextAlign.Center
+            )
+        }
+}
+
+@Composable
+fun CachedTimetable() {
+
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun TimetableContent(header: MutableState<@Composable () -> Unit>) {
+    Column {
+        val headerContent = @Composable {
+            TimetableHeader(getDateByPage(pagerState.currentPage))
+        }
+        if (header.value != headerContent)
+            header.value = headerContent
+
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(SurfaceTheme.background.color),
+            verticalAlignment = Alignment.Top,
+            outOfBoundsPageCount = 1
+        ) {
+            TimetableDay(
+                page = it,
+                timetableId = timetableId,
+                timetableIdOwner = timetableIdOwner
+            )
+        }
+    }
+}
+
+@Composable
+private fun TimetableDay(
+    page: Int,
+    timetableId: String,
+    timetableIdOwner: String
+) {
+    var disciplines by remember {
+        mutableStateOf<List<Discipline>?>(null)
+    }
+    var errorString by remember {
+        mutableStateOf<String?>(null)
+    }
+    var loading by remember {
+        mutableStateOf(false)
+    }
+
+    if (disciplines == null) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = SurfaceTheme.background.color)
+        ) {
+            TimetableItemLoadingPlaceholder()
+            TimetableItemLoadingPlaceholder()
+            TimetableItemLoadingPlaceholder()
+        }
+        if (!loading) {
+            loading = true
+            getTimetableByDate(
+                getDateByPage(page),
+                timetableId,
+                timetableIdOwner,
+                {
+                    errorString = it
+                    loading = false
+                }
+            ) {
+                async {
+                    disciplines = if (
+                        AppSettings.timetableFiltration
+                        && AppSettings.whoIsUser == "student"
+                        && timetableId == AppSettings.timetableId
+                    )
+                        filter(it)
+                    else
+                        it.disciplines
+                    loading = false
+                }
+            }
+        }
+    } else {
+        if (errorString != null)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(SurfaceTheme.background.color),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = errorString!!, color = SurfaceTheme.text.color)
+            }
+        else if (disciplines!!.isEmpty())
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(SurfaceTheme.background.color),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "Нет пар", color = SurfaceTheme.text.color)
+            }
+        else {
+            LazyColumn {
+                items(count = disciplines!!.size) {
+                    TimetableItem(
+                        discipline = disciplines!![it]
+                    )
+                }
+
+            }
+        }
+    }
+}
+
+private val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+
+fun getDateByPage(page: Int): String {
+    if (Int.MAX_VALUE / 2 == page) {
+        return pointDate
+    }
+    val point = LocalDate.parse(pointDate, formatter)
+    return point.plusDays((page - Int.MAX_VALUE / 2).toLong()).format(formatter)
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+fun setTimetableDate(date: String) {
+    val localDate = LocalDate.parse(date, formatter)
+    mainCoroutineScope.launch {
+        pagerState.scrollToPage(
+            Int.MAX_VALUE / 2 + datesBetween(
+                localDate,
+                LocalDate.parse(pointDate, formatter)
+            )
+        )
+    }
+}
+
+private fun datesBetween(
+    firstDate: LocalDate,
+    secondDate: LocalDate
+): Int {
+    return (firstDate.toEpochDay() - secondDate.toEpochDay()).toInt()
 }
 
 fun filter(
     timetableDay: TimetableDay
 ): ArrayList<Discipline> {
     var disciplines = arrayListOf<Discipline>()
-    if (timetableDay.id == settingsPreferences.getString("timetable_id", "ВМ-ИВТ-2-1"))
+    if (timetableDay.id == AppSettings.timetableId)
         (0..<timetableDay.disciplines.size).forEach {
             val currentDiscipline = timetableDay.disciplines[it]
             if (isSelectableDiscipline(currentDiscipline.name))
@@ -201,9 +281,9 @@ fun filterBySubgroup(res: ArrayList<Discipline>, discipline: Discipline) {
     if (
         discipline.subgroup == 0
         ||
-        discipline.subgroup == settingsPreferences.getInt("selected_subgroup", 0)
+        discipline.subgroup == AppSettings.selectedSubgroup
         ||
-        settingsPreferences.getInt("selected_subgroup", 0) == 0
+        AppSettings.selectedSubgroup == 0
     )
         res.add(discipline)
 }
@@ -245,13 +325,13 @@ fun answerShowingSelectableDiscipline(name: String) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth(.5f)
-                        .clickable {
+                        .bounceClick {
                             selectableDisciplines
                                 .edit()
                                 .putBoolean(name, true)
                                 .apply()
                             it.value = false
-                            timetableLoaded.value = false
+//                            loaded = false
                         }
                         .padding(5.dp),
                     colors = CardDefaults.cardColors(
@@ -270,13 +350,13 @@ fun answerShowingSelectableDiscipline(name: String) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable {
+                        .bounceClick {
                             selectableDisciplines
                                 .edit()
                                 .putBoolean(name, false)
                                 .apply()
                             it.value = false
-                            timetableLoaded.value = false
+//                            loaded = false
                         }
                         .padding(5.dp),
                     colors = CardDefaults.cardColors(

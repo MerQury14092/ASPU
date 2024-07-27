@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.merqury.aspu.ui.navfragments.timetable.timetableLoaded
 import com.merqury.aspu.ui.showSimpleUpdatableModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
@@ -29,7 +28,6 @@ fun showSelectableDisciplinesPreferences() {
                                 .putBoolean(it.key, !selectableDisciplines.getBoolean(it.key, true))
                                 .apply()
                             update()
-                            timetableLoaded.value = false
                         }) {
                             forUpdate.value
                             Text(text = "${it.key}: ${if(selectableDisciplines.getBoolean(it.key, true)) "Показывать" else "Не показывать"}", color = SurfaceTheme.text.color)

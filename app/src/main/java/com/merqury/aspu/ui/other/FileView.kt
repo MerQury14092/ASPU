@@ -2,7 +2,7 @@ package com.merqury.aspu.ui.other
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -73,7 +73,7 @@ fun FileView(file: FileModel, onClick: () -> Unit = {}) {
     Box(
         modifier = Modifier
             .background(SurfaceTheme.foreground.color, RoundedCornerShape(15.dp))
-            .clickable {
+            .bounceClick {
                 onClick()
             }) {
         Row(

@@ -32,7 +32,7 @@ fun reauthorization(onClosure: () -> Unit){
     }
 }
 
-open class AuthorizedStringRequest(
+open class EiosAuthorizedStringRequest(
     method: Int,
     url: String?,
     listener: Response.Listener<String>?,

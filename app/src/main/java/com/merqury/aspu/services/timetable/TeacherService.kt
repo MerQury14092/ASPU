@@ -1,7 +1,7 @@
 package com.merqury.aspu.services.timetable
 
 import android.util.Log
-import com.merqury.aspu.services.cache
+import com.merqury.aspu.services.misc.cache
 import com.merqury.aspu.services.network.executeSqlQuery
 import com.merqury.aspu.ui.printlog
 

@@ -1,7 +1,7 @@
 package com.merqury.aspu.ui.navfragments.timetable
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.R
 import com.merqury.aspu.enums.TimetableDisciplineType
-import com.merqury.aspu.services.cache
+import com.merqury.aspu.services.misc.cache
 import com.merqury.aspu.services.intents.openMapWithMarker
 import com.merqury.aspu.services.timetable.models.Discipline
 import com.merqury.aspu.services.timetable.models.getCorpsByAudience
@@ -97,7 +97,7 @@ private fun DisciplineDetails(discipline: Discipline) {
                         contentScale = ContentScale.Fit,
                         modifier = Modifier
                             .size(25.dp)
-                            .clickable {
+                            .bounceClick {
                                 openMapWithMarker(corps.lat, corps.lon, corps.name)
                             },
                         colorFilter = ColorFilter.tint(SurfaceTheme.text.color)

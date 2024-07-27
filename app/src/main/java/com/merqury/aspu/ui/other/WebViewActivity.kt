@@ -3,6 +3,7 @@ package com.merqury.aspu.ui.other
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.view.View
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
@@ -38,8 +39,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
 import com.merqury.aspu.services.intents.FileOpener
-import com.merqury.aspu.ui.aspuButtonLoading
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.ui.openInBrowser
+import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 import java.util.Stack
 
@@ -154,7 +156,6 @@ class WebViewActivity : ComponentActivity() {
                                                 request: WebResourceRequest?
                                             ): WebResourceResponse? {
                                                 if (request!!.isForMainFrame) {
-                                                    aspuButtonLoading.value = false
                                                     loading.value = true
                                                 }
                                                 return super.shouldInterceptRequest(view, request)
@@ -190,9 +191,20 @@ class WebViewActivity : ComponentActivity() {
                         })
                 }
             }
+            val foreground = SurfaceTheme.foreground.color
+            window.statusBarColor =
+                android.graphics.Color.rgb(foreground.red, foreground.green, foreground.blue)
+            window.navigationBarColor =
+                android.graphics.Color.rgb(foreground.red, foreground.green, foreground.blue)
+
+            if (AppSettings.selectedTheme == "light")
+                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+            else
+                window.decorView.systemUiVisibility = 0
         }
     }
 
+    @SuppressLint("MissingSuperCall")
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (urlHistory.isEmpty())

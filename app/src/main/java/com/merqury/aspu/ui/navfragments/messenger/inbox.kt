@@ -2,7 +2,6 @@ package com.merqury.aspu.ui.navfragments.messenger
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,6 +39,7 @@ import com.merqury.aspu.appContext
 import com.merqury.aspu.services.mailbox.inbox.InboxType
 import com.merqury.aspu.services.mailbox.inbox.getInbox
 import com.merqury.aspu.services.mailbox.inbox.models.MessageElement
+import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.conditional
 import com.merqury.aspu.ui.navfragments.messenger.message.MessageDetailsScreen
 import com.merqury.aspu.ui.navfragments.timetable.prettyDate
@@ -78,23 +78,24 @@ fun Inbox(
     Scaffold(
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
-            Box(
-                modifier = Modifier
-                    .size(60.dp)
-                    .background(SurfaceTheme.button.color, RoundedCornerShape(20.dp))
-                    .clickable {
-                        appContext!!.startTopBarActivityWithActivityLink() { header, activity ->
-                            SendMessageScreen(header = header, onBack = {
-                                activity!!.finish()
-                            })
-                        }
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    imageVector = Icons.Outlined.Send, contentDescription = null,
-                    colorFilter = ColorFilter.tint(SurfaceTheme.text.color)
-                )
+            Box(modifier = Modifier.bounceClick {
+                appContext!!.startTopBarActivityWithActivityLink() { header, activity ->
+                    SendMessageScreen(header = header, onBack = {
+                        activity!!.finish()
+                    })
+                }
+            }) {
+                Box(
+                    modifier = Modifier
+                        .size(60.dp)
+                        .background(SurfaceTheme.button.color, RoundedCornerShape(20.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        imageVector = Icons.Outlined.Send, contentDescription = null,
+                        colorFilter = ColorFilter.tint(SurfaceTheme.text.color)
+                    )
+                }
             }
         },
         backgroundColor = SurfaceTheme.background.color
@@ -135,7 +136,7 @@ fun MessageElement(message: MessageElement, type: InboxType, clickable: Boolean)
         Modifier
             .padding(5.dp)
             .conditional(clickable) {
-                clickable {
+                bounceClick {
                     appContext.startTopBarActivityWithActivityLink { it, activity ->
                         MessageDetailsScreen(
                             header = it,

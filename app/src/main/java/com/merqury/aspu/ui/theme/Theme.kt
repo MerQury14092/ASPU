@@ -10,7 +10,6 @@ import androidx.compose.material.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextLayoutResult
@@ -22,8 +21,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
-import com.merqury.aspu.appContext
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
+import com.merqury.aspu.R
+import com.merqury.aspu.services.misc.AppSettings
 
 enum class SurfaceTheme {
     background,
@@ -36,10 +35,11 @@ enum class SurfaceTheme {
     placeholder_primary,
     placeholder_secondary,
     appBars,
+    trainingBackground,
     link
 }
 
-private const val themeChangeDuration = 300
+private const val themeChangeDuration = 400
 
 private val lightTheme = mapOf(
     SurfaceTheme.background to Color.White,
@@ -52,7 +52,8 @@ private val lightTheme = mapOf(
     SurfaceTheme.text to Color.Black,
     SurfaceTheme.enable to Color.Black,
     SurfaceTheme.link to Color.Cyan,
-    SurfaceTheme.button to Color(0xffd4d4d4)
+    SurfaceTheme.button to Color(0xffd4d4d4),
+    SurfaceTheme.trainingBackground to Color(0xFFBCBEC0)
 )
 
 private val darkTheme = mapOf(
@@ -66,7 +67,8 @@ private val darkTheme = mapOf(
     SurfaceTheme.enable to Color.White,
     SurfaceTheme.text to Color(0xffE2E3E6),
     SurfaceTheme.link to Color.Cyan,
-    SurfaceTheme.button to Color(0xff2b2b2b)
+    SurfaceTheme.button to Color(0xff2b2b2b),
+    SurfaceTheme.trainingBackground to Color(0xFF2E2D2D)
 )
 
 private val seaTheme = mapOf(
@@ -80,7 +82,8 @@ private val seaTheme = mapOf(
     SurfaceTheme.enable to Color(0xffF0F8FF),
     SurfaceTheme.text to Color(0xffF0F8FF),
     SurfaceTheme.link to Color.Cyan,
-    SurfaceTheme.button to Color(0xff1A4780)
+    SurfaceTheme.button to Color(0xff1A4780),
+    SurfaceTheme.trainingBackground to Color(0xff4682B4)
 )
 
 
@@ -98,16 +101,10 @@ private val aspuSiteTheme = mapOf(
     SurfaceTheme.button to Color(0xFF0AA3AD)
 )
 
-private var theme = mutableStateOf(
-    byName(
-        settingsPreferences.getString(
-            "theme",
-            if (appContext?.isDarkThemeOn() != false)
-                "dark"
-            else
-                "light"
-        )!!
-    )
+val themes = mapOf(
+    "light" to R.drawable.light_theme,
+    "dark" to R.drawable.dark_theme,
+    "sea" to R.drawable.sea_theme
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -139,29 +136,18 @@ private fun byName(name: String): Map<SurfaceTheme, Color> {
 fun getThemeName(name: String): String {
     return when (name) {
         "sea" -> "Морская"
-        "dark" -> "Тёмная"
+        "dark" -> "Тёмная "
         "site" -> "Лазурная"
         else -> "Светлая"
     }
 }
 
 val SurfaceTheme.color: Color
-    @Composable get() = theme.value[this]!!.animatedColor()
+    @Composable get() = byName(AppSettings.selectedTheme)[this]!!.animatedColor()
 
 val SurfaceTheme.colorWithoutAnim
-    get() = theme.value[this]!!
+    get() = byName(AppSettings.selectedTheme)[this]!!
 
-fun updateTheme() {
-    theme.value = byName(
-        settingsPreferences.getString(
-            "theme",
-            if (appContext!!.isDarkThemeOn())
-                "dark"
-            else
-                "light"
-        )!!
-    )
-}
 
 fun Context.isDarkThemeOn(): Boolean {
     return resources.configuration.uiMode and

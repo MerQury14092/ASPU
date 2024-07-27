@@ -1,8 +1,8 @@
 package com.merqury.aspu.ui.navfragments.profile
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,16 +42,20 @@ import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
+import com.merqury.aspu.services.marks.getMarks
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.services.profile.getAvg
 import com.merqury.aspu.services.profile.getMarkStatsById
 import com.merqury.aspu.services.profile.models.Data
 import com.merqury.aspu.services.profile.models.MarkStat
+import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.makeToast
-import com.merqury.aspu.ui.navBarUpdate
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
+import com.merqury.aspu.ui.navfragments.exam.startExamScreen
+import com.merqury.aspu.ui.navfragments.marks.MarksScreen
 import com.merqury.aspu.ui.placeholder
 import com.merqury.aspu.ui.routeTo
 import com.merqury.aspu.ui.sp
+import com.merqury.aspu.ui.startTopBarActivity
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.vw
@@ -67,9 +72,17 @@ fun ProfileInfo(info: Data) {
     ) {
         info.apply {
             if (marksStat == null) {
-                getMarkStatsById(studentID!!, onError = {
-                }) {
-                    marksStat = it
+                var loading by remember {
+                    mutableStateOf(false)
+                }
+                if (!loading) {
+                    loading = true
+                    getMarkStatsById(studentID!!, onError = {
+                        loading = false
+                    }) {
+                        marksStat = it
+                        loading = false
+                    }
                 }
             }
             Column(
@@ -207,35 +220,35 @@ fun ProfileInfo(info: Data) {
                     fun MarkBox(
                         name: String,
                         value: String,
+                        expanded: MutableState<Boolean>,
                         count: Int
                     ) {
-                        var collapsing by remember {
-                            mutableStateOf(false)
-                        }
-                        Box(
-                            modifier = Modifier
-                                .background(
-                                    SurfaceTheme.foreground.color,
-                                    RoundedCornerShape(15.dp)
-                                )
-                                .padding(10.dp)
-                                .width(70.dp)
-                                .clickable {
-                                    collapsing = !collapsing
-                                }
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.fillMaxWidth()
+                        Box(modifier = Modifier.bounceClick {
+                            expanded.value = !expanded.value
+                        }) {
+                            Box(
+                                modifier = Modifier
+                                    .background(
+                                        SurfaceTheme.foreground.color,
+                                        RoundedCornerShape(15.dp)
+                                    )
+                                    .padding(10.dp)
+                                    .width(70.dp)
+                                    .animateContentSize()
                             ) {
-                                Text(text = name, color = SurfaceTheme.text.color)
-                                Text(
-                                    text = value,
-                                    color = SurfaceTheme.text.color,
-                                    modifier = Modifier.placeholder(visible = marksStat == null)
-                                )
-                                if (collapsing)
-                                    Text(text = "$count оц.", color = SurfaceTheme.text.color)
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(text = name, color = SurfaceTheme.text.color)
+                                    Text(
+                                        text = value,
+                                        color = SurfaceTheme.text.color,
+                                        modifier = Modifier.placeholder(visible = marksStat == null)
+                                    )
+                                    if (expanded.value)
+                                        Text(text = "$count оц.", color = SurfaceTheme.text.color)
+                                }
                             }
                         }
                     }
@@ -269,9 +282,12 @@ fun ProfileInfo(info: Data) {
                             }
                         }
                     }
-                    MarkBox(name = "Удовл", value = markCAvg, markCCount)
-                    MarkBox(name = "Хор", value = markBAvg, markBCount)
-                    MarkBox(name = "Отл", value = markAAvg, markACount)
+                    val expanded = remember {
+                        mutableStateOf(false)
+                    }
+                    MarkBox(name = "Удовл", value = markCAvg, expanded, markCCount)
+                    MarkBox(name = "Хор", value = markBAvg, expanded, markBCount)
+                    MarkBox(name = "Отл", value = markAAvg, expanded, markACount)
                 }
                 Spacer(modifier = Modifier.size(30.dp))
                 Column {
@@ -302,36 +318,37 @@ fun ProfileInfo(info: Data) {
                         icon: Int,
                         action: () -> Unit
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .background(
-                                    SurfaceTheme.foreground.color,
-                                    shape = RoundedCornerShape(20.dp)
-                                )
-                                .size(profileCardButtonSize.vw)
-                                .clickable {
-                                    action()
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally
+                        Box(modifier = Modifier.bounceClick {
+                            action()
+                        }) {
+                            Box(
+                                modifier = Modifier
+                                    .background(
+                                        SurfaceTheme.foreground.color,
+                                        shape = RoundedCornerShape(20.dp)
+                                    )
+                                    .size(profileCardButtonSize.vw),
+                                contentAlignment = Alignment.Center
                             ) {
-                                Image(
-                                    painter = painterResource(id = icon),
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.tint(SurfaceTheme.text.color),
-                                    contentScale = ContentScale.Fit,
-                                    modifier = Modifier.size(12.vw)
-                                )
-                                Spacer(modifier = Modifier.size(10.dp))
-                                Text(
-                                    text = text,
-                                    color = SurfaceTheme.text.color,
-                                    modifier = Modifier.width(17.vw),
-                                    textAlign = TextAlign.Center,
-                                    fontSize = 3.vw.sp
-                                )
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = icon),
+                                        contentDescription = null,
+                                        colorFilter = ColorFilter.tint(SurfaceTheme.text.color),
+                                        contentScale = ContentScale.Fit,
+                                        modifier = Modifier.size(12.vw)
+                                    )
+                                    Spacer(modifier = Modifier.size(10.dp))
+                                    Text(
+                                        text = text,
+                                        color = SurfaceTheme.text.color,
+                                        modifier = Modifier.width(17.vw),
+                                        textAlign = TextAlign.Center,
+                                        fontSize = 3.vw.sp
+                                    )
+                                }
                             }
                         }
                     }
@@ -348,21 +365,35 @@ fun ProfileInfo(info: Data) {
 
                     Divider(color = SurfaceTheme.divider.color)
                     Spacer(modifier = Modifier.size(20.dp))
-//                    RowSpaceEvenly {
-                        /*ProfileCardButton("О себе", R.drawable.user){} TODO*/
-                        /*ProfileCardButton("Оценки", R.drawable.book_alt){}TODO*/
-                        /*ProfileCardButton("Уч. план", R.drawable.study_plan){}TODO*/
-//                    }
+                    RowSpaceEvenly {
+                        ProfileCardButton("О себе", R.drawable.user) {
+                            secretPreferences.edit().remove("exam-cookie").apply()
+                            appContext!!.makeToast("Unathorized")
+                        }
+                        ProfileCardButton("Сессии", R.drawable.book_alt) {
+                            appContext.startTopBarActivity {
+                                getMarks()
+                                MarksScreen(header = it)
+                            }
+                        }
+                        ProfileCardButton("Экзамены", R.drawable.study_plan) {
+                            startExamScreen()
+                        }
+                    }
                     Spacer(modifier = Modifier.size(((100 - profileCardButtonSize.toDouble() * 3) / 4).vw))
                     RowSpaceEvenly {
-                        /*ProfileCardButton("Портфолио", R.drawable.trophy){}TODO*/
-                        /*ProfileCardButton("Методички", R.drawable.book){}TODO*/
-                        ProfileCardButton("Выйти", R.drawable.back){
-                            settingsPreferences.edit()
-                                .putBoolean("eios_logged", false)
-                                .apply()
-                            navBarUpdate()
+                        ProfileCardButton("Портфолио", R.drawable.trophy) {
+                            secretPreferences.edit().putString("exam-cookie", "none").apply()
+                            appContext!!.makeToast("Randomized")
+                        }
+                        ProfileCardButton("Методички", R.drawable.book) {
+
+                        }
+                        ProfileCardButton("Выйти", R.drawable.back) {
                             routeTo("settings")
+                            AppSettings.eiosLogged = false
+                            if(AppSettings.initialRoute == "account")
+                                AppSettings.initialRoute = "settings"
                             secretPreferences.edit()
                                 .remove("username")
                                 .remove("password")

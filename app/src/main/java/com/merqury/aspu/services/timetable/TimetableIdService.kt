@@ -7,16 +7,33 @@ import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.apiDomain
 import com.merqury.aspu.requestQueue
 import com.merqury.aspu.services.network.EncodingConverter
-import com.merqury.aspu.ui.async
 import com.merqury.aspu.services.timetable.models.FacultiesList
 import com.merqury.aspu.services.timetable.models.SearchContent
+import com.merqury.aspu.ui.async
 import java.net.URI
 import java.net.URLEncoder
+
 
 fun getSearchResults(
     query: String,
     searchResults: MutableState<SearchContent>,
     success: MutableState<Boolean>
+) {
+    getSearchResults(
+        query,
+        {
+            success.value = false
+        }
+    ){
+        success.value = true
+        searchResults.value = it
+    }
+}
+
+fun getSearchResults(
+    query: String,
+    onError: (String) -> Unit,
+    onSuccess: (SearchContent) -> Unit
 ) {
     val url = "https://www.it-institut.ru/SearchString/KeySearch?Id=118&SearchProductName=$query"
     val request = StringRequest(
@@ -28,12 +45,11 @@ fun getSearchResults(
                 res.forEach {
                     it.searchContent = it.searchContent.split(",")[0]
                 }
-                searchResults.value = res
+                onSuccess(res)
             }
-            success.value = true
         },
         {
-            success.value = false
+            onError(it.message?:it.javaClass.name)
             Log.d("network-error", "ERROR")
         }
     )

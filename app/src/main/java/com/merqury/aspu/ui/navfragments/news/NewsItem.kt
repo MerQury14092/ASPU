@@ -1,7 +1,7 @@
 package com.merqury.aspu.ui.navfragments.news
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,7 +40,7 @@ fun NewsItem(title: String, date: String, imageUrl: String, id: Int) {
 //                spotColor = Color.Black,
 //                shape = RoundedCornerShape(15.dp)
 //            )
-            .clickable {
+            .bounceClick {
                 clickedArticleId.intValue = id
                 showArticleView.value = true
             },

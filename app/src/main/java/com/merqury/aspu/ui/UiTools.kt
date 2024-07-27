@@ -9,43 +9,58 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.util.Linkify
 import android.util.TypedValue
+import android.view.View
+import android.view.Window
 import android.widget.TextView
 import android.widget.Toast
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -64,21 +79,27 @@ import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.appContext
 import com.merqury.aspu.close
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.show
 import com.merqury.aspu.ui.other.TopBarActivity
 import com.merqury.aspu.ui.other.WebViewActivity
 import com.merqury.aspu.ui.other.activityContentList
 import com.merqury.aspu.ui.other.activityMap
 import com.merqury.aspu.ui.theme.SurfaceTheme
+import com.merqury.aspu.ui.theme.ThemeText
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.theme.colorWithoutAnim
+import kotlinx.coroutines.launch
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
+import java.util.concurrent.Executors
 import kotlin.math.abs
 import kotlin.math.round
 import kotlin.random.Random
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 
 @Composable
@@ -124,6 +145,53 @@ fun ModalWindow(
             content()
         }
     }
+}
+
+enum class ButtonState { Pressed, Idle }
+
+@OptIn(ExperimentalFoundationApi::class)
+@SuppressLint("ReturnFromAwaitPointerEventScope")
+fun Modifier.bounceClick(
+    onLongClick: () -> Unit = {},
+    onClick: () -> Unit
+) = composed {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val coroutineScope = rememberCoroutineScope()
+
+    val animate = remember {
+        Animatable(1f)
+    }
+
+    LaunchedEffect(key1 = isPressed) {
+        if (isPressed) {
+            coroutineScope.launch {
+                animate.animateTo(50f)
+            }
+        } else after(100.milliseconds) {
+            coroutineScope.launch {
+                animate.animateTo(0f)
+            }
+        }
+    }
+
+    this
+        .graphicsLayer {
+            val s = maxOf(
+                size.width,
+                size.height
+            )
+            val st = s - animate.value
+            val scale = st / s
+            scaleX = scale
+            scaleY = scale
+        }
+        .combinedClickable(
+            onLongClick = onLongClick,
+            interactionSource = interactionSource,
+            indication = null,
+            onClick = onClick
+        )
 }
 
 fun showSimpleModalWindow(
@@ -197,68 +265,10 @@ fun goToScreen(activityClass: Class<*>) {
     appContext!!.startActivity(Intent(appContext!!, activityClass))
 }
 
-@Composable
-fun SwipeableBox(
-    onSwipeLeft: () -> Unit = {},
-    onSwipeRight: () -> Unit = {},
-    swipeableRight: Boolean = true,
-    swipeableLeft: Boolean = true,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    val summaryOffset = remember {
-        mutableFloatStateOf(0f)
-    }
-    val lastOffsets = arrayOf(0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f)
 
-    Box(
-        modifier = Modifier.pointerInput(Unit) {
-            detectHorizontalDragGestures(
-                onDragEnd = {
-                    if (swipeableLeft && (summaryOffset.floatValue >= 500f || lastOffsets.max() >= 60f)) {
-
-                        onSwipeLeft()
-                    }
-                    if (swipeableRight && (summaryOffset.floatValue <= -500f || lastOffsets.min() <= -60f)) {
-
-                        onSwipeRight()
-                    }
-                    summaryOffset.floatValue = 0f
-                    lastOffsets.indices.forEach {
-                        lastOffsets[it] = 0f
-                    }
-                }
-            ) { _, dragAmount ->
-                summaryOffset.floatValue += dragAmount
-                (lastOffsets.size - 1 downTo 1).forEach {
-                    lastOffsets[it] = lastOffsets[it - 1]
-                }
-                lastOffsets[0] = dragAmount
-            }
-
-        }
-    ) {
-        Box(modifier = modifier) {
-            Box(
-                modifier = Modifier.offset(
-                    x = animateDpAsState(
-                        targetValue = (summaryOffset.floatValue / 3).dp,
-                        animationSpec = tween(
-                            durationMillis =
-                            if (summaryOffset.floatValue == 0f) 250 else 50
-                        ), label = ""
-                    ).value
-                )
-            ) {
-                content()
-            }
-        }
-    }
-
-}
-
+private val executor = Executors.newFixedThreadPool(12)
 fun async(runnable: () -> Unit) {
-    Thread { runnable() }.start()
+    executor.submit(runnable)
 }
 
 fun after(duration: Duration, runnable: () -> Unit) {
@@ -266,6 +276,42 @@ fun after(duration: Duration, runnable: () -> Unit) {
         Thread.sleep(duration.inWholeMilliseconds)
         runnable()
     }
+}
+
+// dp(Dp) → px(Float)
+@Composable
+internal fun Dp.toPx(): Float {
+    return this.value * LocalDensity.current.density
+}
+
+// dp(Dp) → sp(TextUnit)
+@Composable
+internal fun Dp.toSp(): TextUnit {
+    return (this.value * LocalDensity.current.density / LocalDensity.current.fontScale).sp
+}
+
+// px(Float) → dp(Dp)
+@Composable
+internal fun Float.toDp(): Dp {
+    return (this / LocalDensity.current.density).dp
+}
+
+// px(Float) → sp(TextUnit)
+@Composable
+internal fun Float.toSp(): TextUnit {
+    return (this / LocalDensity.current.fontScale).sp
+}
+
+// sp(TextUnit) → dp(Dp)
+@Composable
+internal fun TextUnit.toDp(): Dp {
+    return (this.value * LocalDensity.current.fontScale / LocalDensity.current.density).dp
+}
+
+// sp(TextUnit) → px(Float)
+@Composable
+internal fun TextUnit.toPx(): Float {
+    return this.value * LocalDensity.current.fontScale
 }
 
 fun showSelectListDialog(
@@ -276,6 +322,19 @@ fun showSelectListDialog(
         mutableStateOf(buttons),
         sortedByAlphabet
     )
+}
+
+@Composable
+fun ColorizeAppBars(window: Window, color: Color) {
+    window.statusBarColor =
+        android.graphics.Color.rgb(color.red, color.green, color.blue)
+    window.navigationBarColor =
+        android.graphics.Color.rgb(color.red, color.green, color.blue)
+    if (AppSettings.selectedTheme == "light")
+        window.decorView.systemUiVisibility =
+            View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+    else
+        window.decorView.systemUiVisibility = 0
 }
 
 fun showSelectListDialog(
@@ -307,7 +366,7 @@ fun showSelectListDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(10.dp)
-                                .clickable {
+                                .bounceClick {
                                     it.value()
                                     modalWindowVisibility.value = false
                                 },
@@ -323,6 +382,164 @@ fun showSelectListDialog(
                 }
             }
         }
+    }
+}
+
+fun showSelectListDialogWithClickAnimation(
+    buttons: Map<String, (MutableState<Boolean>) -> Unit>,
+    sortedByAlphabet: Boolean = false
+) {
+    showSelectListDialogWithClickAnimation(
+        mutableStateOf(buttons),
+        sortedByAlphabet
+    )
+}
+
+fun showSelectListDialogWithClickAnimation(
+    buttons: MutableState<Map<String, (MutableState<Boolean>) -> Unit>>,
+    sortedByAlphabet: Boolean = false
+) {
+    showSimpleModalWindow(
+        containerColor = SurfaceTheme.background.colorWithoutAnim
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(.75f)
+                .verticalScroll(rememberScrollState())
+        ) {
+            val modalWindowVisibility = it
+            var isLoading = remember {
+                mutableStateListOf<String>()
+            }
+            val isDone = remember {
+                mutableStateOf(false)
+            }
+            if (isDone.value)
+                modalWindowVisibility.value = false
+            Column {
+                val entries = if (sortedByAlphabet)
+                    buttons.value.entries.sortedBy { it.key }
+                else
+                    buttons.value.entries
+                entries.forEach {
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = SurfaceTheme.foreground.color
+                        ),
+                        modifier = Modifier.padding(10.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp)
+                                .bounceClick {
+                                    it.value(isDone)
+                                    isLoading.add(it.key)
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (isLoading.contains(it.key))
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    color = SurfaceTheme.text.color
+                                )
+                            else
+                                Text(
+                                    text = it.key,
+                                    fontSize = 20.sp,
+                                    color = SurfaceTheme.text.color
+                                )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Volatile
+var loadingWindowClosed = false
+
+fun showLoadingModalWindow(
+    title: MutableState<String>,
+    success: MutableState<Boolean?>,
+    afterClosing: () -> Unit = {}
+) {
+    loadingWindowClosed = false
+    showSimpleModalWindow(
+        containerColor = SurfaceTheme.background.colorWithoutAnim,
+        closeable = false
+    ) {
+        if (success.value != null) {
+            if (success.value!!) {
+                Box(modifier = Modifier.padding(30.dp), contentAlignment = Alignment.Center) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            Icons.Rounded.Check,
+                            contentDescription = "",
+                            colorFilter = ColorFilter.tint(
+                                SurfaceTheme.text.color
+                            )
+                        )
+                        Spacer(modifier = Modifier.size(20.dp))
+                        ThemeText(
+                            text = title.value,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            } else {
+                Box(modifier = Modifier.padding(30.dp), contentAlignment = Alignment.Center) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            Icons.Rounded.Warning,
+                            contentDescription = "",
+                            colorFilter = ColorFilter.tint(
+                                SurfaceTheme.text.color
+                            )
+                        )
+                        Spacer(modifier = Modifier.size(20.dp))
+                        ThemeText(
+                            text = title.value,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+            async {
+                after(2.seconds) {
+                    it.value = false
+                    after(Random.nextDouble(0.0, 0.5).seconds) {
+                        if (!loadingWindowClosed) {
+                            afterClosing()
+                            loadingWindowClosed = true
+                        }
+                    }
+                }
+            }
+        } else
+            Box(modifier = Modifier.padding(30.dp), contentAlignment = Alignment.Center) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator(color = SurfaceTheme.text.color)
+                    Spacer(modifier = Modifier.size(20.dp))
+                    ThemeText(
+                        text = title.value,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
     }
 }
 
@@ -373,13 +590,15 @@ fun Modifier.conditional(condition: Boolean, modifier: Modifier.() -> Modifier):
 fun EditableText(
     value: String,
     onChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
     placeholder: String = "",
     enabled: Boolean = true
-){
+) {
     BasicTextField(
         value,
         onChange,
         enabled = enabled,
+        modifier = modifier,
         textStyle = TextStyle(color = SurfaceTheme.text.color),
         cursorBrush = SolidColor(SurfaceTheme.text.color),
         decorationBox = { innerTextField ->
@@ -429,7 +648,6 @@ fun openInBrowser(url: String, scheme: String) {
     } catch (e: ActivityNotFoundException) {
         appContext!!.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://$url")))
     }
-    aspuButtonLoading.value = false
 }
 
 fun MutableState<Boolean>.toggle() {

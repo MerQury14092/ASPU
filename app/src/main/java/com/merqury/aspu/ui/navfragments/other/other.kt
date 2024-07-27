@@ -2,7 +2,7 @@ package com.merqury.aspu.ui.navfragments.other
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,35 +22,72 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.canopas.lib.showcase.IntroShowcase
 import com.merqury.aspu.R
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.ui.TitleHeader
-import com.merqury.aspu.ui.navfragments.settings.settingsPreferences
+import com.merqury.aspu.ui.navfragments.profile.showEiosAuthModalWindow
 import com.merqury.aspu.ui.openInBrowser
 import com.merqury.aspu.ui.showWebPage
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
+import com.merqury.aspu.ui.training.TrainingStates
+import com.merqury.aspu.ui.training.hintTargetModifier
 
-@Preview
-@Composable
-fun OtherPreview() {
-    OtherScreenContent()
-}
 
 @Composable
 fun OtherScreen(header: MutableState<@Composable () -> Unit>) {
-    header.value = {
+    if (TrainingStates.other) {
+        val onCompleted = {
+            TrainingStates.aspuButtonDescription = "Открывает мобильную версию " +
+                    "сайта в браузере"
+            TrainingStates.aspuButtonHintClosure = {
+                if (AppSettings.eiosLogged)
+                    TrainingStates.accountNavItem = true
+                else
+                    TrainingStates.settingsNavItem = true
+            }
+            TrainingStates.other = false
+            TrainingStates.aspuButton = true
+        }
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterStart) {
+            IntroShowcase(
+                showIntroShowCase = true,
+                onShowCaseCompleted = onCompleted,
+                dismissOnClickOutside = true
+            ) {
+                Box(
+                    modifier = hintTargetModifier(
+                        0,
+                        "Вкладка «${
+                            if (AppSettings.whoIsUser == "student")
+                                "Студенту"
+                            else "Педагогу"
+                        }»",
+                        "На данной вкладке вы можете открывать страницы сайта в браузере" +
+                                (if (AppSettings.whoIsUser == "student")
+                                    ", войти в свой аккаунт ЭИОС в приложении или"
+                                else " и") +
+                                " найти ВУЗ в социальных " +
+                                "сетях"
+                    )
+                )
+            }
+        }
+    }
+    val headerContent = @Composable {
         TitleHeader(
-            title = when (settingsPreferences.getString("user", "student")) {
+            title = when (AppSettings.whoIsUser) {
                 "student" -> "Студенту"
                 "teacher" -> "Педагогу"
                 else -> "Кому?"
             }
         )
     }
+    if (header.value != headerContent)
+        header.value = headerContent
     OtherScreenContent()
 }
 
@@ -64,12 +101,6 @@ fun OtherScreenContent() {
         Column(
             Modifier.verticalScroll(rememberScrollState())
         ) {
-            Text(
-                text = "Нажмите на кнопку «АГПУ», чтоб посетить мобильную версию сайта",
-                color = SurfaceTheme.text.color,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
             Divider(color = SurfaceTheme.divider.color)
             data class WebEntry(
                 val name: String,
@@ -78,12 +109,13 @@ fun OtherScreenContent() {
                 val scheme: String = "http",
                 val inBrowser: Boolean = false
             )
+
             data class ActionEntry(
                 val name: String,
                 val icon: Int,
                 val action: () -> Unit
             )
-            listOf(
+            listOfNotNull(
                 WebEntry(
                     "Сведения об образовательной организации",
                     R.drawable.info,
@@ -124,14 +156,16 @@ fun OtherScreenContent() {
                     R.drawable.study_plan,
                     "plany.agpu.net/Plans/"
                 ),
-//                ActionEntry(
-//                    "Аккаунт ЭИОС",
-//                    R.drawable.account
-//                ) {
-//                  showEiosAuthModalWindow {
-//                      routeTo("account")
-//                  }
-//                },
+                if (AppSettings.whoIsUser == "student")
+                    ActionEntry(
+                        "Аккаунт ЭИОС",
+                        R.drawable.account
+                    ) {
+                        showEiosAuthModalWindow {
+                            TrainingStates.isTraining = true
+                            TrainingStates.accountNavItem = true
+                        }
+                    } else null,
                 WebEntry(
                     "Рабочие программы",
                     R.drawable.programs,
@@ -170,22 +204,22 @@ fun OtherScreenContent() {
                     "vnd.youtube"
                 ),
             ).forEach {
-                if(it is WebEntry){
+                if (it is WebEntry) {
                     ActionButton(
                         name = it.name,
                         icon = it.icon
                     ) {
                         if (!it.inBrowser)
-                            if (settingsPreferences.getBoolean("use_included_browser", false))
+                            if (AppSettings.useIncludedBrowser)
                                 showWebPage(it.url, it.scheme)
                             else
                                 openInBrowser(it.url, it.scheme)
                         else
                             openInBrowser(it.url, it.scheme)
                     }
-                } /*else if (it is ActionEntry){
+                } else if (it is ActionEntry) {
                     ActionButton(name = it.name, icon = it.icon, action = it.action)
-                }*/
+                }
             }
         }
     }
@@ -202,7 +236,7 @@ fun ActionButton(
         modifier = Modifier
             .fillMaxWidth()
             .padding(3.dp)
-            .clickable {
+            .bounceClick {
                 action()
             },
         colors = CardDefaults.cardColors(

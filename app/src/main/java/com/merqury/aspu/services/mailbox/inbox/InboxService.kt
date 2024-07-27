@@ -5,7 +5,7 @@ import com.android.volley.TimeoutError
 import com.merqury.aspu.requestQueue
 import com.merqury.aspu.services.mailbox.inbox.models.Inbox
 import com.merqury.aspu.services.mailbox.inbox.models.MessageElement
-import com.merqury.aspu.services.profile.AuthorizedStringRequest
+import com.merqury.aspu.services.profile.EiosAuthorizedStringRequest
 import com.merqury.aspu.ui.printlog
 
 fun getInbox(
@@ -15,7 +15,7 @@ fun getInbox(
     requestQueue!!.cancelAll("getinbox")
     val url =
         "http://plany.agpu.net/api/Mail/InboxMail?type=${inboxType.type}&pageEl=10000&unreadMessages=false&searchQuery=&modeParent=0"
-    val request = AuthorizedStringRequest(
+    val request = EiosAuthorizedStringRequest(
         Request.Method.GET,
         url,
         {

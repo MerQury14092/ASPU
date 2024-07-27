@@ -1,7 +1,8 @@
 package com.merqury.aspu.ui.navfragments.news
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -21,12 +23,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.merqury.aspu.enums.NewsCategoryEnum
+import com.merqury.aspu.ui.navfragments.news.NewsStates.pagerState
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.theme.colorWithoutAnim
+import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalFoundationApi::class)
 fun showFacultySelectModalWindow(
     onSelectFaculty: (selectedFaculty: NewsCategoryEnum) -> Unit
 ) {
@@ -34,15 +39,17 @@ fun showFacultySelectModalWindow(
         Modifier.fillMaxWidth(.8f),
         containerColor = SurfaceTheme.background.colorWithoutAnim
     ) {
+        val coroutineScope = rememberCoroutineScope()
         NewsCategoryEnum.entries.forEach { entry ->
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(5.dp)
-                    .clickable {
+                    .bounceClick {
                         onSelectFaculty(entry)
-                        currentPage.intValue = 1
-                        reloadNews()
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(1)
+                        }
                         it.value = false
                     }
             ) {
@@ -86,22 +93,24 @@ fun showFacultySelectModalWindow(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 fun showPageSelectModalWindow() {
     showSimpleModalWindow(
         Modifier.fillMaxWidth(.8f),
         containerColor = SurfaceTheme.background.colorWithoutAnim
-    ) {
-        val pageSelectDialogVisible = it
-        LazyColumn() {
-            items(count = countPages.intValue) {
+    ) { pageSelectDialogVisible ->
+        val coroutineScope = rememberCoroutineScope()
+        LazyColumn {
+            items(count = pagerState.pageCount) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp)
-                        .clickable {
-                            currentPage.intValue = it + 1
+                        .bounceClick {
+                            coroutineScope.launch {
+                                pagerState.scrollToPage(it)
+                            }
                             pageSelectDialogVisible.value = false
-                            reloadNews()
                         }
                 ) {
                     Text(

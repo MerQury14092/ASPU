@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -10,9 +12,8 @@ android {
     defaultConfig {
         applicationId = "com.merqury.aspu"
         minSdk = 28
-        targetSdk = 34
         versionCode = 17
-        versionName = "1.17"
+        versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -47,10 +48,19 @@ android {
 }
 
 dependencies {
+    implementation("com.github.raheemadamboev:check-internet-android:1.1.1")
+    implementation("com.canopas.intro-showcase-view:introshowcaseview:2.0.1")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("com.google.firebase:firebase-config-ktx")
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation("com.google.firebase:firebase-crashlytics")
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.squareup.okhttp:okhttp:2.7.5")
+    implementation("org.jsoup:jsoup:1.17.2")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
-    implementation("org.jetbrains:markdown:0.5.0")
+    implementation("org.jetbrains:markdown:0.6.1")
     implementation("org.postgresql:postgresql:42.2.5")
     implementation("com.airbnb.android:lottie-compose:6.4.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
@@ -60,27 +70,23 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose")
     implementation("net.engawapg.lib:zoomable:1.6.0")
     implementation("com.google.accompanist:accompanist-webview:0.35.0-alpha")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.0")
-    implementation("androidx.navigation:navigation-compose:2.6.0-alpha04")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("io.coil-kt:coil-compose:2.6.0")
     implementation("io.coil-kt:coil-gif:2.1.0")
-    implementation("androidx.core:core-ktx:1.10.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-    implementation("androidx.activity:activity-compose:1.7.0")
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")
+    implementation("androidx.activity:activity-compose:1.9.0")
     implementation("org.jsoup:jsoup:1.17.2")
-    implementation(platform("androidx.compose:compose-bom:2024.02.02"))
+    implementation(platform("androidx.compose:compose-bom:2024.06.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.navigation:navigation-runtime-ktx:2.7.7")
     implementation("com.mohamedrejeb.richeditor:richeditor-compose:1.0.0-rc02")
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.02.02"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    implementation("com.google.android.material:material:1.12.0")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
