@@ -1,8 +1,8 @@
 package com.merqury.aspu.ui.navfragments.profile
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +48,7 @@ import com.merqury.aspu.services.profile.getAvg
 import com.merqury.aspu.services.profile.getMarkStatsById
 import com.merqury.aspu.services.profile.models.Data
 import com.merqury.aspu.services.profile.models.MarkStat
+import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.makeToast
 import com.merqury.aspu.ui.navfragments.exam.startExamScreen
 import com.merqury.aspu.ui.navfragments.marks.MarksScreen
@@ -73,7 +75,7 @@ fun ProfileInfo(info: Data) {
                 var loading by remember {
                     mutableStateOf(false)
                 }
-                if(!loading){
+                if (!loading) {
                     loading = true
                     getMarkStatsById(studentID!!, onError = {
                         loading = false
@@ -218,35 +220,35 @@ fun ProfileInfo(info: Data) {
                     fun MarkBox(
                         name: String,
                         value: String,
+                        expanded: MutableState<Boolean>,
                         count: Int
                     ) {
-                        var collapsing by remember {
-                            mutableStateOf(false)
-                        }
-                        Box(
-                            modifier = Modifier
-                                .background(
-                                    SurfaceTheme.foreground.color,
-                                    RoundedCornerShape(15.dp)
-                                )
-                                .padding(10.dp)
-                                .width(70.dp)
-                                .bounceClick {
-                                    collapsing = !collapsing
-                                }
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.fillMaxWidth()
+                        Box(modifier = Modifier.bounceClick {
+                            expanded.value = !expanded.value
+                        }) {
+                            Box(
+                                modifier = Modifier
+                                    .background(
+                                        SurfaceTheme.foreground.color,
+                                        RoundedCornerShape(15.dp)
+                                    )
+                                    .padding(10.dp)
+                                    .width(70.dp)
+                                    .animateContentSize()
                             ) {
-                                Text(text = name, color = SurfaceTheme.text.color)
-                                Text(
-                                    text = value,
-                                    color = SurfaceTheme.text.color,
-                                    modifier = Modifier.placeholder(visible = marksStat == null)
-                                )
-                                if (collapsing)
-                                    Text(text = "$count оц.", color = SurfaceTheme.text.color)
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(text = name, color = SurfaceTheme.text.color)
+                                    Text(
+                                        text = value,
+                                        color = SurfaceTheme.text.color,
+                                        modifier = Modifier.placeholder(visible = marksStat == null)
+                                    )
+                                    if (expanded.value)
+                                        Text(text = "$count оц.", color = SurfaceTheme.text.color)
+                                }
                             }
                         }
                     }
@@ -280,9 +282,12 @@ fun ProfileInfo(info: Data) {
                             }
                         }
                     }
-                    MarkBox(name = "Удовл", value = markCAvg, markCCount)
-                    MarkBox(name = "Хор", value = markBAvg, markBCount)
-                    MarkBox(name = "Отл", value = markAAvg, markACount)
+                    val expanded = remember {
+                        mutableStateOf(false)
+                    }
+                    MarkBox(name = "Удовл", value = markCAvg, expanded, markCCount)
+                    MarkBox(name = "Хор", value = markBAvg, expanded, markBCount)
+                    MarkBox(name = "Отл", value = markAAvg, expanded, markACount)
                 }
                 Spacer(modifier = Modifier.size(30.dp))
                 Column {
@@ -313,36 +318,37 @@ fun ProfileInfo(info: Data) {
                         icon: Int,
                         action: () -> Unit
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .background(
-                                    SurfaceTheme.foreground.color,
-                                    shape = RoundedCornerShape(20.dp)
-                                )
-                                .size(profileCardButtonSize.vw)
-                                .bounceClick {
-                                    action()
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally
+                        Box(modifier = Modifier.bounceClick {
+                            action()
+                        }) {
+                            Box(
+                                modifier = Modifier
+                                    .background(
+                                        SurfaceTheme.foreground.color,
+                                        shape = RoundedCornerShape(20.dp)
+                                    )
+                                    .size(profileCardButtonSize.vw),
+                                contentAlignment = Alignment.Center
                             ) {
-                                Image(
-                                    painter = painterResource(id = icon),
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.tint(SurfaceTheme.text.color),
-                                    contentScale = ContentScale.Fit,
-                                    modifier = Modifier.size(12.vw)
-                                )
-                                Spacer(modifier = Modifier.size(10.dp))
-                                Text(
-                                    text = text,
-                                    color = SurfaceTheme.text.color,
-                                    modifier = Modifier.width(17.vw),
-                                    textAlign = TextAlign.Center,
-                                    fontSize = 3.vw.sp
-                                )
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = icon),
+                                        contentDescription = null,
+                                        colorFilter = ColorFilter.tint(SurfaceTheme.text.color),
+                                        contentScale = ContentScale.Fit,
+                                        modifier = Modifier.size(12.vw)
+                                    )
+                                    Spacer(modifier = Modifier.size(10.dp))
+                                    Text(
+                                        text = text,
+                                        color = SurfaceTheme.text.color,
+                                        modifier = Modifier.width(17.vw),
+                                        textAlign = TextAlign.Center,
+                                        fontSize = 3.vw.sp
+                                    )
+                                }
                             }
                         }
                     }
@@ -360,32 +366,34 @@ fun ProfileInfo(info: Data) {
                     Divider(color = SurfaceTheme.divider.color)
                     Spacer(modifier = Modifier.size(20.dp))
                     RowSpaceEvenly {
-                        ProfileCardButton("О себе", R.drawable.user){
+                        ProfileCardButton("О себе", R.drawable.user) {
                             secretPreferences.edit().remove("exam-cookie").apply()
                             appContext!!.makeToast("Unathorized")
                         }
-                        ProfileCardButton("Сессии", R.drawable.book_alt){
+                        ProfileCardButton("Сессии", R.drawable.book_alt) {
                             appContext.startTopBarActivity {
                                 getMarks()
                                 MarksScreen(header = it)
                             }
                         }
-                        ProfileCardButton("Экзамены", R.drawable.study_plan){
+                        ProfileCardButton("Экзамены", R.drawable.study_plan) {
                             startExamScreen()
                         }
                     }
                     Spacer(modifier = Modifier.size(((100 - profileCardButtonSize.toDouble() * 3) / 4).vw))
                     RowSpaceEvenly {
-                        ProfileCardButton("Портфолио", R.drawable.trophy){
+                        ProfileCardButton("Портфолио", R.drawable.trophy) {
                             secretPreferences.edit().putString("exam-cookie", "none").apply()
                             appContext!!.makeToast("Randomized")
                         }
-                        ProfileCardButton("Методички", R.drawable.book){
+                        ProfileCardButton("Методички", R.drawable.book) {
 
                         }
-                        ProfileCardButton("Выйти", R.drawable.back){
-                            AppSettings.eiosLogged = false
+                        ProfileCardButton("Выйти", R.drawable.back) {
                             routeTo("settings")
+                            AppSettings.eiosLogged = false
+                            if(AppSettings.initialRoute == "account")
+                                AppSettings.initialRoute = "settings"
                             secretPreferences.edit()
                                 .remove("username")
                                 .remove("password")

@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.canopas.lib.showcase.IntroShowcase
 import com.merqury.aspu.appContext
 import com.merqury.aspu.enums.NewsCategoryEnum
+import com.merqury.aspu.services.appconfig.AppConfig
 import com.merqury.aspu.services.intents.sendToDevEmail
 import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.services.misc.cache
@@ -75,7 +76,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
         }
     }
     val headerContent = @Composable { TitleHeader(title = "Настройки") }
-    if(header.value != headerContent)
+    if (header.value != headerContent)
         header.value = headerContent
     Box(
         modifier = Modifier
@@ -88,7 +89,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
         ) {
             SettingsChapter(
                 title = "Общие настройки",
-                buttons = listOf(
+                buttons = listOfNotNull(
                     ClickableSettingsButton(
                         "Кто использует приложение: ${
                             when (val who = AppSettings.whoIsUser) {
@@ -112,21 +113,29 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                     SwitchableSettingsPreferenceButton(
                         "Использовать встроенный браузер",
                         AppSettings.useIncludedBrowser
-                    ) { AppSettings.useIncludedBrowser = it }
+                    ) { AppSettings.useIncludedBrowser = it },
+//                    ClickableSettingsButton(
+//                        "Пройти заново вводный курс по интерфейсу приложения"
+//                    ) {
+//                        routeTo("news")
+//                        TrainingStates.isTraining = true
+//                        TrainingStates.newsNavItem = true
+//                    }
                 )
             )
             SettingsChapter(
                 title = "Новости и расписание",
-                buttons = listOf(
-                    ClickableSettingsButton(
-                        "Выбранная категория новостей при входе: ${
-                            NewsCategoryEnum.valueOf(AppSettings.newsCategory).localizedName
-                        }"
-                    ) {
-                        showFacultySelectModalWindow {
-                            AppSettings.newsCategory = it.name
-                        }
-                    },
+                buttons = listOfNotNull(
+                    if (AppConfig.useNewsConfig().canUse)
+                        ClickableSettingsButton(
+                            "Выбранная категория новостей при входе: ${
+                                NewsCategoryEnum.valueOf(AppSettings.newsCategory).localizedName
+                            }"
+                        ) {
+                            showFacultySelectModalWindow {
+                                AppSettings.newsCategory = it.name
+                            }
+                        } else null,
                     ClickableSettingsButton(
                         "${
                             when (AppSettings.whoIsUser) {
@@ -148,11 +157,11 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                             selectableDisciplines.edit().clear().apply()
                         }
                     },
-                    if (AppSettings.whoIsUser == "student"
-                    ) SwitchableSettingsPreferenceButton(
-                        "Фильтрация пар",
-                        AppSettings.timetableFiltration
-                    ) { AppSettings.timetableFiltration = it } else null,
+                    if (AppSettings.whoIsUser == "student" && AppConfig.useTimetableConfig().canUse)
+                        SwitchableSettingsPreferenceButton(
+                            "Фильтрация пар",
+                            AppSettings.timetableFiltration
+                        ) { AppSettings.timetableFiltration = it } else null,
                     ClickableSettingsButton(
                         "Данные хранятся в кэше: ${
                             when (AppSettings.timeCache) {
@@ -195,6 +204,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
             )
             if (AppSettings.timetableFiltration
                 && AppSettings.whoIsUser == "student"
+                && AppConfig.useTimetableConfig().canUse
             ) {
                 SettingsChapter(title = "Настройки фильтрации расписания", buttons = listOf(
                     ClickableSettingsButton(
@@ -232,7 +242,12 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                     SwitchableSettingsPreferenceButton(
                         "Текст под иконками вкладок",
                         AppSettings.textInNavbar
-                    ) { AppSettings.textInNavbar = it }
+                    ) { AppSettings.textInNavbar = it },
+//                    ClickableSettingsButton(
+//                        "Пользовательский экран загрузки"
+//                    ) {
+//
+//                    }
                 )
             )
             Text(

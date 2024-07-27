@@ -2,7 +2,6 @@ package com.merqury.aspu.ui.navfragments.timetable
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,6 +34,7 @@ import com.merqury.aspu.services.timetable.models.Discipline
 import com.merqury.aspu.services.timetable.models.TimetableDay
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.async
+import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
 import com.merqury.aspu.ui.navfragments.timetable.TimetableStates.pagerState
 import com.merqury.aspu.ui.navfragments.timetable.TimetableStates.timetableId
@@ -91,7 +91,7 @@ fun TimetableScreen(header: MutableState<@Composable () -> Unit>) {
             }
         }
     }
-    val useConfig = AppConfig.useTimetablePageConfig()
+    val useConfig = AppConfig.useTimetableConfig()
     if (useConfig.canUse)
         TimetableContent(header)
     else
@@ -101,16 +101,24 @@ fun TimetableScreen(header: MutableState<@Composable () -> Unit>) {
                 .background(SurfaceTheme.background.color),
             contentAlignment = Alignment.Center
         ) {
-            header.value = {
+            val headerContent = @Composable {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     TitleHeader(title = "Расписание")
                 }
             }
+            if(header.value != headerContent)
+                header.value = headerContent
             ThemeText(
-                text = useConfig.reason ?: "Расписание пока не работает в данной версии",
+                text = useConfig.reason ?: ("Расписание было отключено разработчиком по " +
+                        "неизвестной причине"),
                 textAlign = TextAlign.Center
             )
         }
+}
+
+@Composable
+fun CachedTimetable() {
+
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -224,7 +232,7 @@ private fun TimetableDay(
 
 private val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
-private fun getDateByPage(page: Int): String {
+fun getDateByPage(page: Int): String {
     if (Int.MAX_VALUE / 2 == page) {
         return pointDate
     }

@@ -1,8 +1,8 @@
 package com.merqury.aspu.ui.navfragments.settings
 
-import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 
@@ -41,7 +42,7 @@ class SwitchableSettingsPreferenceButton(
             )
         ) {
             Box(contentAlignment = Alignment.CenterStart) {
-                Box(modifier = Modifier.padding(10.dp)) {
+                Row(modifier = Modifier.fillMaxWidth(.9f).padding(10.dp)) {
                     Text(
                         text = text,
                         fontSize = 16.sp,

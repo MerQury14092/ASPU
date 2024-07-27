@@ -12,10 +12,16 @@ import android.view.animation.ScaleAnimation
 import android.widget.ImageView
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.merqury.aspu.services.appconfig.AppConfig
+import com.merqury.aspu.services.appconfig.addInternalAnnouncement
+import com.merqury.aspu.services.appconfig.models.Announcement
+import com.merqury.aspu.services.appconfig.models.AnnouncementType
 import com.merqury.aspu.services.appconfig.models.DatabaseConfig
-import com.merqury.aspu.ui.greetings.GreetingsPager
 import com.merqury.aspu.services.misc.AppSettings
+import com.merqury.aspu.ui.after
 import com.merqury.aspu.ui.async
+import com.merqury.aspu.ui.greetings.GreetingsPager
+import xyz.teamgravity.checkinternet.CheckInternet
+import kotlin.time.Duration.Companion.milliseconds
 
 
 @SuppressLint("CustomSplashScreen")
@@ -48,6 +54,36 @@ class SplashScreenActivity : Activity() {
         imageView = findViewById(R.id.image_view)
 
         animateImageView()
+
+        CheckInternet().check { hasInternet ->
+            AppConfig.internetAccess = hasInternet
+            if(!hasInternet) {
+                after(500.milliseconds) {
+                    if(AppSettings.firstLaunch)
+                        addInternalAnnouncement(Announcement(
+                            0,
+                            "all",
+                            false,
+                            AnnouncementType.blocking,
+                            "Нет подключения к интернету!",
+                            "Для первого запуска приложения необходимо подключение к интернету!"
+                        ))
+//                    else
+//                        addInternalAnnouncement(Announcement(
+//                            0,
+//                            "all",
+//                            false,
+//                            AnnouncementType.intrusive,
+//                            "Нет подключения к интернету!",
+//                            "В связи с отсутствием интернета вам предоставлен " +
+//                                    "ограниченный функционал приложения."
+//                        ))
+                    startActivity(Intent(this, MainActivity::class.java))
+                    this.overridePendingTransition(0, 0)
+                    finish()
+                }
+            }
+        }
     }
 
     private fun animateImageView() {

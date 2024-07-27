@@ -28,6 +28,5 @@ class TrainingStates {
 
         var accountNavItem by mutableStateOf(false)
         var accountHeader by mutableStateOf(false)
-        var account by mutableStateOf(false)
     }
 }

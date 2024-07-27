@@ -59,6 +59,8 @@ import com.merqury.aspu.R
 import com.merqury.aspu.appContext
 import com.merqury.aspu.requestQueue
 import com.merqury.aspu.services.misc.AppSettings
+import com.merqury.aspu.services.news.NewsService.urlForCurrentFaculty
+import com.merqury.aspu.services.timetable.showTimetableWebPageView
 import com.merqury.aspu.ui.navfragments.news.NewsScreen
 import com.merqury.aspu.ui.navfragments.other.OtherScreen
 import com.merqury.aspu.ui.navfragments.profile.ProfileScreen
@@ -71,19 +73,20 @@ import com.merqury.aspu.ui.training.TrainingStates
 import com.merqury.aspu.ui.training.hintTargetModifier
 
 
+
 val topBarContent: MutableState<@Composable () -> Unit> = mutableStateOf({})
 val onASPUButtonClick: MutableState<() -> Unit> = mutableStateOf({
     when (selected_page.value) {
         "news" -> {
             val inBrowser = AppSettings.useIncludedBrowser
-//            if (inBrowser)
-//                showWebPage(urlForCurrentFaculty(), "http")
-//            else TODO
-//                openInBrowser(urlForCurrentFaculty(), "http")
+            if (inBrowser)
+                showWebPage(urlForCurrentFaculty(), "http")
+            else
+                openInBrowser(urlForCurrentFaculty(), "http")
         }
 
         "timetable" -> {
-//            showTimetableWebPageView() TODO
+            showTimetableWebPageView()
         }
 
         "settings" -> toggleTheme()

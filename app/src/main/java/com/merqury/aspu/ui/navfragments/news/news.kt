@@ -81,7 +81,7 @@ fun NewsScreen(header: MutableState<@Composable () -> Unit>) {
     }
     if (showArticleView.value)
         ArticleView()
-    val useConfig = AppConfig.useNewsPageConfig()
+    val useConfig = AppConfig.useNewsConfig()
     if (useConfig.canUse)
         NewsContent(header)
     else
@@ -91,13 +91,16 @@ fun NewsScreen(header: MutableState<@Composable () -> Unit>) {
                 .background(SurfaceTheme.background.color),
             contentAlignment = Alignment.Center
         ) {
-            header.value = {
+            val headerContent = @Composable {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     TitleHeader(title = "Новости")
                 }
             }
+            if (header.value != headerContent)
+                header.value = headerContent
             ThemeText(
-                text = useConfig.reason ?: "Новости пока не работают в данной версии",
+                text = useConfig.reason ?: ("Новости были отключены разработчиком по " +
+                        "неизвестной причине"),
                 textAlign = TextAlign.Center
             )
         }
@@ -117,13 +120,16 @@ fun NewsContent(
         header.value = headerContent
 
 
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.background(SurfaceTheme.background.color),
-            outOfBoundsPageCount = 1
-        ) {
+
+    HorizontalPager(
+        state = pagerState,
+        modifier = Modifier.background(SurfaceTheme.background.color),
+        outOfBoundsPageCount = 1
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
             NewsPage(pageNumber = it)
         }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)

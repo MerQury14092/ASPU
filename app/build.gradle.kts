@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -11,7 +12,6 @@ android {
     defaultConfig {
         applicationId = "com.merqury.aspu"
         minSdk = 28
-        targetSdk = 34
         versionCode = 16
         versionName = "1.17"
 
@@ -48,10 +48,12 @@ android {
 }
 
 dependencies {
+    implementation("com.github.raheemadamboev:check-internet-android:1.1.1")
     implementation("com.canopas.intro-showcase-view:introshowcaseview:2.0.1")
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("com.google.firebase:firebase-config-ktx")
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation("com.google.firebase:firebase-crashlytics")
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.squareup.okhttp:okhttp:2.7.5")
     implementation("org.jsoup:jsoup:1.17.2")

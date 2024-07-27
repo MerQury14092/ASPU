@@ -5,22 +5,24 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.Volley
 import com.merqury.aspu.services.appconfig.AppConfig
-import com.merqury.aspu.services.misc.AppSettings
+import com.merqury.aspu.services.appconfig.models.AnnouncementType
 import com.merqury.aspu.ui.ColorizeAppBars
 import com.merqury.aspu.ui.MainScreen
 import com.merqury.aspu.ui.contentList
-import com.merqury.aspu.ui.navfragments.settings.selectUser
-import com.merqury.aspu.ui.navfragments.settings.selectableDisciplines
-import com.merqury.aspu.ui.navfragments.timetable.showSelectIdModalWindow
+import com.merqury.aspu.ui.other.showAnnouncement
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 import kotlinx.coroutines.CoroutineScope
@@ -30,7 +32,7 @@ import kotlinx.coroutines.CoroutineScope
 var appContext: Context? = null
 var requestQueue: RequestQueue? = null
 var _coroutineScope: CoroutineScope? = null
-inline val mainCoroutineScope: CoroutineScope get() =  _coroutineScope!!
+inline val mainCoroutineScope: CoroutineScope get() = _coroutineScope!!
 val apiDomain by lazy {
     AppConfig.getApiDomain()
 }
@@ -41,16 +43,31 @@ class MainActivity : ComponentActivity() {
 
         appContext = this
         requestQueue = Volley.newRequestQueue(appContext)
+        var firstComposition by mutableStateOf(true)
+        val announcements = AppConfig.getAnnouncements()
+
         setContent {
-            Text(text = "Hello world")
+            if (firstComposition) {
+                firstComposition = false
+                announcements.forEach {
+                    showAnnouncement(it)
+                }
+            }
             _coroutineScope = rememberCoroutineScope()
             contentList.forEach {
                 it()
             }
-            if (AppSettings.firstLaunch)
-                FirstStart()
-            MainScreen()
             ColorizeAppBars(window = window, SurfaceTheme.foreground.color)
+            if (announcements.any { it.type == AnnouncementType.blocking }) {
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .background(SurfaceTheme.background.color))
+                return@setContent
+            }
+//            if (AppConfig.internetAccess)
+                MainScreen()
+//            else
+//                CachedTimetable()
         }
     }
 }
@@ -66,37 +83,4 @@ fun close(
     content: @Composable () -> Unit
 ) {
 
-}
-
-@Composable
-fun FirstStart() {
-    val userSelected = remember {
-        mutableStateOf(false)
-    }
-    val userSelectShow = remember {
-        mutableStateOf(false)
-    }
-    val idSelectShow = remember {
-        mutableStateOf(false)
-    }
-    if (!userSelected.value && !userSelectShow.value) {
-        userSelectShow.value = true
-        selectUser(userSelected)
-    }
-    if (userSelected.value && !idSelectShow.value) {
-        idSelectShow.value = true
-        showSelectIdModalWindow(
-            timetableId = AppSettings.timetableId,
-            filteredBy = when (AppSettings.whoIsUser) {
-                "student" -> "group"
-                "teacher" -> "teacher"
-                else -> "group"
-            }
-        ) {
-            AppSettings.timetableId = it.searchContent
-            AppSettings.timetableIdOwner = it.type.uppercase()
-            selectableDisciplines.edit().clear().apply()
-        }
-        AppSettings.firstLaunch = false
-    }
 }

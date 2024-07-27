@@ -1,5 +1,9 @@
 package com.merqury.aspu.services.appconfig
 
+import android.content.Context
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -9,6 +13,7 @@ import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import com.merqury.aspu.appContext
 import com.merqury.aspu.services.appconfig.models.Announcement
+import com.merqury.aspu.services.appconfig.models.AnnouncementType
 import com.merqury.aspu.services.appconfig.models.DatabaseConfig
 import com.merqury.aspu.services.appconfig.models.UseConfig
 
@@ -20,13 +25,23 @@ private val remoteConfig by lazy {
     }
 }
 
+private val showedAnnouncement by lazy {
+    appContext!!.getSharedPreferences("announcements", Context.MODE_PRIVATE)!!
+}
+
 
 class AppConfig {
     companion object {
         private var databaseConfig: DatabaseConfig? = null
 
+        var internetAccess by mutableStateOf(false)
+
         fun setDatabaseConfig(config: DatabaseConfig) {
             databaseConfig = config
+        }
+
+        fun saveAnnouncement(id: Long) {
+            showedAnnouncement.edit().putBoolean(id.toString(), true).apply()
         }
 
         fun getConfig(): FirebaseRemoteConfig {
@@ -54,12 +69,12 @@ class AppConfig {
             return UseConfig(0, "all", true, null)
         }
 
-        fun useNewsPageConfig(): UseConfig {
-            return getUseConfig("can_use_news_page")
+        fun useNewsConfig(): UseConfig {
+            return getUseConfig("can_use_news")
         }
 
-        fun useTimetablePageConfig(): UseConfig {
-            return getUseConfig("can_use_timetable_page")
+        fun useTimetableConfig(): UseConfig {
+            return getUseConfig("can_use_timetable")
         }
 
         fun useEiosConfig(): UseConfig {
@@ -85,12 +100,26 @@ class AppConfig {
         fun getAnnouncements(): List<Announcement> {
             try {
                 return mapper.readValue<List<Announcement>>(remoteConfig.getString("announcements"))
-                    .filter { versionCheck(it.versions) }
+                    .filter {
+                        versionCheck(it.versions)
+                    }
+                    .filter {
+                        it.type != AnnouncementType.simple ||
+                                (it.type == AnnouncementType.simple && !showedAnnouncement.contains(
+                                    it.id.toString()
+                                ))
+                    }.plus(internalAnnouncements)
             } catch (ignored: MismatchedInputException) {
             }
             return listOf()
         }
     }
+}
+
+private val internalAnnouncements = arrayListOf<Announcement>()
+
+fun addInternalAnnouncement(announcement: Announcement) {
+    internalAnnouncements.add(announcement)
 }
 
 private fun versionCheck(versions: String): Boolean {
@@ -100,22 +129,42 @@ private fun versionCheck(versions: String): Boolean {
             appContext!!.packageName,
             0
         ).versionName!!
-        .replace(Regex("[^0-9.]"), "")
-        .toDouble()
     try {
         versions.split(",")
             .map { it.trim { char -> char.isWhitespace() } }
             .toList().forEach { version ->
                 if (version.lowercase() == "all")
                     return true
-                val versionInDouble = version
-                    .replace(Regex("[^0-9<>.]"), "")
-                    .toDouble()
-                return when (version[0]) {
-                    '<' -> appVersion < versionInDouble
-                    '>' -> appVersion > versionInDouble
-                    else -> appVersion == versionInDouble
+
+                val actual = appVersion
+                    .replace(Regex("[a-zA-Z,\\- ]+"), "")
+                    .split(".")
+                    .map { it.toInt() }
+                    .toList()
+
+                val target = version
+                    .replace(Regex("[<>a-zA-Z,\\- ]+"), "")
+                    .split(".")
+                    .map { it.toInt() }
+                    .toList()
+
+                (0..<minOf(actual.size, target.size)).forEach {
+                    if (version[0] == '>') {
+                        if(actual[it] > target[it])
+                            return true
+                        if(actual[it] < target[it])
+                            return false
+                    }
+                    if (version[0] == '<'){
+                        if(actual[it] < target[it])
+                            return true
+                        if(actual[it] > target[it])
+                            return false
+                    }
+                    if(version[0] !in arrayOf('<', '>') && actual[it] != target[it])
+                        return false
                 }
+                return true
             }
         return false
     } catch (e: ArrayIndexOutOfBoundsException) {

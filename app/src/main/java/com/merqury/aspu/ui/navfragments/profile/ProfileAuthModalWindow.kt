@@ -50,8 +50,14 @@ import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 import kotlin.time.Duration.Companion.seconds
 
+@Volatile
+private var isAuthModalWindowShowing = false
+
 @OptIn(ExperimentalMaterial3Api::class)
 fun showEiosAuthModalWindow(msg: String = "", closure: () -> Unit = {}) {
+    if(isAuthModalWindowShowing)
+        return
+    isAuthModalWindowShowing = true
     showSimpleModalWindow(
         closeable = false
     ) {
@@ -78,6 +84,7 @@ fun showEiosAuthModalWindow(msg: String = "", closure: () -> Unit = {}) {
         if (receivedResponse) {
             after(2.seconds) {
                 if (authSuccess) {
+                    isAuthModalWindowShowing = false
                     it.value = false
                     return@after
                 }
@@ -175,8 +182,10 @@ fun showEiosAuthModalWindow(msg: String = "", closure: () -> Unit = {}) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
                     Button(
                         onClick = {
-                            if (!requesting)
+                            if (!requesting) {
                                 it.value = false
+                                isAuthModalWindowShowing = false
+                            }
                         }, colors = ButtonDefaults.buttonColors(
                             containerColor = SurfaceTheme.button.color
                         )
@@ -210,6 +219,8 @@ fun showEiosAuthModalWindow(msg: String = "", closure: () -> Unit = {}) {
                                         .putString("password", password.value)
                                         .apply()
                                     AppSettings.eiosLogged = true
+                                    if(AppSettings.initialRoute == "settings")
+                                        AppSettings.initialRoute = "account"
                                     closure()
                                 },
                                 {
