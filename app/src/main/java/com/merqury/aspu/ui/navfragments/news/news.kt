@@ -6,6 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.rememberScrollState
@@ -29,7 +31,6 @@ import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.services.news.getNews
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.UiState
-import com.merqury.aspu.ui.printlog
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.ThemeText
 import com.merqury.aspu.ui.theme.color
@@ -127,6 +128,9 @@ fun NewsContent(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NewsPage(page: Int) {
+    var loadedFaculty by remember {
+        mutableStateOf(NewsStates.selectedFaculty.name.lowercase())
+    }
     var newsResponse by remember {
         mutableStateOf<NewsResponse?>(null)
     }
@@ -134,17 +138,24 @@ fun NewsPage(page: Int) {
         mutableStateOf<String?>(null)
     }
     var uiState by remember { mutableStateOf(UiState.IDLE)}
-    printlog(uiState)
+    LaunchedEffect(NewsStates.selectedFaculty) {
+        if (loadedFaculty != NewsStates.selectedFaculty.name.lowercase()) {
+            uiState = UiState.IDLE
+            newsResponse = null
+            errorString = null
+        }
+    }
     when(uiState) {
         UiState.IDLE -> {
-            LaunchedEffect(NewsStates.selectedFaculty) {
+            LaunchedEffect(uiState) {
                 uiState = UiState.LOADING
-                getNews(page, selectedFaculty = NewsStates.selectedFaculty, {
+                getNews(page+1, selectedFaculty = NewsStates.selectedFaculty, {
                     uiState = UiState.LOADED
                     errorString = it
                 }){
                     uiState = UiState.LOADED
                     newsResponse = it
+                    loadedFaculty = it.category.lowercase()
                 }
             }
         }
@@ -157,8 +168,26 @@ fun NewsPage(page: Int) {
             }
         }
         UiState.LOADED -> {
-            if(NewsStates.pagerState.pageCount != newsResponse!!.countPages)
-                NewsStates.pagerState = PagerState { newsResponse!!.countPages }
+            if(errorString != null) {
+                NewsStates.pagerState = PagerState { 1 }
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                    ThemeText(text = errorString!!)
+                }
+            }
+            else if(loadedFaculty.lowercase() == NewsStates.selectedFaculty.name.lowercase()){
+                if(NewsStates.pagerState.pageCount != newsResponse!!.countPages)
+                    NewsStates.pagerState = PagerState { newsResponse!!.countPages }
+                LazyColumn {
+                    items(newsResponse!!.articles) {
+                        NewsItem(
+                            title = it.title,
+                            date = it.date,
+                            imageUrl = it.previewImage,
+                            id = it.id
+                        )
+                    }
+                }
+            }
         }
     }
 }

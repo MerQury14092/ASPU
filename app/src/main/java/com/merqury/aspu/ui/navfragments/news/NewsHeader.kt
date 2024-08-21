@@ -2,7 +2,6 @@ package com.merqury.aspu.ui.navfragments.news
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.canopas.lib.showcase.IntroShowcase
+import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.navfragments.news.NewsStates.pagerState
 import com.merqury.aspu.ui.navfragments.news.NewsStates.selectedFaculty
 import com.merqury.aspu.ui.theme.SurfaceTheme
@@ -56,6 +57,7 @@ fun NewsHeader() {
                             .size(60.dp)
                             .bounceClick {
                                 showFacultySelectModalWindow {
+                                    pagerState = PagerState { 1 }
                                     selectedFaculty = it
                                 }
                             }

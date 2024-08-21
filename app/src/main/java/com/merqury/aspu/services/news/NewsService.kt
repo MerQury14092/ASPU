@@ -18,7 +18,6 @@ fun getNews(
         try {
             val newsService = GetNewsService.getInstance()
             val response = newsService.getArticlesByFaculty(selectedFaculty.name, pageNumber)
-            printlog("${selectedFaculty.name}-$pageNumber: $response")
             onSuccess(response)
         } catch (e: Exception) {
             if (e is UnknownHostException) {

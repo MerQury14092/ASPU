@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.view.animation.Animation
 import android.view.animation.ScaleAnimation
 import android.widget.ImageView
+import android.widget.Toast
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.merqury.aspu.services.appconfig.AppConfig
 import com.merqury.aspu.services.appconfig.addInternalAnnouncement
@@ -31,6 +32,12 @@ class SplashScreenActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appContext = this
+        if(!AppSettings.clear1 && !AppSettings.firstLaunch) {
+            Toast.makeText(appContext, "Зайдите ещё раз", Toast.LENGTH_SHORT).show()
+            AppSettings.clear()
+            AppSettings.clear1 = true
+            finish()
+        }
         setTheme(getThemeStyle())
         AppConfig.getConfig().fetchAndActivate().addOnSuccessListener {
             if (AppSettings.firstLaunch)

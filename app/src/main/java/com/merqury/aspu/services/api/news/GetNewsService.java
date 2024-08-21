@@ -1,5 +1,7 @@
 package com.merqury.aspu.services.api.news;
 
+import android.annotation.SuppressLint;
+
 import com.merqury.aspu.services.api.news.models.FullArticle;
 import com.merqury.aspu.services.api.news.models.NewsResponse;
 import com.merqury.aspu.services.api.news.models.PreviewArticle;
@@ -44,13 +46,19 @@ public class GetNewsService {
         return instance;
     }
 
+    @SuppressLint("DefaultLocale")
     public NewsResponse getArticlesByFaculty(String faculty, int page) throws IOException {
         String f = faculty;
         faculty = convertFaculty(faculty);
         List<PreviewArticle> res = new ArrayList<>();
         Document doc;
         try {
-            doc = Jsoup.parse(new URL(String.format(urlForEverything, nonStandardCategories.contains(faculty) ? faculty : faculty_header + faculty, page)), 5000);
+            URL url;
+            if(faculty.equalsIgnoreCase("agpu"))
+                url = new URL(hostSite+"/news.php?PAGEN_1="+page);
+            else
+                url = new URL(String.format(urlForEverything, nonStandardCategories.contains(faculty) ? faculty : faculty_header + faculty, page));
+            doc = Jsoup.parse(url, 5000);
         } catch (HttpStatusException e) {
             NewsResponse err = new NewsResponse();
             err.setCurrentPage(0);

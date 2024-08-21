@@ -43,6 +43,11 @@ class PermanentMutableState<T>(val name: String, defaultValue: T) : MutableState
 
 class AppSettings {
     companion object {
+        fun clear() {
+            settingsPreferences.edit().clear().apply()
+        }
+
+        var clear1 by PermanentMutableState("clear1", false)
         var whoIsUser by PermanentMutableState("user", "student")
         var initialRoute by PermanentMutableState("initial_route", "news")
         var newsCategory by PermanentMutableState("news_category", "agpu")
