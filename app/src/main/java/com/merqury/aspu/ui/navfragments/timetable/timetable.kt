@@ -164,7 +164,14 @@ private fun TimetableDay(
         mutableStateOf(false)
     }
 
-    if (disciplines == null) {
+    if ((disciplines == null || (disciplines != null && ! disciplines!!.all {
+            when (timetableIdOwner.lowercase()) {
+                "teacher" -> it.teacherName == timetableId
+                "group" -> it.groupName == timetableId
+                "classroom" -> it.audienceID == timetableId
+                else -> false
+            }
+        })) && errorString == null) {
         Column(
             modifier = Modifier
                 .fillMaxSize()

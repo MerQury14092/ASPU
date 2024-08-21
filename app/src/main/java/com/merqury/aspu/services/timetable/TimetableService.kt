@@ -1,24 +1,19 @@
 package com.merqury.aspu.services.timetable
 
-import android.util.Log
 import com.android.volley.Request
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.apiDomain
 import com.merqury.aspu.requestQueue
-import com.merqury.aspu.services.misc.AppSettings
-import com.merqury.aspu.services.misc.cache
-import com.merqury.aspu.services.misc.getEndDayOfWeekByDate
-import com.merqury.aspu.services.misc.getStartDayOfWeekByDate
-import com.merqury.aspu.services.misc.timestampDifference
-import com.merqury.aspu.services.misc.timestampNow
+import com.merqury.aspu.services.api.timetable.GetTimetableService
+import com.merqury.aspu.services.api.timetable.enums.TimetableOwner
 import com.merqury.aspu.services.network.EncodingConverter
-import com.merqury.aspu.services.network.handleVolleyError
+import com.merqury.aspu.services.timetable.models.Discipline
 import com.merqury.aspu.services.timetable.models.TimetableDay
-import com.merqury.aspu.services.timetable.models.TimetableDay.Companion.toJson
 import com.merqury.aspu.ui.async
+import com.merqury.aspu.ui.printlog
 import org.json.JSONArray
-import org.json.JSONObject
+import java.net.UnknownHostException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -61,85 +56,51 @@ fun getTimetableByDate(
     onError: (String) -> Unit,
     onSuccess: (TimetableDay) -> Unit
 ) {
+    val service = GetTimetableService.getInstance()
     async {
-        val timeCache = AppSettings.timeCache
-        if (timeCache != 0L && cache.getString("$timetableId $date", "") != "") {
-            val cacheTimetableDay = cache.getString("$timetableId $date", "")
-                ?.let { JSONObject(it) }
-            if (timestampDifference(
-                    timestampNow(),
-                    cacheTimetableDay!!.getString("created")
-                ) < timeCache
-            ) {
-//                printlog(
-//                    "Берем из кэша (debug: {timeCache: $timeCache, timestampDifference: ${
-//                        timestampDifference(
-//                            timestampNow(), cacheTimetableDay.getString("created")
-//                        )
-//                    }})"
-//                )
-                async {
-                    Thread.sleep(100)
-                    onSuccess(TimetableDay.fromJson(cacheTimetableDay.getString("value")))
-                }
-                return@async
-            }
-//            printlog("Кэш просрочился")
-        }
-//        printlog("Берем не из кэша")
-
-        val startWeekDate = getStartDayOfWeekByDate(date)
-        val endWeekDate = getEndDayOfWeekByDate(date)
-        getTimetableByDateRange(
-            startWeekDate,
-            endWeekDate,
-            timetableId,
-            timetableIdOwner,
-            { ttList ->
-                ttList.forEach {
-                    if (it.date == date) {
-                        onSuccess(it)
-                    }
-                    cache.edit().putString(
-                        "$timetableId ${it.date}",
-                        JSONObject().apply {
-                            put("created", timestampNow())
-                            put("value", it.toJson())
-                        }.toString()
-                    ).apply()
-                }
-            },
-            {
-                Log.d("network-error", "ERROR")
-                handleVolleyError(it) {
-                    onError(it)
-                }
-            }
-        )
+        try {
+            val response = service.getTimetableWeek(
+                timetableId,
+                date,
+                TimetableOwner.valueOf(timetableIdOwner.uppercase())
+            )
+            if (response.any { it.date == date }) {
+                val day = response.first { it.date == date }
+                onSuccess(
+                    TimetableDay(
+                        day.date,
+                        day.id,
+                        day.owner.name,
+                        day.disciplines.map {
+                            Discipline(
+                                it.time,
+                                it.name,
+                                it.teacherName,
+                                it.audienceId,
+                                it.subgroup,
+                                it.type.name,
+                                it.groupName,
+                                it.isDistant
+                            )
+                        }.toList()
+                    )
+                )
+            } else
+            onSuccess (
+                TimetableDay(
+                    date, timetableId, timetableIdOwner, listOf()
+                )
+            )
+        } catch (e: Exception) {
+            if(e.cause is UnknownHostException) {
+                onError("Нет подключения к сети Интернет")
+            } else {
+                printlog("TIMETABLE FETCH ERROR: $e")
+                onError("Неизвестная ошибка")
+            }}
 
     }
 }
-
-//@OptIn(DelicateCoroutinesApi::class)
-//fun showTimetableWebPageView(date: String) {
-//    getSearchId(selectedId.value) { id, type ->
-//        GlobalScope.launch {
-//            showTimetableWebPageView(id, type, date)
-//        }
-//    }
-//}
-
-//fun showTimetableWebPageView(searchId: Long, searchType: String, date: String) {
-//    val url = "www.it-institut.ru/Raspisanie/SearchedRaspisanie?OwnerId=118&SearchId=" +
-//            searchId +
-//            "&Type=$searchType&WeekId=${WeekIdService.weekIdByDate(date)}" +
-//            "&SearchString=${selectedId.value}"
-//    val inBrowser = AppSettings.useIncludedBrowser
-//    if (inBrowser)
-//        showWebPage(url, "https")
-//    else
-//        openInBrowser(url, "https")
-//}
 
 fun getTodayDate(): String {
     val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")

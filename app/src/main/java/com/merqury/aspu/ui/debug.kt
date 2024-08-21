@@ -5,6 +5,14 @@ import androidx.compose.runtime.Composable
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+class Debug {
+    companion object {
+        fun printlog(everything: Any?) {
+            com.merqury.aspu.ui.printlog(everything)
+        }
+    }
+}
+
 fun printlog(everything: Any?){
     Log.d("debug-print", everything.toString())
 }
