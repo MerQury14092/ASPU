@@ -14,8 +14,10 @@ import com.google.firebase.remoteconfig.remoteConfigSettings
 import com.merqury.aspu.appContext
 import com.merqury.aspu.services.appconfig.models.Announcement
 import com.merqury.aspu.services.appconfig.models.AnnouncementType
+import com.merqury.aspu.services.appconfig.models.CrashApiEntry
 import com.merqury.aspu.services.appconfig.models.DatabaseConfig
 import com.merqury.aspu.services.appconfig.models.UseConfig
+import com.merqury.aspu.ui.printlog
 
 private val remoteConfig by lazy {
     Firebase.remoteConfig.apply {
@@ -54,6 +56,19 @@ class AppConfig {
 
         fun getDeveloperExamProfileId(): Long {
             return remoteConfig.getLong("developer_exam_profile_id")
+        }
+
+        fun getCrashApiUrl(): String? {
+            try {
+                mapper.readValue<List<CrashApiEntry>>(remoteConfig.getString("crash_api_config"))
+                    .forEach {
+                        if (versionCheck(it.versions))
+                            return it.url
+                    }
+            } catch (ignored: MismatchedInputException) {
+                printlog("err")
+            }
+            return null
         }
 
         private fun getUseConfig(key: String): UseConfig {

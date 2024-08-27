@@ -30,11 +30,19 @@ class SplashScreenActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val exceptionHandler = ExceptionHandler(this)
+        Thread.setDefaultUncaughtExceptionHandler(exceptionHandler)
         appContext = this
         appContext!!.getSharedPreferences("news-cache", Context.MODE_PRIVATE).edit().clear().apply()
         AppSettings.timeCache = 0L
         setTheme(getThemeStyle())
         AppConfig.getConfig().fetchAndActivate().addOnSuccessListener {
+            Thread {
+                CheckInternet().check {
+                    if (it)
+                        exceptionHandler.pushAllExceptions()
+                }
+            }.start()
             if (AppSettings.firstLaunch)
                 startActivity(Intent(this, GreetingsPager::class.java))
             else
