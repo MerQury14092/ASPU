@@ -6,7 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.merqury.aspu.appContext
-import java.util.concurrent.TimeUnit
 
 private val settingsPreferences =
     appContext?.getSharedPreferences("settings", Context.MODE_PRIVATE)!!
@@ -46,14 +45,12 @@ class AppSettings {
         fun clear() {
             settingsPreferences.edit().clear().apply()
         }
-
-        var clear1 by PermanentMutableState("clear1", false)
         var whoIsUser by PermanentMutableState("user", "student")
         var initialRoute by PermanentMutableState("initial_route", "news")
         var newsCategory by PermanentMutableState("news_category", "agpu")
         var timetableId by PermanentMutableState("timetable_id", "ВМ-ИВТ-2-1")
         var timetableIdOwner by PermanentMutableState("timetable_id_owner", "GROUP")
-        var timeCache by PermanentMutableState("timeCache", TimeUnit.HOURS.toSeconds(3))
+        var timeCache by PermanentMutableState("timeCache", 0L)
         var timetableFiltration by PermanentMutableState("filtration_on", false)
         var debugMode by PermanentMutableState("debug_mode", false)
         var eiosLogged by PermanentMutableState("eios_logged", false)
