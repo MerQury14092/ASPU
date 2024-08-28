@@ -48,11 +48,11 @@ class ExceptionHandler(appContext: Context) : Thread.UncaughtExceptionHandler {
                     Request.Builder()
                         .url(url)
                         .post(
-                            "\"{version\": \"$version\", \"throwable\":\"${
+                            "{\"version\": \"$version\", \"throwable\":${
                                 mapper.writeValueAsString(
                                     it.value
                                 )
-                            }\"}".toRequestBody(
+                            }}".toRequestBody(
                                 "application/json; charset=utf-8".toMediaType()
                             )
                         )

@@ -15,6 +15,7 @@ fun getNews(
     onSuccess: (NewsResponse) -> Unit
 ) {
     async {
+        printlog("get news: $selectedFaculty: $pageNumber")
         try {
             val newsService = GetNewsService.getInstance()
             val response = newsService.getArticlesByFaculty(selectedFaculty.name, pageNumber)

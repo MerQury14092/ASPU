@@ -12,7 +12,7 @@ android {
     defaultConfig {
         applicationId = "com.merqury.aspu"
         minSdk = 28
-        versionCode = 18
+        versionCode = 19
         versionName = "2.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

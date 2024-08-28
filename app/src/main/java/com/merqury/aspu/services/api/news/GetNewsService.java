@@ -1,6 +1,8 @@
 package com.merqury.aspu.services.api.news;
 
+
 import android.annotation.SuppressLint;
+import android.util.Log;
 
 import com.merqury.aspu.services.api.news.models.FullArticle;
 import com.merqury.aspu.services.api.news.models.NewsResponse;
@@ -15,6 +17,7 @@ import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -130,8 +133,9 @@ public class GetNewsService {
             if (el.text().equals("Конец"))
                 els.add(el);
         }
-        if (els.isEmpty())
+        if (els.isEmpty()) {
             result.setCountPages(1);
+        }
         else {
             URL uriToEnd;
             try {
@@ -140,8 +144,12 @@ public class GetNewsService {
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
-            Map<String, String> queryParams = splitQuery(uriToEnd);
-
+            Map<String, String> queryParams;
+            try {
+                queryParams = splitQuery(uriToEnd);
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
             result.setCountPages(Integer.parseInt(queryParams.get("PAGEN_1")));
         }
         for (Element el : doc.getElementsByTag("font")) {
@@ -152,11 +160,10 @@ public class GetNewsService {
         }
         if (result.getCurrentPage() > result.getCountPages())
             result.setCurrentPage(1);
-
         return result;
     }
 
-    public static Map<String, String> splitQuery(URL url) {
+    public static Map<String, String> splitQuery(URL url) throws UnsupportedEncodingException {
         Map<String, String> query_pairs = new HashMap<>();
         String query = url.getQuery();
         String[] pairs = query.split("&");
@@ -165,10 +172,10 @@ public class GetNewsService {
             query_pairs.put(
                     URLDecoder.decode(
                             pair.substring(0, idx),
-                            StandardCharsets.UTF_8),
+                            "UTF-8"),
                     URLDecoder.decode(
                             pair.substring(idx + 1),
-                            StandardCharsets.UTF_8
+                            "UTF-8"
                     )
             );
         }
