@@ -12,6 +12,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import com.merqury.aspu.appContext
+import com.merqury.aspu.services.api.timetable.models.WeekIdMapping
 import com.merqury.aspu.services.appconfig.models.Announcement
 import com.merqury.aspu.services.appconfig.models.AnnouncementType
 import com.merqury.aspu.services.appconfig.models.CrashApiEntry
@@ -104,8 +105,12 @@ class AppConfig {
             return getUseConfig("can_use_exam")
         }
 
-        fun getApiDomain(): String {
-            return remoteConfig.getString("api_domain")
+        fun getWeekIdMappings(): List<WeekIdMapping> {
+            return try {
+                mapper.readValue<List<WeekIdMapping>>(remoteConfig.getString("week_id_mappings"))
+            } catch (ignored: MismatchedInputException) {
+                listOf()
+            }
         }
 
         fun getDatabaseConfig(): DatabaseConfig {

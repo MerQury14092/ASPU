@@ -1,5 +1,7 @@
 package com.merqury.aspu.services.api.timetable;
 
+import static com.merqury.aspu.ui.DebugKt.printlog;
+
 import android.annotation.SuppressLint;
 
 import com.merqury.aspu.services.api.timetable.models.Discipline;
@@ -29,9 +31,11 @@ public class GetTimetableService {
     }
 
     private final static GetTimetableService instance;
-    static  {
+
+    static {
         instance = new GetTimetableService(GetSearchIdService.getInstance());
     }
+
     public static GetTimetableService getInstance() {
         return instance;
     }
@@ -55,7 +59,8 @@ public class GetTimetableService {
     }
 
     public TimetableDay[] getTimetableWeek(String id, String date, TimetableOwner owner) throws IOException {
-        String html = getHtmlFromPage(id, getSearchIdService.getSearchId(id, owner), owner, weekIdByDate(date));
+        long weekId = WeekIdService.Companion.weekIdByDate(date);
+        String html = getHtmlFromPage(id, getSearchIdService.getSearchId(id, owner), owner, weekId);
         TimetableDay[] week = parseHtml(html, owner);
 
         Arrays.stream(week).forEach(day ->
@@ -72,11 +77,6 @@ public class GetTimetableService {
                 .orElseThrow(RuntimeException::new);
     }
 
-    private long weekIdByDate(String date) {
-        int mappingWeekId = 3655;
-
-        return mappingWeekId + countDays(date) / 7;
-    }
 
     private String getHtmlFromPage(
             String searchText, int searchId, TimetableOwner owner, long weekId

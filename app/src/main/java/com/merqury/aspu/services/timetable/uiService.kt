@@ -1,6 +1,7 @@
 package com.merqury.aspu.services.timetable
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import com.merqury.aspu.services.api.timetable.WeekIdService
 import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.ui.navfragments.timetable.TimetableStates
 import com.merqury.aspu.ui.navfragments.timetable.getDateByPage

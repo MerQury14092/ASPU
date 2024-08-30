@@ -33,9 +33,6 @@ var appContext: Context? = null
 var requestQueue: RequestQueue? = null
 var _coroutineScope: CoroutineScope? = null
 inline val mainCoroutineScope: CoroutineScope get() = _coroutineScope!!
-val apiDomain by lazy {
-    AppConfig.getApiDomain()
-}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
