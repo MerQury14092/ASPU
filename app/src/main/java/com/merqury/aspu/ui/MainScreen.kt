@@ -58,6 +58,7 @@ import com.canopas.lib.showcase.IntroShowcaseScope
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
 import com.merqury.aspu.requestQueue
+import com.merqury.aspu.services.appconfig.AppConfig
 import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.services.news.NewsService.urlForCurrentFaculty
 import com.merqury.aspu.services.timetable.showTimetableWebPageView
@@ -71,7 +72,6 @@ import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.training.TrainingStates
 import com.merqury.aspu.ui.training.hintTargetModifier
-
 
 
 val topBarContent: MutableState<@Composable () -> Unit> = mutableStateOf({})
@@ -247,7 +247,10 @@ fun NavigationBar() {
                 showIntroShowCase = TrainingStates.newsNavItem,
                 onShowCaseCompleted = {
                     TrainingStates.newsNavItem = false
-                    TrainingStates.newsHeader = true
+                    if (AppConfig.useNewsConfig().canUse)
+                        TrainingStates.newsHeader = true
+                    else
+                        TrainingStates.news = true
                     routeTo("news")
                 }) {
                 NavBarItem(
@@ -262,7 +265,10 @@ fun NavigationBar() {
                 showIntroShowCase = TrainingStates.timetableNavItem,
                 onShowCaseCompleted = {
                     TrainingStates.timetableNavItem = false
-                    TrainingStates.timetableHeader = true
+                    if (AppConfig.useTimetableConfig().canUse)
+                        TrainingStates.timetableHeader = true
+                    else
+                        TrainingStates.timetable = true
                     routeTo("timetable")
                 }) {
                 NavBarItem(
@@ -427,7 +433,7 @@ fun IntroShowcaseScope.NavBarItem(
                 indication = null
             ) {
 //                if (System.currentTimeMillis() - lastClicked > 500) {
-                    routeTo(route)
+                routeTo(route)
 //                    lastClicked = System.currentTimeMillis()
 //                }
             }

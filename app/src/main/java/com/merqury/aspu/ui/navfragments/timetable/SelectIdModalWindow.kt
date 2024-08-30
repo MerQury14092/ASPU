@@ -2,7 +2,6 @@ package com.merqury.aspu.ui.navfragments.timetable
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
-import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +37,7 @@ import com.merqury.aspu.services.timetable.models.FacultiesList
 import com.merqury.aspu.services.timetable.models.SearchContent
 import com.merqury.aspu.services.timetable.models.SearchContentElement
 import com.merqury.aspu.services.timetable.toInitials
+import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.showSelectListDialog
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
@@ -271,6 +271,14 @@ fun showSelectIdModalWindow(
                                 .padding(10.dp)
                                 .bounceClick {
                                     it.value = false
+                                    onResultClick(
+                                        SearchContentElement(
+                                            AppSettings.timetableId,
+                                            AppSettings.timetableIdOwner,
+                                            0,
+                                            0
+                                        )
+                                    )
                                 },
                             colors = CardDefaults.cardColors(
                                 containerColor = SurfaceTheme.foreground.color
@@ -351,9 +359,9 @@ fun loadDepartmentsOnButtons(
     onResultClick: (searchResult: SearchContentElement) -> Unit
 ) {
     val tables = DatabaseService.config.tables
-    if(
+    if (
         !(tables.departmentTable.exists
-        && tables.teacherTable.exists)
+                && tables.teacherTable.exists)
     ) {
         buttons.value = mapOf(
             "Нет данных..." to {}
@@ -454,7 +462,7 @@ fun loadCorpsOnButtons(
     onResultClick: (searchResult: SearchContentElement) -> Unit
 ) {
     val tables = DatabaseService.config.tables
-    if(
+    if (
         !(tables.corpsTable.exists
                 && tables.audienceTable.exists)
     ) {

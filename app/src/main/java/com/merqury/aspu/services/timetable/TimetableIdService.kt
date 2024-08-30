@@ -4,14 +4,19 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
-import com.merqury.aspu.apiDomain
 import com.merqury.aspu.requestQueue
-import com.merqury.aspu.services.network.EncodingConverter
 import com.merqury.aspu.services.timetable.models.FacultiesList
+import com.merqury.aspu.services.timetable.models.FacultiesListElement
 import com.merqury.aspu.services.timetable.models.SearchContent
 import com.merqury.aspu.ui.async
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
+import java.net.HttpURLConnection
 import java.net.URI
+import java.net.URL
 import java.net.URLEncoder
+import java.util.Objects
+import java.util.Scanner
 
 
 fun getSearchResults(
@@ -24,7 +29,7 @@ fun getSearchResults(
         {
             success.value = false
         }
-    ){
+    ) {
         success.value = true
         searchResults.value = it
     }
@@ -49,7 +54,7 @@ fun getSearchResults(
             }
         },
         {
-            onError(it.message?:it.javaClass.name)
+            onError(it.message ?: it.javaClass.name)
             Log.d("network-error", "ERROR")
         }
     )
@@ -80,25 +85,46 @@ fun getSearchId(query: String, onLoaded: (resultId: Long, resultType: String) ->
     }
 }
 
+
 fun getFacultiesAndThemGroups(
     result: MutableState<FacultiesList>,
     loaded: MutableState<Boolean>,
     success: MutableState<Boolean>
 ) {
-    val url = "https://$apiDomain/api/timetable/groups"
-    val request = StringRequest(
-        Request.Method.GET,
-        url,
-        {
-            result.value = FacultiesList.fromJson(EncodingConverter.translateISO8859_1toUTF_8(it))
+    async {
+        try {
+            val connection: HttpURLConnection =
+                URL("http://www.it-institut.ru/SearchString/Index/118").openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+            val sc = Scanner(Objects.requireNonNull(connection.inputStream))
+
+            val builder = StringBuilder()
+
+            while (sc.hasNextLine()) {
+                builder.append(sc.nextLine()).append("\n")
+            }
+
+
+            val res = FacultiesList(
+                Jsoup.parse(builder.toString()).getElementsByClass("card").map {
+                    parseCardElement(it)
+                }.toList()
+            )
+            result.value = res
+            loaded.value = true
             success.value = true
+        } catch (e: Exception) {
             loaded.value = true
-        },
-        {
             success.value = false
-            loaded.value = true
-            Log.d("network-error", "ERROR")
         }
-    )
-    requestQueue!!.add(request)
+    }
+}
+
+private fun parseCardElement(el: Element): FacultiesListElement {
+    val facName = el.getElementsByTag("button").first().text()
+
+    val list = el.getElementsByClass("p-2").map {
+        it.getAllElements().first().text()
+    }.toList()
+    return FacultiesListElement(facName, list)
 }

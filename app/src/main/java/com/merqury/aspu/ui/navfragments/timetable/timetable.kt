@@ -106,7 +106,7 @@ fun TimetableScreen(header: MutableState<@Composable () -> Unit>) {
                     TitleHeader(title = "Расписание")
                 }
             }
-            if(header.value != headerContent)
+            if (header.value != headerContent)
                 header.value = headerContent
             ThemeText(
                 text = useConfig.reason ?: ("Расписание было отключено разработчиком по " +
@@ -114,11 +114,6 @@ fun TimetableScreen(header: MutableState<@Composable () -> Unit>) {
                 textAlign = TextAlign.Center
             )
         }
-}
-
-@Composable
-fun CachedTimetable() {
-
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -154,8 +149,13 @@ private fun TimetableDay(
     timetableId: String,
     timetableIdOwner: String
 ) {
+    data class Disciplines(
+        val timetableId: String,
+        val disciplines: List<Discipline>
+    )
+
     var disciplines by remember {
-        mutableStateOf<List<Discipline>?>(null)
+        mutableStateOf<Disciplines?>(null)
     }
     var errorString by remember {
         mutableStateOf<String?>(null)
@@ -163,8 +163,7 @@ private fun TimetableDay(
     var loading by remember {
         mutableStateOf(false)
     }
-
-    if (disciplines == null) {
+    if ((disciplines == null || (disciplines != null && disciplines!!.timetableId != timetableId)) && errorString == null) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -186,14 +185,16 @@ private fun TimetableDay(
                 }
             ) {
                 async {
-                    disciplines = if (
-                        AppSettings.timetableFiltration
-                        && AppSettings.whoIsUser == "student"
-                        && timetableId == AppSettings.timetableId
+                    disciplines = Disciplines(
+                        timetableId, if (
+                            AppSettings.timetableFiltration
+                            && AppSettings.whoIsUser == "student"
+                            && timetableId == AppSettings.timetableId
+                        )
+                            filter(it)
+                        else
+                            it.disciplines
                     )
-                        filter(it)
-                    else
-                        it.disciplines
                     loading = false
                 }
             }
@@ -208,20 +209,23 @@ private fun TimetableDay(
             ) {
                 Text(text = errorString!!, color = SurfaceTheme.text.color)
             }
-        else if (disciplines!!.isEmpty())
+        else if (disciplines!!.disciplines.isEmpty())
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(SurfaceTheme.background.color),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "Нет пар", color = SurfaceTheme.text.color)
+                Text(
+                    text = "Нет пар",
+                    color = SurfaceTheme.text.color
+                )
             }
         else {
             LazyColumn {
-                items(count = disciplines!!.size) {
+                items(count = disciplines!!.disciplines.size) {
                     TimetableItem(
-                        discipline = disciplines!![it]
+                        discipline = disciplines!!.disciplines[it]
                     )
                 }
 

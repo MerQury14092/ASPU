@@ -42,6 +42,7 @@ import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
+import com.merqury.aspu.services.appconfig.AppConfig
 import com.merqury.aspu.services.marks.getMarks
 import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.services.profile.getAvg
@@ -54,9 +55,11 @@ import com.merqury.aspu.ui.navfragments.exam.startExamScreen
 import com.merqury.aspu.ui.navfragments.marks.MarksScreen
 import com.merqury.aspu.ui.placeholder
 import com.merqury.aspu.ui.routeTo
+import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.sp
 import com.merqury.aspu.ui.startTopBarActivity
 import com.merqury.aspu.ui.theme.SurfaceTheme
+import com.merqury.aspu.ui.theme.ThemeText
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.vw
 
@@ -377,7 +380,22 @@ fun ProfileInfo(info: Data) {
                             }
                         }
                         ProfileCardButton("Экзамены", R.drawable.study_plan) {
-                            startExamScreen()
+                            if (AppConfig.useExamConfig().canUse)
+                                startExamScreen()
+                            else {
+                                showSimpleModalWindow {
+                                    Box(modifier = Modifier.background(SurfaceTheme.background.color)){
+                                        Box(
+                                            modifier = Modifier
+                                                .padding(20.dp)
+                                                .background(SurfaceTheme.background.color),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            ThemeText(text = AppConfig.useExamConfig().reason!!)
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                     Spacer(modifier = Modifier.size(((100 - profileCardButtonSize.toDouble() * 3) / 4).vw))
@@ -392,7 +410,7 @@ fun ProfileInfo(info: Data) {
                         ProfileCardButton("Выйти", R.drawable.back) {
                             routeTo("settings")
                             AppSettings.eiosLogged = false
-                            if(AppSettings.initialRoute == "account")
+                            if (AppSettings.initialRoute == "account")
                                 AppSettings.initialRoute = "settings"
                             secretPreferences.edit()
                                 .remove("username")

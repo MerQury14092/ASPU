@@ -40,7 +40,6 @@ import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.theme.getThemeName
 import com.merqury.aspu.ui.training.TrainingStates
 import com.merqury.aspu.ui.training.hintTargetModifier
-import java.util.concurrent.TimeUnit
 
 val selectableDisciplines =
     appContext?.getSharedPreferences("selectable_disciplines", Context.MODE_PRIVATE)!!
@@ -162,40 +161,40 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                             "Фильтрация пар",
                             AppSettings.timetableFiltration
                         ) { AppSettings.timetableFiltration = it } else null,
-                    ClickableSettingsButton(
-                        "Данные хранятся в кэше: ${
-                            when (AppSettings.timeCache) {
-                                0L -> "не хранятся"
-                                TimeUnit.MINUTES.toSeconds(30) -> "пол часа"
-                                TimeUnit.HOURS.toSeconds(1) -> "1 час"
-                                TimeUnit.HOURS.toSeconds(3) -> "3 часа"
-                                TimeUnit.HOURS.toSeconds(5) -> "5 часов"
-                                TimeUnit.HOURS.toSeconds(12) -> "12 часов"
-                                else -> "${AppSettings.timeCache} minutes"
-                            }
-                        }"
-                    ) {
-                        showSelectListDialog(mapOf(
-                            "Отключить" to {
-                                AppSettings.timeCache = 0
-                            },
-                            "Пол часа" to {
-                                AppSettings.timeCache = TimeUnit.MINUTES.toSeconds(30)
-                            },
-                            "Час" to {
-                                AppSettings.timeCache = TimeUnit.HOURS.toSeconds(1)
-                            },
-                            "3 часа" to {
-                                AppSettings.timeCache = TimeUnit.HOURS.toSeconds(3)
-                            },
-                            "5 часов" to {
-                                AppSettings.timeCache = TimeUnit.HOURS.toSeconds(5)
-                            },
-                            "12 часов" to {
-                                AppSettings.timeCache = TimeUnit.HOURS.toSeconds(12)
-                            }
-                        ))
-                    },
+//                    ClickableSettingsButton(
+//                        "Данные хранятся в кэше: ${
+//                            when (AppSettings.timeCache) {
+//                                0L -> "не хранятся"
+//                                TimeUnit.MINUTES.toSeconds(30) -> "пол часа"
+//                                TimeUnit.HOURS.toSeconds(1) -> "1 час"
+//                                TimeUnit.HOURS.toSeconds(3) -> "3 часа"
+//                                TimeUnit.HOURS.toSeconds(5) -> "5 часов"
+//                                TimeUnit.HOURS.toSeconds(12) -> "12 часов"
+//                                else -> "${AppSettings.timeCache} minutes"
+//                            }
+//                        }"
+//                    ) {
+//                        showSelectListDialog(mapOf(
+//                            "Отключить" to {
+//                                AppSettings.timeCache = 0
+//                            },
+//                            "Пол часа" to {
+//                                AppSettings.timeCache = TimeUnit.MINUTES.toSeconds(30)
+//                            },
+//                            "Час" to {
+//                                AppSettings.timeCache = TimeUnit.HOURS.toSeconds(1)
+//                            },
+//                            "3 часа" to {
+//                                AppSettings.timeCache = TimeUnit.HOURS.toSeconds(3)
+//                            },
+//                            "5 часов" to {
+//                                AppSettings.timeCache = TimeUnit.HOURS.toSeconds(5)
+//                            },
+//                            "12 часов" to {
+//                                AppSettings.timeCache = TimeUnit.HOURS.toSeconds(12)
+//                            }
+//                        ))
+//                    },
                     ClickableSettingsButton("Очистить кэш") {
                         cache.edit().clear().apply()
                         Toast.makeText(appContext!!, "Очищено!", Toast.LENGTH_LONG).show()

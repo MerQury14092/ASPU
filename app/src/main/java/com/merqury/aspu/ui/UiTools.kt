@@ -265,6 +265,9 @@ fun goToScreen(activityClass: Class<*>) {
     appContext!!.startActivity(Intent(appContext!!, activityClass))
 }
 
+enum class UiState {
+    IDLE, LOADING, LOADED
+}
 
 private val executor = Executors.newFixedThreadPool(12)
 fun async(runnable: () -> Unit) {

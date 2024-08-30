@@ -7,12 +7,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -24,18 +25,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import com.canopas.lib.showcase.IntroShowcase
 import com.merqury.aspu.enums.NewsCategoryEnum
+import com.merqury.aspu.services.api.news.models.NewsResponse
 import com.merqury.aspu.services.appconfig.AppConfig
 import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.services.news.getNews
 import com.merqury.aspu.ui.TitleHeader
-import com.merqury.aspu.ui.navfragments.news.NewsStates.pagerState
-import com.merqury.aspu.ui.navfragments.news.NewsStates.selectedFaculty
+import com.merqury.aspu.ui.UiState
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.ThemeText
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.training.TrainingStates
 import com.merqury.aspu.ui.training.hintTargetModifier
-import org.json.JSONObject
 
 val showArticleView = mutableStateOf(false)
 val clickedArticleId = mutableIntStateOf(0)
@@ -106,7 +106,6 @@ fun NewsScreen(header: MutableState<@Composable () -> Unit>) {
         }
 }
 
-@SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NewsContent(
@@ -119,82 +118,77 @@ fun NewsContent(
     if (header.value != headerContent)
         header.value = headerContent
 
-
-
-    HorizontalPager(
-        state = pagerState,
-        modifier = Modifier.background(SurfaceTheme.background.color),
-        outOfBoundsPageCount = 1
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            NewsPage(pageNumber = it)
+    HorizontalPager(state = NewsStates.pagerState) { page ->
+        Box(modifier = Modifier.fillMaxSize()){
+            NewsPage(page = page)
         }
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun NewsPage(
-    pageNumber: Int
-) {
-    var json by remember {
-        mutableStateOf<JSONObject?>(null)
+fun NewsPage(page: Int) {
+    var loadedFaculty by remember {
+        mutableStateOf(NewsStates.selectedFaculty.name.lowercase())
+    }
+    var newsResponse by remember {
+        mutableStateOf<NewsResponse?>(null)
     }
     var errorString by remember {
         mutableStateOf<String?>(null)
     }
-    if (json == null || json?.getString("category") != selectedFaculty.name) {
-        var loading by remember {
-            mutableStateOf(false)
+    var uiState by remember { mutableStateOf(UiState.IDLE)}
+    LaunchedEffect(NewsStates.selectedFaculty) {
+        if (loadedFaculty != NewsStates.selectedFaculty.name.lowercase()) {
+            uiState = UiState.IDLE
+            newsResponse = null
+            errorString = null
         }
-        if (!loading) {
-            loading = true
-            getNews(
-                pageNumber + 1,
-                selectedFaculty = selectedFaculty,
-                {
+    }
+    when(uiState) {
+        UiState.IDLE -> {
+            LaunchedEffect(uiState) {
+                uiState = UiState.LOADING
+                getNews(page+1, selectedFaculty = NewsStates.selectedFaculty, {
+                    uiState = UiState.LOADED
                     errorString = it
-                    loading = false
-                }
-            ) { response, pageCount ->
-                if (pagerState.pageCount != pageCount)
-                    pagerState = PagerState { pageCount }
-                json = response
-                loading = false
-            }
-        }
-        Column(
-            Modifier
-                .verticalScroll(rememberScrollState())
-        ) {
-            NewsItemLoadingPlaceholder()
-            NewsItemLoadingPlaceholder()
-            NewsItemLoadingPlaceholder()
-            NewsItemLoadingPlaceholder()
-        }
-    } else {
-        if (errorString != null)
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(SurfaceTheme.background.color),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = errorString!!, color = SurfaceTheme.text.color)
-            }
-        else
-            LazyColumn(
-                modifier = Modifier.background(SurfaceTheme.background.color)
-            ) {
-                items(count = json!!.getJSONArray("articles").length()) {
-                    val article = json!!.getJSONArray("articles").getJSONObject(it)
-                    NewsItem(
-                        title = article.getString("title"),
-                        date = article.getString("date"),
-                        imageUrl = article.getString("previewImage"),
-                        id = article.getInt("id")
-                    )
+                }){
+                    uiState = UiState.LOADED
+                    newsResponse = it
+                    loadedFaculty = it.category.lowercase()
                 }
             }
+        }
+        UiState.LOADING -> {
+            Column (Modifier.verticalScroll(rememberScrollState())){
+                NewsItemLoadingPlaceholder()
+                NewsItemLoadingPlaceholder()
+                NewsItemLoadingPlaceholder()
+                NewsItemLoadingPlaceholder()
+            }
+        }
+        UiState.LOADED -> {
+            if(errorString != null) {
+                NewsStates.pagerState = PagerState { 1 }
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                    ThemeText(text = errorString!!)
+                }
+            }
+            else if(loadedFaculty.lowercase() == NewsStates.selectedFaculty.name.lowercase()){
+                if(NewsStates.pagerState.pageCount != newsResponse!!.countPages)
+                    NewsStates.pagerState = PagerState { newsResponse!!.countPages }
+                LazyColumn {
+                    items(newsResponse!!.articles) {
+                        NewsItem(
+                            title = it.title,
+                            date = it.date,
+                            imageUrl = it.previewImage,
+                            id = it.id
+                        )
+                    }
+                }
+            }
+        }
     }
 }
+

@@ -2,7 +2,6 @@ package com.merqury.aspu.ui.navfragments.news
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,8 +21,10 @@ import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,8 +37,10 @@ import coil.compose.SubcomposeAsyncImage
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
+import com.merqury.aspu.services.api.news.models.FullArticle
 import com.merqury.aspu.services.news.getNewsArticle
 import com.merqury.aspu.ui.ModalWindow
+import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.navfragments.news.NewsStates.selectedFaculty
 import com.merqury.aspu.ui.navfragments.timetable.prettyDate
 import com.merqury.aspu.ui.showSimpleModalWindow
@@ -45,7 +48,6 @@ import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 import net.engawapg.lib.zoomable.rememberZoomState
 import net.engawapg.lib.zoomable.zoomable
-import org.json.JSONObject
 
 @Composable
 fun ArticleView() {
@@ -57,22 +59,28 @@ fun ArticleView() {
         },
         background = SurfaceTheme.background.color
     ) {
-        val articleLoaded = remember {
+        var loading by remember {
             mutableStateOf(false)
         }
-        val articleJson = remember {
-            mutableStateOf(JSONObject())
+        var article by remember {
+            mutableStateOf<FullArticle?>(null)
         }
-        val newsArticleLoadSuccess = remember {
-            mutableStateOf(true)
+        var errorString by remember {
+            mutableStateOf<String?>(null)
         }
-        if (!articleLoaded.value) {
+        if (!loading && article == null && errorString == null) {
+            loading = true
             getNewsArticle(
                 selectedFaculty,
                 clickedArticleId.intValue,
-                articleJson,
-                articleLoaded,
-                newsArticleLoadSuccess
+                {
+                    article = it
+                    loading = false
+                },
+                {
+                    errorString = it
+                    loading = false
+                }
             )
             Box(
                 Modifier
@@ -84,8 +92,8 @@ fun ArticleView() {
                 ArticleViewContentLoadingPlaceholder()
             }
         } else {
-            if (newsArticleLoadSuccess.value)
-                ArticleViewContent(articleJson.value)
+            if (errorString == null)
+                ArticleViewContent(article!!)
             else
                 Box(
                     modifier = Modifier
@@ -93,7 +101,7 @@ fun ArticleView() {
                         .background(color = SurfaceTheme.background.color),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "Ошибка загрузки статьи!", color = SurfaceTheme.text.color)
+                    Text(text = errorString!!, color = SurfaceTheme.text.color)
                 }
         }
     }
@@ -101,7 +109,7 @@ fun ArticleView() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun ArticleViewContent(articleJson: JSONObject) {
+private fun ArticleViewContent(article: FullArticle) {
     Box(
         modifier = Modifier
             .padding(15.dp)
@@ -114,13 +122,13 @@ private fun ArticleViewContent(articleJson: JSONObject) {
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                text = articleJson.getString("title"),
+                text = article.title,
                 fontSize = 25.sp,
                 fontStyle = FontStyle.Italic,
                 color = SurfaceTheme.text.color
             )
             Text(
-                text = prettyDate(articleJson.getString("date")),
+                text = prettyDate(article.date),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.End,
                 color = SurfaceTheme.text.color
@@ -130,17 +138,17 @@ private fun ArticleViewContent(articleJson: JSONObject) {
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Left,
                 fontSize = 15.sp,
-                text = articleJson.getString("description"),
+                text = article.description,
                 color = SurfaceTheme.text.color
             )
             Divider(color = SurfaceTheme.divider.color)
-            val images = articleJson.getJSONArray("images")
+            val images = article.images
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.SpaceAround
             ) {
-                for (i in 0..<images.length()) {
+                for (i in 0..<images.size) {
                     SubcomposeAsyncImage(
                         model = images.get(i).toString().replace("test", "www"),
                         contentDescription = "url",
@@ -160,7 +168,7 @@ private fun ArticleViewContent(articleJson: JSONObject) {
                                 ) {
                                     val pagerState = rememberPagerState(
                                         initialPage = i,
-                                        pageCount = { images.length() })
+                                        pageCount = { images.size })
                                     HorizontalPager(
                                         state = pagerState
                                     ) { page ->
@@ -171,9 +179,7 @@ private fun ArticleViewContent(articleJson: JSONObject) {
                                             contentAlignment = Alignment.Center
                                         ) {
                                             SubcomposeAsyncImage(
-                                                model = images
-                                                    .get(page)
-                                                    .toString()
+                                                model = images[page]
                                                     .replace("test", "www"),
                                                 contentDescription = null,
                                                 modifier = Modifier

@@ -12,10 +12,13 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import com.merqury.aspu.appContext
+import com.merqury.aspu.services.api.timetable.models.WeekIdMapping
 import com.merqury.aspu.services.appconfig.models.Announcement
 import com.merqury.aspu.services.appconfig.models.AnnouncementType
+import com.merqury.aspu.services.appconfig.models.CrashApiEntry
 import com.merqury.aspu.services.appconfig.models.DatabaseConfig
 import com.merqury.aspu.services.appconfig.models.UseConfig
+import com.merqury.aspu.ui.printlog
 
 private val remoteConfig by lazy {
     Firebase.remoteConfig.apply {
@@ -56,6 +59,19 @@ class AppConfig {
             return remoteConfig.getLong("developer_exam_profile_id")
         }
 
+        fun getCrashApiUrl(): String? {
+            try {
+                mapper.readValue<List<CrashApiEntry>>(remoteConfig.getString("crash_api_config"))
+                    .forEach {
+                        if (versionCheck(it.versions))
+                            return it.url
+                    }
+            } catch (ignored: MismatchedInputException) {
+                printlog("err")
+            }
+            return null
+        }
+
         private fun getUseConfig(key: String): UseConfig {
             val string = remoteConfig.getString(key)
             try {
@@ -89,8 +105,12 @@ class AppConfig {
             return getUseConfig("can_use_exam")
         }
 
-        fun getApiDomain(): String {
-            return remoteConfig.getString("api_domain")
+        fun getWeekIdMappings(): List<WeekIdMapping> {
+            return try {
+                mapper.readValue<List<WeekIdMapping>>(remoteConfig.getString("week_id_mappings"))
+            } catch (ignored: MismatchedInputException) {
+                listOf()
+            }
         }
 
         fun getDatabaseConfig(): DatabaseConfig {
