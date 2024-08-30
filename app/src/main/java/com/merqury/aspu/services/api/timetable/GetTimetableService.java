@@ -243,7 +243,7 @@ public class GetTimetableService {
 
     private void parseDiscipline(Element el, TimetableDay day, String date) { // сюда приходит тег td
         Discipline result = new Discipline();
-        result.setDistant(el.text().contains("Дистанционно"));
+        result.setDistant(el.text().toLowerCase().contains("дист".toLowerCase()));
         Elements spans = el.getElementsByTag("span");
         if (spans.isEmpty()) {
             result.setDate(date);
