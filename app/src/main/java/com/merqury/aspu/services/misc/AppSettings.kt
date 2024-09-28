@@ -63,4 +63,13 @@ class AppSettings {
         var firstLaunch by PermanentMutableState("first_launch", true)
         var colorTimetable by PermanentMutableState("color_timetable", true)
     }
+    class Eios {
+        companion object {
+            var showBlockNames by PermanentMutableState("show_block_names", false)
+            var showBlockNumber by PermanentMutableState("show_block_number", false)
+            var showFullHours by PermanentMutableState("show_full_hours", false)
+            var groupByBlocks by PermanentMutableState("group_by_blocks", true)
+            var startSemester by PermanentMutableState("start_semester", true)
+        }
+    }
 }

@@ -1,6 +1,6 @@
 package com.merqury.aspu.services.studyplan;
 
-import com.merqury.aspu.ui.navfragments.marks.ControlType;
+import androidx.annotation.NonNull;
 
 public class PlanElement {
     public String name;
@@ -9,8 +9,10 @@ public class PlanElement {
     public int lecCount;
     public int pracCount;
     public int labCount;
+    public String blockName;
     public ControlType control;
 
+    @NonNull
     @Override
     public String toString() {
         return "PlanElement{" +
@@ -19,22 +21,23 @@ public class PlanElement {
                 ", semester=" + semester +
                 ", lecCount=" + lecCount +
                 ", pracCount=" + pracCount +
+                ", blockName=" + blockName +
                 ", labCount=" + labCount +
                 ", control=" + control +
                 '}';
     }
 
     public enum ControlType {
-        exam("Экзамен", com.merqury.aspu.ui.navfragments.marks.ControlType.exam),
-        exam_kr("Экзамен (КР)", com.merqury.aspu.ui.navfragments.marks.ControlType.exam),
-        cred("Зачёт", com.merqury.aspu.ui.navfragments.marks.ControlType.cred),
-        dif_cred("Дифференцированный зачёт", com.merqury.aspu.ui.navfragments.marks.ControlType.cred),
-        undefined("Не будет в сессии", com.merqury.aspu.ui.navfragments.marks.ControlType.none);
+        exam("Экзамен", com.merqury.aspu.ui.screens.marks.ControlType.exam),
+        exam_kr("Экзамен и курсовая работа", com.merqury.aspu.ui.screens.marks.ControlType.exam),
+        cred("Зачёт", com.merqury.aspu.ui.screens.marks.ControlType.cred),
+        dif_cred("Дифференцированный зачёт", com.merqury.aspu.ui.screens.marks.ControlType.cred),
+        undefined("Не будет в сессии", com.merqury.aspu.ui.screens.marks.ControlType.none);
 
         public final String label;
-        public final com.merqury.aspu.ui.navfragments.marks.ControlType type;
+        public final com.merqury.aspu.ui.screens.marks.ControlType type;
 
-        ControlType(String label, com.merqury.aspu.ui.navfragments.marks.ControlType type) {
+        ControlType(String label, com.merqury.aspu.ui.screens.marks.ControlType type) {
             this.label = label;
             this.type = type;
         }

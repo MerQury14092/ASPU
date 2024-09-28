@@ -6,9 +6,9 @@ import com.merqury.aspu.services.marks.models.MarksResponse
 import com.merqury.aspu.services.profile.EiosAuthorizedStringRequest
 import com.merqury.aspu.services.studyplan.getStudyPlan
 import com.merqury.aspu.ui.async
-import com.merqury.aspu.ui.navfragments.marks.marksContent
-import com.merqury.aspu.ui.navfragments.marks.marksLoadError
-import com.merqury.aspu.ui.navfragments.marks.plan
+import com.merqury.aspu.ui.screens.marks.marksContent
+import com.merqury.aspu.ui.screens.marks.marksLoadError
+import com.merqury.aspu.ui.screens.marks.plan
 import com.merqury.aspu.ui.navfragments.profile.profileInfo
 
 fun getMarks() {

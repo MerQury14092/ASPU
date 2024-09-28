@@ -201,7 +201,7 @@ fun execCommand(command: String) {
         "eios" -> {
             closeTerminal()
             showEiosAuthModalWindow {
-                routeTo("eios")
+                routeTo("account")
             }
         }
 

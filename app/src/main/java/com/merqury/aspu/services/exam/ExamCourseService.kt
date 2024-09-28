@@ -4,7 +4,7 @@ import com.android.volley.Request.Method
 import com.merqury.aspu.requestQueue
 import com.merqury.aspu.services.exam.models.ExamCourse
 import com.merqury.aspu.ui.async
-import com.merqury.aspu.ui.navfragments.exam.myCourses
+import com.merqury.aspu.ui.screens.exam.myCourses
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.FormBody

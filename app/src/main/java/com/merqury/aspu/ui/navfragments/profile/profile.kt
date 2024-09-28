@@ -3,7 +3,6 @@ package com.merqury.aspu.ui.navfragments.profile
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.compose.foundation.Image
-import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -27,12 +26,14 @@ import androidx.compose.ui.unit.dp
 import com.canopas.lib.showcase.IntroShowcase
 import com.merqury.aspu.R
 import com.merqury.aspu.appContext
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.services.profile.getProfileInfo
 import com.merqury.aspu.services.profile.models.ProfileInfo
 import com.merqury.aspu.ui.TitleHeader
-import com.merqury.aspu.ui.navfragments.messenger.MessengerScreen
-import com.merqury.aspu.ui.navfragments.messenger.messagesLoaded
+import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.navfragments.settings.SettingsActivity
+import com.merqury.aspu.ui.screens.messenger.MessengerScreen
+import com.merqury.aspu.ui.screens.messenger.messagesLoaded
 import com.merqury.aspu.ui.startActivity
 import com.merqury.aspu.ui.startTopBarActivity
 import com.merqury.aspu.ui.theme.color
@@ -132,6 +133,9 @@ fun ProfileScreen(header: MutableState<@Composable () -> Unit>) {
                     }
                 ) {
                     profileInfo = it
+                    AppSettings.whoIsUser = "student"
+                    AppSettings.timetableIdOwner = "GROUP"
+                    AppSettings.timetableId =it.data!!.group!!.item1!!
                 }
             }
         } else {

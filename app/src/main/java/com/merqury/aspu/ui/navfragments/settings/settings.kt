@@ -26,7 +26,6 @@ import com.merqury.aspu.enums.NewsCategoryEnum
 import com.merqury.aspu.services.appconfig.AppConfig
 import com.merqury.aspu.services.intents.sendToDevEmail
 import com.merqury.aspu.services.misc.AppSettings
-import com.merqury.aspu.services.misc.cache
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.goToScreen
@@ -34,6 +33,7 @@ import com.merqury.aspu.ui.makeToast
 import com.merqury.aspu.ui.navfragments.news.showFacultySelectModalWindow
 import com.merqury.aspu.ui.navfragments.timetable.showSelectIdModalWindow
 import com.merqury.aspu.ui.other.Terminal
+import com.merqury.aspu.ui.routeTo
 import com.merqury.aspu.ui.showSelectListDialog
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
@@ -89,6 +89,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
             SettingsChapter(
                 title = "Общие настройки",
                 buttons = listOfNotNull(
+                    if(!AppSettings.eiosLogged)
                     ClickableSettingsButton(
                         "Кто использует приложение: ${
                             when (val who = AppSettings.whoIsUser) {
@@ -97,7 +98,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                                 else -> who
                             }
                         }"
-                    ) { selectUser() },
+                    ) { selectUser() } else null,
                     ClickableSettingsButton(
                         "Начальная вкладка при входе: ${
                             when (AppSettings.initialRoute) {
@@ -135,6 +136,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                                 AppSettings.newsCategory = it.name
                             }
                         } else null,
+                    if(!AppSettings.eiosLogged)
                     ClickableSettingsButton(
                         "${
                             when (AppSettings.whoIsUser) {
@@ -155,7 +157,7 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
                             AppSettings.timetableIdOwner = it.type.uppercase()
                             selectableDisciplines.edit().clear().apply()
                         }
-                    },
+                    } else null,
                     if (AppSettings.whoIsUser == "student" && AppConfig.useTimetableConfig().canUse)
                         SwitchableSettingsPreferenceButton(
                             "Фильтрация пар",
@@ -196,7 +198,8 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
 //                        ))
 //                    },
                     ClickableSettingsButton("Очистить кэш") {
-                        cache.edit().clear().apply()
+                        appContext!!.getSharedPreferences("news-cache", Context.MODE_PRIVATE).edit()
+                            .clear().apply()
                         Toast.makeText(appContext!!, "Очищено!", Toast.LENGTH_LONG).show()
                     }
                 )
@@ -249,6 +252,19 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
 //                    }
                 )
             )
+            if(AppSettings.eiosLogged) {
+                SettingsChapter(
+                    title = "Настрйоки ЭИОС",
+                    buttons = listOf(
+                        ClickableSettingsButton(
+                            "Выйти из аккаунта"
+                        ) {
+                            AppSettings.eiosLogged = false
+                            routeTo("settings")
+                        }
+                    )
+                )
+            }
             Text(
                 "О приложении", color = SurfaceTheme.text.color,
                 modifier = Modifier.fillMaxWidth(),
@@ -271,6 +287,17 @@ fun SettingsScreen(header: MutableState<@Composable () -> Unit>) {
 //                )
 //                Spacer(modifier = Modifier.height(5.dp))
 //            }
+            Text(
+                "Версия приложения: ${appContext!!
+                    .packageManager
+                    .getPackageInfo(
+                        appContext!!.packageName,
+                        0
+                    ).versionName!!}",
+                color = SurfaceTheme.text.color,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Left
+            )
             Text(
                 "Если встретились с ошибкой, сообщите разработчику",
                 color = SurfaceTheme.text.color,

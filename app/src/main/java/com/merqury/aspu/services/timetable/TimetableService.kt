@@ -33,6 +33,7 @@ fun getTimetableByDate(
                         day.id,
                         day.owner.name,
                         day.disciplines.map {
+                            it.teacherName.fetchFullFio()
                             Discipline(
                                 it.time,
                                 it.name,

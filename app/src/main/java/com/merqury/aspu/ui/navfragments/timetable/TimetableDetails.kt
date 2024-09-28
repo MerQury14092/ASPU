@@ -1,7 +1,6 @@
 package com.merqury.aspu.ui.navfragments.timetable
 
 import androidx.compose.foundation.Image
-import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,10 +19,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.merqury.aspu.R
 import com.merqury.aspu.enums.TimetableDisciplineType
-import com.merqury.aspu.services.misc.cache
 import com.merqury.aspu.services.intents.openMapWithMarker
 import com.merqury.aspu.services.timetable.models.Discipline
 import com.merqury.aspu.services.timetable.models.getCorpsByAudience
+import com.merqury.aspu.services.timetable.teacherFioCache
+import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
@@ -107,7 +107,7 @@ private fun DisciplineDetails(discipline: Discipline) {
             ThemeDivider()
             AlignText(discipline.groupName)
             ThemeDivider()
-            AlignText(cache.getString("fio ${discipline.teacherName}", discipline.teacherName)!!)
+            AlignText(teacherFioCache.getString("fio ${discipline.teacherName}", discipline.teacherName)!!)
             ThemeDivider()
             AlignText(
                 "Подгруппа: ${

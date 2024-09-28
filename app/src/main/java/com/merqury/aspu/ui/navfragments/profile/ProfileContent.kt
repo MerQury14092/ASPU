@@ -49,12 +49,12 @@ import com.merqury.aspu.services.profile.getAvg
 import com.merqury.aspu.services.profile.getMarkStatsById
 import com.merqury.aspu.services.profile.models.Data
 import com.merqury.aspu.services.profile.models.MarkStat
+import com.merqury.aspu.services.timetable.getTodayDate
 import com.merqury.aspu.ui.bounceClick
-import com.merqury.aspu.ui.makeToast
-import com.merqury.aspu.ui.navfragments.exam.startExamScreen
-import com.merqury.aspu.ui.navfragments.marks.MarksScreen
 import com.merqury.aspu.ui.placeholder
-import com.merqury.aspu.ui.routeTo
+import com.merqury.aspu.ui.screens.exam.startExamScreen
+import com.merqury.aspu.ui.screens.marks.MarksScreen
+import com.merqury.aspu.ui.screens.studyplan.StudyPlanScreen
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.sp
 import com.merqury.aspu.ui.startTopBarActivity
@@ -369,9 +369,21 @@ fun ProfileInfo(info: Data) {
                     Divider(color = SurfaceTheme.divider.color)
                     Spacer(modifier = Modifier.size(20.dp))
                     RowSpaceEvenly {
-                        ProfileCardButton("О себе", R.drawable.user) {
-                            secretPreferences.edit().remove("exam-cookie").apply()
-                            appContext!!.makeToast("Unathorized")
+                        ProfileCardButton("Уч. план", R.drawable.study_plan) {
+                            val semester = when (getTodayDate().split(".")[1].toInt()) {
+                                in 1..6 -> 0
+                                else -> 1
+                            }
+                            appContext.startTopBarActivity {
+                                StudyPlanScreen(
+                                    planId = profileInfo!!.data!!.plan!!.item2!!.toInt(),
+                                    header = it,
+                                    startSemester = if (AppSettings.Eios.startSemester)
+                                        profileInfo!!.data!!.course!!.toInt() * 2 - semester
+                                    else
+                                        1
+                                )
+                            }
                         }
                         ProfileCardButton("Сессии", R.drawable.book_alt) {
                             appContext.startTopBarActivity {
@@ -384,7 +396,7 @@ fun ProfileInfo(info: Data) {
                                 startExamScreen()
                             else {
                                 showSimpleModalWindow {
-                                    Box(modifier = Modifier.background(SurfaceTheme.background.color)){
+                                    Box(modifier = Modifier.background(SurfaceTheme.background.color)) {
                                         Box(
                                             modifier = Modifier
                                                 .padding(20.dp)
@@ -399,28 +411,8 @@ fun ProfileInfo(info: Data) {
                         }
                     }
                     Spacer(modifier = Modifier.size(((100 - profileCardButtonSize.toDouble() * 3) / 4).vw))
-                    RowSpaceEvenly {
-                        ProfileCardButton("Портфолио", R.drawable.trophy) {
-                            secretPreferences.edit().putString("exam-cookie", "none").apply()
-                            appContext!!.makeToast("Randomized")
-                        }
-                        ProfileCardButton("Методички", R.drawable.book) {
+                    Divider(color = SurfaceTheme.divider.color)
 
-                        }
-                        ProfileCardButton("Выйти", R.drawable.back) {
-                            routeTo("settings")
-                            AppSettings.eiosLogged = false
-                            if (AppSettings.initialRoute == "account")
-                                AppSettings.initialRoute = "settings"
-                            secretPreferences.edit()
-                                .remove("username")
-                                .remove("password")
-                                .remove("authToken")
-                                .apply()
-                            profileInfo = null
-                            appContext!!.makeToast("Вы вышли!")
-                        }
-                    }
                 }
             }
         }

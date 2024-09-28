@@ -29,6 +29,7 @@ import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.openInBrowser
+import com.merqury.aspu.ui.screens.studyplan.showSelectPlanWindow
 import com.merqury.aspu.ui.showWebPage
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
@@ -150,11 +151,12 @@ fun OtherScreenContent() {
                     R.drawable.pedagogs,
                     "www.agpu.net/sveden/employees/index.php"
                 ),
-                WebEntry(
+                ActionEntry(
                     "Учебный план",
-                    R.drawable.study_plan,
-                    "plany.agpu.net/Plans/"
-                ),
+                    R.drawable.study_plan
+                ) {
+                    showSelectPlanWindow()
+                },
 //                if (AppSettings.whoIsUser == "student")
 //                    ActionEntry(
 //                        "Аккаунт ЭИОС",
@@ -203,7 +205,7 @@ fun OtherScreenContent() {
                     "vnd.youtube"
                 ),
             ).forEach {
-//                if (it is WebEntry) {
+                if (it is WebEntry) {
                     ActionButton(
                         name = it.name,
                         icon = it.icon
@@ -216,9 +218,9 @@ fun OtherScreenContent() {
                         else
                             openInBrowser(it.url, it.scheme)
                     }
-//                } else if (it is ActionEntry) {
-//                    ActionButton(name = it.name, icon = it.icon, action = it.action)
-//                }
+                } else if (it is ActionEntry) {
+                    ActionButton(name = it.name, icon = it.icon, action = it.action)
+                }
             }
         }
     }
