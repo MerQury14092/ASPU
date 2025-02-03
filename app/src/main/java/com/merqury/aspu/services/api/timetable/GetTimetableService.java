@@ -84,7 +84,7 @@ public class GetTimetableService {
         String ownerString = capitalize(owner.name().toLowerCase());
         @SuppressLint("DefaultLocale") URL url1 = new URL(
                 String.format(
-                        "http://www.it-institut.ru/Raspisanie/SearchedRaspisanie?OwnerId=118&SearchId=%d&SearchString=%s&Type=%s&WeekId=%d",
+                        "http://it-institut.ru/Raspisanie/SearchedRaspisanie?OwnerId=118&SearchId=%d&SearchString=%s&Type=%s&WeekId=%d",
                         searchId,
                         URLEncoder.encode(searchText, "UTF-8"),
                         ownerString,

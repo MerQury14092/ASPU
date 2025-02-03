@@ -3,6 +3,7 @@ package com.merqury.aspu.services.marks.models
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -19,6 +20,7 @@ data class MarksResponse (
     companion object {
         fun fromJson(json: String) = mapper.readValue<MarksResponse>(json)
         val mapper = jacksonObjectMapper().apply {
+            disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             propertyNamingStrategy = PropertyNamingStrategy.LOWER_CAMEL_CASE
             setSerializationInclusion(JsonInclude.Include.NON_NULL)
         }

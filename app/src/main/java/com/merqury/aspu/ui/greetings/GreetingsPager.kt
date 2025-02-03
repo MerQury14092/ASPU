@@ -39,6 +39,7 @@ import com.merqury.aspu.MainActivity
 import com.merqury.aspu.requestQueue
 import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.ui.ColorizeAppBars
+import com.merqury.aspu.ui.contentList
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 import kotlinx.coroutines.CoroutineScope
@@ -46,13 +47,18 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 internal val pagerState = PagerState { 5 }
+var greetingsPagerActivity: ComponentActivity? = null
 
 class GreetingsPager : ComponentActivity() {
     @OptIn(ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        greetingsPagerActivity = this
         requestQueue = Volley.newRequestQueue(this)
         setContent {
+            contentList.forEach {
+                it()
+            }
             ColorizeAppBars(window = window, SurfaceTheme.background.color)
             val coroutineScope = rememberCoroutineScope()
             Scaffold(

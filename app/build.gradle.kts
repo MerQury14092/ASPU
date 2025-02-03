@@ -12,8 +12,8 @@ android {
     defaultConfig {
         applicationId = "com.merqury.aspu"
         minSdk = 28
-        versionCode = 21
-        versionName = "2.1.1"
+        versionCode = 22
+        versionName = "2.1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -47,7 +47,10 @@ android {
     }
 }
 
+
 dependencies {
+    implementation("tech.utsmankece:osm-android-compose:0.0.5")
+    implementation("org.osmdroid:osmdroid-android:6.1.16")
     implementation("com.github.raheemadamboev:check-internet-android:1.1.1")
     implementation("com.canopas.intro-showcase-view:introshowcaseview:2.0.1")
     implementation("androidx.navigation:navigation-compose:2.7.7")

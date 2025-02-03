@@ -11,7 +11,7 @@ import com.merqury.aspu.ui.showWebPage
 @OptIn(ExperimentalFoundationApi::class)
 fun showTimetableWebPageView() {
     getSearchId(TimetableStates.timetableId) { id, type ->
-        val url = "www.it-institut.ru/Raspisanie/SearchedRaspisanie?" +
+        val url = "it-institut.ru/Raspisanie/SearchedRaspisanie?" +
                 "OwnerId=118&" +
                 "SearchId=$id&" +
                 "SearchString=${TimetableStates.timetableId}&" +

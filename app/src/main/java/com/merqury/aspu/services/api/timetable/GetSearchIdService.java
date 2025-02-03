@@ -1,5 +1,7 @@
 package com.merqury.aspu.services.api.timetable;
 
+import static com.merqury.aspu.services.timetable.TimetableIdServiceKt.checkFirstLetter;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.merqury.aspu.services.api.timetable.models.Groups;
 import com.merqury.aspu.services.api.timetable.models.SearchProduct;
@@ -32,14 +34,14 @@ public class GetSearchIdService {
 
     public GetSearchIdService(){
         this.jsonConverter = new ObjectMapper();
-        url = "http://www.it-institut.ru/SearchString/KeySearch?Id=118&SearchProductName=%s";
-        urlToMainPage = "http://www.it-institut.ru/SearchString/Index/118";
+        url = "http://it-institut.ru/SearchString/KeySearch?Id=118&SearchProductName=%s";
+        urlToMainPage = "http://it-institut.ru/SearchString/Index/118";
     }
 
     public int getSearchId(String searchText, TimetableOwner owner){
 
         switch (owner) {
-            case GROUP : return getSearchIdByType(searchText, "Group");
+            case GROUP : return getSearchIdByType(checkFirstLetter(searchText), "Group");
             case TEACHER : return getSearchIdByType(searchText, "Teacher");
             case CLASSROOM : return getSearchIdByType(searchText, "Classroom");
         }

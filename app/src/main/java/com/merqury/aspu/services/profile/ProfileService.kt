@@ -4,6 +4,7 @@ import com.android.volley.toolbox.StringRequest
 import com.merqury.aspu.requestQueue
 import com.merqury.aspu.services.profile.models.ProfileInfo
 import com.merqury.aspu.ui.async
+import com.merqury.aspu.ui.printlog
 
 fun getProfileInfo(
     token: String,
@@ -12,15 +13,21 @@ fun getProfileInfo(
     onResult: (info: ProfileInfo) -> Unit
 ){
     val url = "http://plany.agpu.net/api/UserInfo/Student?studentID=$id"
+    printlog("loading")
     val request = object: StringRequest(
         Method.GET,
         url,
         {
             async {
-                onResult(ProfileInfo.fromJson(it))
+                try {
+                    onResult(ProfileInfo.fromJson(it))
+                } catch (e: Exception) {
+                    printlog("error: $e");
+                }
             }
         },
         {
+            printlog("err")
             reauthorization(onClosure)
         }
     ){

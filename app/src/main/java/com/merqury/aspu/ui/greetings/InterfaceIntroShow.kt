@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.merqury.aspu.R
+import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.ThemeText
@@ -38,51 +39,66 @@ fun InterfaceIntroShow(onFinish: () -> Unit) {
         ) {
             Image(painter = painterResource(id = R.drawable.aspu), contentDescription = null)
             Spacer(modifier = Modifier.size(50.dp))
-            ThemeText(
-                text = "Обзор интерфейса",
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                fontSize = 30.sp
-            )
-            Spacer(modifier = Modifier.size(20.dp))
-            ThemeText(
-                text = "Хотите ли вы, чтобы приложение показало и рассказало вам о функциональности " +
-                        "некоторых кнопок в приложении?",
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Box(
-                    modifier = Modifier
-                        .padding(5.dp)
-                        .bounceClick {
-                            onFinish()
-                        }
-                        .background(SurfaceTheme.button.color, RoundedCornerShape(10.dp))
-                        .padding(10.dp)
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
+            if(AppSettings.timetableId != "timetable_id") {
+                ThemeText(
+                    text = "Обзор интерфейса",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    fontSize = 30.sp
+                )
+                Spacer(modifier = Modifier.size(20.dp))
+                ThemeText(
+                    text = "Хотите ли вы, чтобы приложение показало и рассказало вам о функциональности " +
+                            "некоторых кнопок в приложении?",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    ThemeText(text = "Нет")
+                    Box(
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .bounceClick {
+                                onFinish()
+                            }
+                            .background(SurfaceTheme.button.color, RoundedCornerShape(10.dp))
+                            .padding(10.dp)
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        ThemeText(text = "Нет")
+                    }
+                    Box(
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .bounceClick {
+                                TrainingStates.isTraining = true
+                                TrainingStates.newsNavItem = true
+                                onFinish()
+                            }
+                            .background(SurfaceTheme.button.color, RoundedCornerShape(10.dp))
+                            .padding(10.dp)
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        ThemeText(text = "Да")
+                    }
                 }
-                Box(
-                    modifier = Modifier
-                        .padding(5.dp)
-                        .bounceClick {
-                            TrainingStates.isTraining = true
-                            TrainingStates.newsNavItem = true
-                            onFinish()
-                        }
-                        .background(SurfaceTheme.button.color, RoundedCornerShape(10.dp))
-                        .padding(10.dp)
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    ThemeText(text = "Да")
-                }
+            } else {
+                ThemeText(
+                    text = "Заполните все данные!",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    fontSize = 30.sp
+                )
+                Spacer(modifier = Modifier.size(20.dp))
+                ThemeText(
+                    text = "Перед тем как зайти в приложение, пожалуйста, укажите кто вы или вашу группу",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }

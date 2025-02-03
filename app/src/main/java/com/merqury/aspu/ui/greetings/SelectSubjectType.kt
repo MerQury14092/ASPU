@@ -54,8 +54,9 @@ fun SelectSubjectType() {
                 Box(
                     modifier = Modifier
                         .bounceClick {
+                            if(AppSettings.eiosLogged)
+                                return@bounceClick
                             AppSettings.whoIsUser = "student"
-                            AppSettings.timetableId = "ВМ-ИВТ-3-1"
                             AppSettings.timetableIdOwner = "GROUP"
                         }
                         .padding(10.dp)
@@ -102,8 +103,9 @@ fun SelectSubjectType() {
                 Box(
                     modifier = Modifier
                         .bounceClick {
+                            if(AppSettings.eiosLogged)
+                                return@bounceClick
                             AppSettings.whoIsUser = "teacher"
-                            AppSettings.timetableId = "Нижник Е.А."
                             AppSettings.timetableIdOwner = "TEACHER"
                         }
                         .padding(10.dp)

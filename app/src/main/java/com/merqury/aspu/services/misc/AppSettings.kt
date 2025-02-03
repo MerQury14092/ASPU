@@ -48,7 +48,7 @@ class AppSettings {
         var whoIsUser by PermanentMutableState("user", "student")
         var initialRoute by PermanentMutableState("initial_route", "news")
         var newsCategory by PermanentMutableState("news_category", "agpu")
-        var timetableId by PermanentMutableState("timetable_id", "ВМ-ИВТ-2-1")
+        var timetableId by PermanentMutableState("timetable_id", "timetable_id")
         var timetableIdOwner by PermanentMutableState("timetable_id_owner", "GROUP")
         var timeCache by PermanentMutableState("timeCache", 0L)
         var timetableFiltration by PermanentMutableState("filtration_on", false)

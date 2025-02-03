@@ -16,6 +16,7 @@ import okhttp3.Response
 import java.io.IOException
 import kotlin.random.Random
 import kotlin.system.exitProcess
+import android.util.Log
 
 class ExceptionHandler(appContext: Context) : Thread.UncaughtExceptionHandler {
     private val mapper = ObjectMapper()
@@ -31,6 +32,7 @@ class ExceptionHandler(appContext: Context) : Thread.UncaughtExceptionHandler {
         preferences.edit()
             .putString(id, mapper.writeValueAsString(exception)).commit()
         printlog("caught exception: ${preferences.getString(id, "")}")
+        Log.e("fatal", "", exception)
         exitProcess(1)
     }
 

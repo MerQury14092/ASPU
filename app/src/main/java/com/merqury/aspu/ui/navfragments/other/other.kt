@@ -25,12 +25,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.canopas.lib.showcase.IntroShowcase
 import com.merqury.aspu.R
+import com.merqury.aspu.appContext
+import com.merqury.aspu.services.appconfig.AppConfig
 import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.ui.TitleHeader
 import com.merqury.aspu.ui.bounceClick
+import com.merqury.aspu.ui.navfragments.profile.showEiosAuthModalWindow
 import com.merqury.aspu.ui.openInBrowser
+import com.merqury.aspu.ui.screens.campus.CampusScreen
 import com.merqury.aspu.ui.screens.studyplan.showSelectPlanWindow
 import com.merqury.aspu.ui.showWebPage
+import com.merqury.aspu.ui.startTopBarActivity
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
 import com.merqury.aspu.ui.training.TrainingStates
@@ -136,11 +141,14 @@ fun OtherScreenContent() {
                     R.drawable.faculty,
                     "www.agpu.net/struktura-vuza/faculties-institutes/index.php"
                 ),
-                WebEntry(
+                ActionEntry(
                     "Кампус и общежития",
-                    R.drawable.campuses,
-                    "www.agpu.net/studentu/obshchezhitiya/index.php"
-                ),
+                    R.drawable.campuses
+                ) {
+                    appContext.startTopBarActivity {
+                        CampusScreen(header = it)
+                    }
+                },
                 WebEntry(
                     "Календарь мероприятий",
                     R.drawable.calendar,
@@ -157,16 +165,16 @@ fun OtherScreenContent() {
                 ) {
                     showSelectPlanWindow()
                 },
-//                if (AppSettings.whoIsUser == "student")
-//                    ActionEntry(
-//                        "Аккаунт ЭИОС",
-//                        R.drawable.account
-//                    ) {
-//                        showEiosAuthModalWindow {
-//                            TrainingStates.isTraining = true
-//                            TrainingStates.accountNavItem = true
-//                        }
-//                    } else null,
+                if (AppSettings.whoIsUser == "student" && AppConfig.useEiosConfig().canUse && !AppSettings.eiosLogged)
+                    ActionEntry(
+                        "Аккаунт ЭИОС (только для студентов)",
+                        R.drawable.account
+                    ) {
+                        showEiosAuthModalWindow {
+                            TrainingStates.isTraining = true
+                            TrainingStates.accountNavItem = true
+                        }
+                    } else null,
                 WebEntry(
                     "Рабочие программы",
                     R.drawable.programs,

@@ -25,7 +25,7 @@ fun getSearchResults(
     success: MutableState<Boolean>
 ) {
     getSearchResults(
-        query,
+        checkFirstLetter(query),
         {
             success.value = false
         }
@@ -35,12 +35,29 @@ fun getSearchResults(
     }
 }
 
+/* на сайте в названиях групп, где первая буква должна значит Bachelors
+* она почему то русская, но при входе в аккаунт ЭИОС, название
+* устанавливается правильно, данный метод вызывается перед каждым запросом на
+* расписание, чтобы исправить правильное название на то, что нужно it-institut*/
+fun checkFirstLetter(query: String): String {
+    if (Regex(".*-\\d+-\\d+").matches(query)) {
+        return when (query[0]) {
+            'B' -> "В${query.substring(1)}"
+            'M' -> "М${query.substring(1)}"
+            'A' -> "А${query.substring(1)}"
+            'D' -> "Д${query.substring(1)}"
+            else -> query
+        }
+    }
+    return query
+}
+
 fun getSearchResults(
     query: String,
     onError: (String) -> Unit,
     onSuccess: (SearchContent) -> Unit
 ) {
-    val url = "https://www.it-institut.ru/SearchString/KeySearch?Id=118&SearchProductName=$query"
+    val url = "https://it-institut.ru/SearchString/KeySearch?Id=118&SearchProductName=${checkFirstLetter(query)}"
     val request = StringRequest(
         Request.Method.GET,
         url,
@@ -64,9 +81,9 @@ fun getSearchResults(
 fun getSearchId(query: String, onLoaded: (resultId: Long, resultType: String) -> Unit) {
     async {
         val resp = URI(
-            "https://www.it-institut.ru/SearchString/KeySearch?Id=118&SearchProductName=${
+            "https://it-institut.ru/SearchString/KeySearch?Id=118&SearchProductName=${
                 URLEncoder.encode(
-                    query,
+                    checkFirstLetter(query),
                     "utf-8"
                 )
             }"
@@ -94,7 +111,7 @@ fun getFacultiesAndThemGroups(
     async {
         try {
             val connection: HttpURLConnection =
-                URL("http://www.it-institut.ru/SearchString/Index/118").openConnection() as HttpURLConnection
+                URL("http://it-institut.ru/SearchString/Index/118").openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
             val sc = Scanner(Objects.requireNonNull(connection.inputStream))
 
