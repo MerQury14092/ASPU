@@ -17,7 +17,7 @@ fun sendMessage(
     usersToId: List<FioSearchElement>,
     files: List<FileModel> = listOf()
 ) {
-    val url = "http://plany.agpu.net/api/Mail/InboxMail"
+    val url = "http://eios.agpu.net/api/Mail/InboxMail"
     val request = object : EiosAuthorizedStringRequest(
         Method.POST,
         url,

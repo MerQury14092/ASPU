@@ -14,7 +14,7 @@ fun getMarkStatsById(
     onError: () -> Unit = {},
     onResult: (MarkStat) -> Unit
 ){
-    val url = "http://plany.agpu.net/api/EducationalActivity/StatisticsMarksCount?studentID=$id"
+    val url = "http://eios.agpu.net/api/EducationalActivity/StatisticsMarksCount?studentID=$id"
     val request = object: StringRequest(
         Method.GET,
         url,

@@ -15,7 +15,7 @@ fun getStudyPlan(
 ) {
     requestQueue!!.add(StringRequest(
         Request.Method.GET,
-        "http://plany.agpu.net/Plans/Plan.aspx?id=$planId",
+        "http://eios.agpu.net/Plans/Plan.aspx?id=$planId",
         {
             onSuccess(parseStudyPlan(it))
         },
@@ -32,7 +32,7 @@ fun getStudyPlanIdByGroup(group: String) {
 private fun getStudyPlanIdByPlanName(planName: String, callback: (Int?) -> Unit) {
     requestQueue!!.add(object : StringRequest(
         Method.POST,
-        "http://plany.agpu.net/Plans/",
+        "http://eios.agpu.net/Plans/",
         {
             val regex = Regex("Plan\\.aspx\\?id=\\d*")
             val result = regex.find(it)
@@ -59,7 +59,7 @@ private fun getStudyPlanIdByPlanName(planName: String, callback: (Int?) -> Unit)
 fun getStudyPlanNameByGroup(group: String, callback: (String?) -> Unit) {
     requestQueue!!.add(object : StringRequest(
         Method.POST,
-        "http://plany.agpu.net/Totals/Default.aspx",
+        "http://eios.agpu.net/Totals/Default.aspx",
         {
             val regex = Regex("[0-9\\-A-Za-zа-яА-Я]*\\.plx")
             val result = regex.find(it)

@@ -106,6 +106,7 @@ val onASPUButtonLongClick: MutableState<() -> Unit> = mutableStateOf({
         }
 
         "timetable" -> {
+//            shareTimetable()
         }
 
         "settings" -> {

@@ -1,5 +1,6 @@
 package com.merqury.aspu.ui.navfragments.news
 
+import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +19,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.LinearProgressIndicator
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,21 +35,35 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import coil.compose.SubcomposeAsyncImage
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
+import com.merqury.aspu.appContext
 import com.merqury.aspu.services.api.news.models.FullArticle
 import com.merqury.aspu.services.news.getNewsArticle
 import com.merqury.aspu.ui.ModalWindow
 import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.navfragments.news.NewsStates.selectedFaculty
 import com.merqury.aspu.ui.navfragments.timetable.prettyDate
+import com.merqury.aspu.ui.printlog
 import com.merqury.aspu.ui.showSimpleModalWindow
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.engawapg.lib.zoomable.rememberZoomState
 import net.engawapg.lib.zoomable.zoomable
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.io.File
+import java.io.FileOutputStream
+
+var previewOfCurrentArticle: NewsPreview? = null
+private var shareLoading by mutableStateOf(false)
 
 @Composable
 fun ArticleView() {
@@ -55,6 +71,7 @@ fun ArticleView() {
         modifier = Modifier
             .fillMaxSize(.95f),
         onDismiss = {
+            previewOfCurrentArticle = null
             showArticleView.value = false
         },
         background = SurfaceTheme.background.color
@@ -127,12 +144,38 @@ private fun ArticleViewContent(article: FullArticle) {
                 fontStyle = FontStyle.Italic,
                 color = SurfaceTheme.text.color
             )
-            Text(
-                text = prettyDate(article.date),
+            Spacer(modifier = Modifier.size(10.dp))
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.End,
-                color = SurfaceTheme.text.color
-            )
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if(previewOfCurrentArticle != null){
+                    Box(modifier = Modifier
+                        .bounceClick {
+                            share(article.url)
+                        }
+                        .background(SurfaceTheme.button.color, RoundedCornerShape(20.dp))
+                        .padding(10.dp)
+                    ) {
+                        if(shareLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                color = SurfaceTheme.text.color
+                            )
+                        } else {
+                            Text(text = "Поделиться", color = SurfaceTheme.text.color)
+                        }
+                    }
+                } else {
+                    Spacer(modifier = Modifier.size(10.dp))
+                }
+                Text(
+                    text = prettyDate(article.date),
+                    color = SurfaceTheme.text.color
+                )
+            }
+            Spacer(modifier = Modifier.size(10.dp))
             Divider(color = SurfaceTheme.divider.color)
             Text(
                 modifier = Modifier.fillMaxWidth(),
@@ -266,6 +309,48 @@ private fun ArticleViewContentLoadingPlaceholder() {
                     color = SurfaceTheme.text.color
                 )
             }
+        }
+    }
+}
+
+@OptIn(DelicateCoroutinesApi::class)
+private fun share(url: String) {
+    val model = previewOfCurrentArticle!!
+    GlobalScope.launch(Dispatchers.IO) {
+        try {
+            shareLoading = true
+            val client = OkHttpClient()
+            val request = Request.Builder().url(model.imageUrl).build()
+            val response = client.newCall(request).execute()
+            if (!response.isSuccessful) throw Exception("Не удалось загрузить изображение")
+
+            val cachePath = File(appContext?.cacheDir, "images")
+            cachePath.mkdirs()
+            val file = File(cachePath, "news_artice_${model.id}.jpg")
+            FileOutputStream(file).use { out ->
+                response.body?.byteStream()?.copyTo(out)
+            }
+
+            val imageUri = FileProvider.getUriForFile(
+                appContext!!,
+                "com.merqury.aspu",
+                file
+            )
+
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "image/jpeg"
+                putExtra(Intent.EXTRA_STREAM, imageUri)
+                putExtra(Intent.EXTRA_TEXT, "${model.title}\n\n$url")
+                putExtra(Intent.EXTRA_SUBJECT, "Поделиться изображением")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            shareLoading = false
+            launch(Dispatchers.Main) {
+                appContext?.startActivity(Intent.createChooser(shareIntent, "Поделиться через"))
+            }
+        } catch (e: Exception) {
+            printlog("Error while sharing news article: ${e}")
+            shareLoading = false
         }
     }
 }

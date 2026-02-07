@@ -33,7 +33,7 @@ interface EiosApiService {
 
 fun sendFileToEiosMessage(messageID: Long, fileModel: FileModel) {
     val retrofit = Retrofit.Builder()
-        .baseUrl("http://plany.agpu.net/api/Mail/")
+        .baseUrl("http://eios.agpu.net/api/Mail/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 

@@ -1,7 +1,6 @@
 package com.merqury.aspu.ui.navfragments.news
 
 import androidx.compose.foundation.Image
-import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +24,7 @@ import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.R
+import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.navfragments.timetable.prettyDate
 import com.merqury.aspu.ui.theme.SurfaceTheme
 import com.merqury.aspu.ui.theme.color
@@ -41,6 +41,9 @@ fun NewsItem(title: String, date: String, imageUrl: String, id: Int) {
 //                shape = RoundedCornerShape(15.dp)
 //            )
             .bounceClick {
+                previewOfCurrentArticle = NewsPreview(
+                    title, date, imageUrl, id
+                )
                 clickedArticleId.intValue = id
                 showArticleView.value = true
             },

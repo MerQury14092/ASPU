@@ -284,7 +284,7 @@ fun SendMessageScreen(header: MutableState<@Composable () -> Unit>, onBack: () -
                         .bounceClick {
                             FileOpener.open(
                                 appContext!!,
-                                "http://plany.agpu.net${it.fileName}"
+                                "http://eios.agpu.net${it.fileName}"
                             )
                         },
                     contentAlignment = Alignment.Center

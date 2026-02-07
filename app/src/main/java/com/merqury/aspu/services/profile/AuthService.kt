@@ -51,7 +51,7 @@ fun getAuthToken(
     onSuccess: (token: String, id: Int) -> Unit,
     onError: (msg: String) -> Unit
 ) {
-    val url = "http://plany.agpu.net/api/tokenauth"
+    val url = "http://eios.agpu.net/api/tokenauth"
     val request = object : StringRequest(
         Method.POST,
         url,

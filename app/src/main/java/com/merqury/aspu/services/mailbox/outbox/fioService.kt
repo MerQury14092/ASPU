@@ -9,7 +9,7 @@ import com.merqury.aspu.services.profile.EiosAuthorizedStringRequest
 
 fun getFioStudent(q: String, onSuccess: (List<FioSearchElement>) -> Unit){
     requestQueue!!.cancelAll("fiorequest")
-    val url = "http://plany.agpu.net/api/Mail/Find/Students?fio=$q"
+    val url = "http://eios.agpu.net/api/Mail/Find/Students?fio=$q"
     val request = EiosAuthorizedStringRequest(
         Request.Method.GET,
         url,
@@ -27,7 +27,7 @@ fun getFioStudent(q: String, onSuccess: (List<FioSearchElement>) -> Unit){
 
 fun getFioPrepod(q: String, onSuccess: (List<FioSearchElement>) -> Unit){
     requestQueue!!.cancelAll("fiorequest")
-    val url = "http://plany.agpu.net/api/Mail/Find/Prepods?fio=$q"
+    val url = "http://eios.agpu.net/api/Mail/Find/Prepods?fio=$q"
     val request = EiosAuthorizedStringRequest(
         Request.Method.GET,
         url,

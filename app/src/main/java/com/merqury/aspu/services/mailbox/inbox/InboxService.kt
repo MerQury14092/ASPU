@@ -14,7 +14,7 @@ fun getInbox(
 ) {
     requestQueue!!.cancelAll("getinbox")
     val url =
-        "http://plany.agpu.net/api/Mail/InboxMail?type=${inboxType.type}&pageEl=10000&unreadMessages=false&searchQuery=&modeParent=0"
+        "http://eios.agpu.net/api/Mail/InboxMail?type=${inboxType.type}&pageEl=10000&unreadMessages=false&searchQuery=&modeParent=0"
     val request = EiosAuthorizedStringRequest(
         Request.Method.GET,
         url,

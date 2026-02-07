@@ -30,11 +30,11 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class GetNewsService {
-    private static final String hostSite = "http://agpu.net";
+    private static final String hostSite = "https://agpu.net";
     private static final String faculty_header = "faculties/";
     private static final String urlForEverything = hostSite + "/struktura-vuza/%s/news/news.php?PAGEN_1=%d";
     private static final String urlForArticle = hostSite + "/struktura-vuza/%s/news/news.php?ELEMENT_ID=%d";
-    private final static String urlAgpuNews = "http://agpu.net/news.php";
+    private final static String urlAgpuNews = "https://agpu.net/news.php";
     private final static List<String> nonStandardCategories;
     private final static GetNewsService instance;
     static {
@@ -82,12 +82,15 @@ public class GetNewsService {
 
     public FullArticle getArticleById(String faculty, int id) throws IOException {
         faculty = convertFaculty(faculty);
+        String url;
         Document doc;
         if (faculty.equals("agpu")) {
             doc = Jsoup.parse(new URL(urlAgpuNews + "?ELEMENT_ID=" + id), 5000);
+            url = urlAgpuNews + "?ELEMENT_ID=" + id;
         } else {
             try {
                 doc = Jsoup.parse(new URL(String.format(urlForArticle, nonStandardCategories.contains(faculty) ? faculty : faculty_header + faculty, id)), 5000);
+                url = String.format(urlForArticle, nonStandardCategories.contains(faculty) ? faculty : faculty_header + faculty, id);
             } catch (HttpStatusException e) {
                 FullArticle err = new FullArticle();
                 err.setTitle("Article not found");
@@ -95,7 +98,9 @@ public class GetNewsService {
             }
         }
         try {
-            return parseArticlePage(Objects.requireNonNull(doc.getElementsByClass(/*"col-md-9 md-padding main-content"*/"mb-3").first()), id);
+            FullArticle result = parseArticlePage(Objects.requireNonNull(doc.getElementsByClass(/*"col-md-9 md-padding main-content"*/"mb-3").first()), id, url);
+            result.faculty = faculty;
+            return result;
         } catch (Exception e) {
             FullArticle err = new FullArticle();
             err.setTitle("Article not found");
@@ -182,9 +187,10 @@ public class GetNewsService {
         return query_pairs;
     }
 
-    private FullArticle parseArticlePage(Element element, int id) {
+    private FullArticle parseArticlePage(Element element, int id, String url) {
         Element el = element.getElementsByClass("news-detail-body").first();
         FullArticle res = new FullArticle();
+        res.url = url;
         assert el != null;
         res.setDate(
                 Objects.requireNonNull(element.getElementsByClass("news-detail-date")

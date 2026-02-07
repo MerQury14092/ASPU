@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-02-03T02:24:05.683454585Z">
+        <DropdownSelection timestamp="2025-09-17T21:31:10.384314739Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=/home/merqury/.android/avd/Medium_Phone_API_35.avd" />

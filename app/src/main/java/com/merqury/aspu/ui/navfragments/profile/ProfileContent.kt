@@ -122,7 +122,7 @@ fun ProfileInfo(info: Data) {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             AsyncImage(
-                                model = "http://plany.agpu.net${photoLink ?: ""}",
+                                model = "http://eios.agpu.net${photoLink ?: ""}",
                                 contentDescription = null,
                                 placeholder = painterResource(id = R.drawable.man),
                                 modifier = Modifier

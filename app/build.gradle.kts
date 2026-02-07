@@ -12,8 +12,8 @@ android {
     defaultConfig {
         applicationId = "com.merqury.aspu"
         minSdk = 28
-        versionCode = 22
-        versionName = "2.1.2"
+        versionCode = 26
+        versionName = "3.0.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

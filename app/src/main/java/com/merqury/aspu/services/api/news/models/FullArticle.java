@@ -6,6 +6,9 @@ import java.util.List;
 public class FullArticle extends Article{
     List<String> images;
 
+    public String url;
+    public String faculty;
+
     public FullArticle(){
         images = new ArrayList<>();
     }

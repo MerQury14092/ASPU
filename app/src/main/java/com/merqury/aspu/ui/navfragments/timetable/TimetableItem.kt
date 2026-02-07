@@ -1,6 +1,5 @@
 package com.merqury.aspu.ui.navfragments.timetable
 
-import com.merqury.aspu.ui.bounceClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +26,7 @@ import com.google.accompanist.placeholder.shimmer
 import com.merqury.aspu.enums.TimetableDisciplineType
 import com.merqury.aspu.services.misc.AppSettings
 import com.merqury.aspu.services.timetable.models.Discipline
+import com.merqury.aspu.ui.bounceClick
 import com.merqury.aspu.ui.navfragments.timetable.TimetableStates.timetableId
 import com.merqury.aspu.ui.navfragments.timetable.TimetableStates.timetableIdOwner
 import com.merqury.aspu.ui.theme.SurfaceTheme

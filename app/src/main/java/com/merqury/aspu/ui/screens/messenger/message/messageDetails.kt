@@ -247,7 +247,7 @@ fun MessageDetailsScreen(
                     ){
                         FileOpener.open(
                             appContext!!,
-                            "http://plany.agpu.net${it.path}"
+                            "http://eios.agpu.net${it.path}"
                         )
                     }
                     Spacer(modifier = Modifier.size(10.dp))

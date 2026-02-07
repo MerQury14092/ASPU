@@ -12,7 +12,7 @@ import com.merqury.aspu.ui.screens.marks.plan
 import com.merqury.aspu.ui.navfragments.profile.profileInfo
 
 fun getMarks() {
-    val url = "http://plany.agpu.net/api/EducationalActivity/ZachBook?studentID=undefined"
+    val url = "http://eios.agpu.net/api/EducationalActivity/ZachBook?studentID=undefined"
     val request = EiosAuthorizedStringRequest(
         Method.GET,
         url,

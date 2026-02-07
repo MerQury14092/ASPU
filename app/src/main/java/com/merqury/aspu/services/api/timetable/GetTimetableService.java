@@ -3,6 +3,7 @@ package com.merqury.aspu.services.api.timetable;
 import static com.merqury.aspu.ui.DebugKt.printlog;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 
 import com.merqury.aspu.services.api.timetable.models.Discipline;
 import com.merqury.aspu.services.api.timetable.models.TimetableDay;
@@ -234,7 +235,7 @@ public class GetTimetableService {
     private void parseDay(Element el, TimetableDay day, Integer[] col) { // сюда приходит тег tr
         Element nameOfClass = el.getElementsByTag("th").first();
         Elements disciplines = el.getElementsByTag("td");
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < disciplines.size(); i++) {
             assert nameOfClass != null;
             parseDiscipline(disciplines.get(i), day, nameOfClass.html().split("\n")[1]);
         }

@@ -12,7 +12,7 @@ fun getProfileInfo(
     onClosure: () -> Unit = {},
     onResult: (info: ProfileInfo) -> Unit
 ){
-    val url = "http://plany.agpu.net/api/UserInfo/Student?studentID=$id"
+    val url = "http://eios.agpu.net/api/UserInfo/Student?studentID=$id"
     printlog("loading")
     val request = object: StringRequest(
         Method.GET,

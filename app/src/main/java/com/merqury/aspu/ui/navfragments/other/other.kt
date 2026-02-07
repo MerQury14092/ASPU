@@ -178,11 +178,11 @@ fun OtherScreenContent() {
                 WebEntry(
                     "Рабочие программы",
                     R.drawable.programs,
-                    "plany.agpu.net/programmy/"
+                    "eios.agpu.net/programmy/"
                 ),
 //                Entry("Методические материалы",
 //                    R.drawable.book_alt,
-//                    "plany.agpu.net/programmy/"
+//                    "eios.agpu.net/programmy/"
 //                ),
                 WebEntry(
                     "Часто задаваемые вопросы",

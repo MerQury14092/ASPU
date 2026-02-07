@@ -10,7 +10,7 @@ import com.merqury.aspu.services.mailbox.inbox.models.MessageUpdateAction
 import com.merqury.aspu.services.profile.EiosAuthorizedStringRequest
 
 fun updateMessage(message: MessageElement){
-    val url = "http://plany.agpu.net/api/Mail/InboxMail/${message.id}"
+    val url = "http://eios.agpu.net/api/Mail/InboxMail/${message.id}"
     val request = object: EiosAuthorizedStringRequest(
         Request.Method.PUT,
         url,
@@ -51,7 +51,7 @@ fun trashMessage(message: MessageElement){
 }
 
 fun doMessageAction(message: MessageElement, actionType: ActionType){
-    val url = "http://plany.agpu.net/api/Mail/typeMail"
+    val url = "http://eios.agpu.net/api/Mail/typeMail"
     val json = MessageUpdateAction(
         actionTypeID = actionType.id,
         selectedFolderID = message.folderID,
